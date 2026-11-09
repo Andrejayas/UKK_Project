@@ -1,0 +1,21 @@
+{
+  "name": "todo-list-website",
+  "version": "1.0.0",
+  "description": "Project UKK Asisten Pemrogram Junior - To-Do List Website",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "keywords": [
+    "todo-list",
+    "ukk",
+    "javascript-junior"
+  ],
+  "author": "Andrean Rayhan Wijaya",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^10.14.0",
+    "globals": "^17.14.0"
+  }
+}

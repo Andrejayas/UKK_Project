@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Aplikasi To-Do List interaktif untuk Uji Kompetensi Keahlian (UKK) Asisten Pemrogram Junior">
+  <title>To-Do List</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <h1>To-Do List</h1>
+      <p class="subtitle">Kelola tugas harian Anda dengan mudah dan rapi</p>
+    </header>
+
+    <main class="app-main">
+      <!-- Form Input Task -->
+      <section class="card input-section">
+        <form id="taskForm" class="task-form" novalidate>
+          <div class="input-group">
+            <input 
+              type="text" 
+              id="taskInput" 
+              class="task-input" 
+              placeholder="Ketik judul tugas baru di sini..." 
+              autocomplete="off"
+            >
+            <button type="submit" id="addBtn" class="btn btn-primary">
+              <span class="btn-icon">+</span> Tambah
+            </button>
+          </div>
+          <!-- Area Pesan Error Validasi -->
+          <div id="errorMessage" class="error-message" role="alert" aria-live="polite"></div>
+        </form>
+      </section>
+
+      <!-- Bagian Filter Status -->
+      <section class="filter-section">
+        <div class="filter-group" role="tablist" aria-label="Filter status tugas">
+          <button type="button" class="filter-btn active" data-filter="all">
+            Semua <span class="badge-count" id="countAll">0</span>
+          </button>
+          <button type="button" class="filter-btn" data-filter="todo">
+            To Do <span class="badge-count" id="countTodo">0</span>
+          </button>
+          <button type="button" class="filter-btn" data-filter="progress">
+            In Progress <span class="badge-count" id="countProgress">0</span>
+          </button>
+          <button type="button" class="filter-btn" data-filter="done">
+            Done <span class="badge-count" id="countDone">0</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Daftar Task -->
+      <section class="card list-section">
+        <div class="list-header">
+          <h2>Daftar Tugas</h2>
+          <span id="activeFilterLabel" class="active-filter-label">Menampilkan: Semua</span>
+        </div>
+        <ul id="taskList" class="task-list" aria-live="polite">
+          <!-- Elemen task dirender secara dinamis oleh JavaScript -->
+        </ul>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <p>Skema UKK: <strong>Asisten Pemrogram Junior</strong> &bull; Pembuat: <strong>Andrean Rayhan Wijaya</strong></p>
+    </footer>
+  </div>
+</body>
+</html>
