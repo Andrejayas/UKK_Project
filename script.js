@@ -24,7 +24,12 @@ const KEYS = {
   USER:     "schooltask_user",
   SUBJECTS: "schooltask_subjects",
   SESSION:  "schooltask_session",
+  SUPABASE: "schooltask_supabase_config",
 };
+
+/** State Klien Supabase (PostgreSQL Cloud) */
+let supabaseClient = null;
+let isSupabaseConnected = false;
 
 /**
  * Pasangan warna untuk badge mata pelajaran (rotating palette).
@@ -201,36 +206,208 @@ function showApp() {
 }
 
 /* ============================================================
-   SECTION 3: TASK CRUD
+   SECTION 3: SUPABASE (POSTGRESQL) & TASK CRUD
    ============================================================ */
 
 /**
- * Memuat daftar tugas dari localStorage.
+ * Mengonversi objek task JavaScript ke format baris tabel Supabase (PostgreSQL).
+ * @param {Object} t - Objek task lokal.
+ * @returns {Object} Objek baris database.
+ */
+function toDbTask(t) {
+  return {
+    id:         t.id,
+    title:      t.title,
+    subject:    t.subject,
+    due_date:   t.dueDate || "",
+    due_time:   t.dueTime || "",
+    priority:   t.priority || "medium",
+    status:     t.status || "todo",
+    created_at: t.createdAt || Date.now(),
+  };
+}
+
+/**
+ * Mengonversi baris tabel database Supabase ke format objek task JavaScript.
+ * @param {Object} row - Baris data dari Supabase.
+ * @returns {Object} Objek task lokal.
+ */
+function fromDbTask(row) {
+  return {
+    id:        Number(row.id),
+    title:     row.title || "",
+    subject:   row.subject || "",
+    dueDate:   row.due_date ?? row.dueDate ?? "",
+    dueTime:   row.due_time ?? row.dueTime ?? "",
+    priority:  row.priority || "medium",
+    status:    row.status || "todo",
+    createdAt: Number(row.created_at ?? row.createdAt ?? Date.now()),
+  };
+}
+
+/**
+ * Mengonversi objek perubahan ke format kolom database Supabase.
+ * @param {Object} changes - Perubahan lokal.
+ * @returns {Object} Objek perubahan kolom database.
+ */
+function toDbChanges(changes) {
+  const db = {};
+  if (changes.title !== undefined) { db.title = changes.title; }
+  if (changes.subject !== undefined) { db.subject = changes.subject; }
+  if (changes.dueDate !== undefined) { db.due_date = changes.dueDate; }
+  if (changes.dueTime !== undefined) { db.due_time = changes.dueTime; }
+  if (changes.priority !== undefined) { db.priority = changes.priority; }
+  if (changes.status !== undefined) { db.status = changes.status; }
+  return db;
+}
+
+/**
+ * Memperbarui tampilan indikator basis data di topbar dan halaman pengaturan.
+ * @param {boolean} isConnected - Apakah Supabase terhubung.
  * @returns {void}
  */
-function loadTasks() {
+function updateDbUI(isConnected) {
+  const topbarBadge = document.getElementById("topbarDbBadge");
+  const badgeText = document.getElementById("dbBadgeText");
+  const settingsBadge = document.getElementById("supabaseStatusBadge");
+
+  if (isConnected) {
+    if (topbarBadge) {
+      topbarBadge.classList.add("db-badge-supabase");
+      topbarBadge.classList.remove("db-badge-local");
+    }
+    if (badgeText) {
+      badgeText.textContent = "Supabase (PostgreSQL)";
+    }
+    if (settingsBadge) {
+      settingsBadge.textContent = "🟢 Terhubung ke Supabase";
+      settingsBadge.classList.add("connected");
+    }
+  } else {
+    if (topbarBadge) {
+      topbarBadge.classList.remove("db-badge-supabase");
+      topbarBadge.classList.add("db-badge-local");
+    }
+    if (badgeText) {
+      badgeText.textContent = "LocalStorage (Lokal)";
+    }
+    if (settingsBadge) {
+      settingsBadge.textContent = "📦 Mode: LocalStorage";
+      settingsBadge.classList.remove("connected");
+    }
+  }
+}
+
+/**
+ * Menginisialisasi koneksi ke Supabase jika konfigurasi tersedia.
+ * @returns {Promise<boolean>}
+ */
+async function initSupabase() {
+  try {
+    const raw = localStorage.getItem(KEYS.SUPABASE);
+    if (!raw) {
+      supabaseClient = null;
+      isSupabaseConnected = false;
+      updateDbUI(false);
+      return false;
+    }
+
+    const config = JSON.parse(raw);
+    if (!config.url || !config.key) {
+      supabaseClient = null;
+      isSupabaseConnected = false;
+      updateDbUI(false);
+      return false;
+    }
+
+    // Pastikan library Supabase CDN terpasang
+    if (typeof window.supabase === "undefined" || typeof window.supabase.createClient !== "function") {
+      console.warn("Library Supabase CDN belum termuat atau koneksi offline.");
+      isSupabaseConnected = false;
+      updateDbUI(false);
+      return false;
+    }
+
+    supabaseClient = window.supabase.createClient(config.url, config.key);
+
+    // Uji koneksi ringan ke tabel tasks
+    const { error } = await supabaseClient.from("tasks").select("id").limit(1);
+    if (error) {
+      console.warn("Koneksi Supabase gagal diuji:", error.message);
+      isSupabaseConnected = false;
+      updateDbUI(false);
+      return false;
+    }
+
+    isSupabaseConnected = true;
+    updateDbUI(true);
+    return true;
+  } catch (err) {
+    console.warn("initSupabase error, otomatis beralih ke localStorage:", err);
+    isSupabaseConnected = false;
+    updateDbUI(false);
+    return false;
+  }
+}
+
+/**
+ * Memuat daftar tugas dari localStorage dan menyinkronkan dengan Supabase (jika aktif).
+ * @returns {Promise<void>}
+ */
+async function loadTasks() {
+  // 1. Muat data lokal secara instan (agar tampilan cepat dan aman jika offline)
   try {
     const raw = localStorage.getItem(KEYS.TASKS);
     tasks = raw ? JSON.parse(raw) : [];
   } catch {
     tasks = [];
   }
-}
 
-/**
- * Menyimpan daftar tugas ke localStorage.
- * @returns {void}
- */
-function saveTasks() {
-  try {
-    localStorage.setItem(KEYS.TASKS, JSON.stringify(tasks));
-  } catch (err) {
-    console.error("saveTasks error:", err);
+  // 2. Jika Supabase aktif, muat dan sinkronkan data cloud terbaru
+  if (supabaseClient && isSupabaseConnected) {
+    try {
+      const { data, error } = await supabaseClient
+        .from("tasks")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!error && Array.isArray(data)) {
+        tasks = data.map(fromDbTask);
+        saveTasksLocally();
+        applyFilters();
+        renderMetricCards();
+        renderSubjectProgress();
+        renderDonutChart();
+        renderWeeklyChart();
+      }
+    } catch (err) {
+      console.warn("Gagal memuat tugas dari Supabase:", err);
+    }
   }
 }
 
 /**
- * Menambahkan tugas baru.
+ * Menyimpan daftar tugas ke localStorage browser (offline backup).
+ * @returns {void}
+ */
+function saveTasksLocally() {
+  try {
+    localStorage.setItem(KEYS.TASKS, JSON.stringify(tasks));
+  } catch (err) {
+    console.error("saveTasksLocally error:", err);
+  }
+}
+
+/**
+ * Menyimpan daftar tugas ke media penyimpanan.
+ * @returns {void}
+ */
+function saveTasks() {
+  saveTasksLocally();
+}
+
+/**
+ * Menambahkan tugas baru (tersimpan ke state, localStorage, dan Supabase jika terhubung).
  * @param {{title: string, subject: string, dueDate: string, dueTime?: string, priority: string}} data
  * @returns {Object} Objek tugas yang baru dibuat.
  */
@@ -245,13 +422,24 @@ function addTask(data) {
     status:    "todo",
     createdAt: Date.now(),
   };
+
   tasks.unshift(task);
   saveTasks();
+
+  // Kirim secara asynchronous ke Supabase jika aktif
+  if (supabaseClient && isSupabaseConnected) {
+    supabaseClient.from("tasks").insert([toDbTask(task)]).then(({ error }) => {
+      if (error) {
+        console.warn("Gagal insert ke Supabase:", error.message);
+      }
+    });
+  }
+
   return task;
 }
 
 /**
- * Memperbarui status tugas berdasarkan id.
+ * Memperbarui status tugas berdasarkan id (lokal + Supabase).
  * @param {number} id - ID tugas.
  * @param {string} status - Status baru: 'todo' | 'inprogress' | 'done'.
  * @returns {void}
@@ -266,11 +454,20 @@ function updateStatus(id, status) {
     renderSubjectProgress();
     renderDonutChart();
     renderWeeklyChart();
+
+    // Perbarui ke Supabase jika aktif
+    if (supabaseClient && isSupabaseConnected) {
+      supabaseClient.from("tasks").update({ status }).eq("id", id).then(({ error }) => {
+        if (error) {
+          console.warn("Gagal update status di Supabase:", error.message);
+        }
+      });
+    }
   }
 }
 
 /**
- * Memperbarui data tugas berdasarkan id.
+ * Memperbarui data tugas berdasarkan id (lokal + Supabase).
  * @param {number} id - ID tugas.
  * @param {Object} changes - Objek perubahan yang akan diterapkan.
  * @returns {void}
@@ -285,11 +482,21 @@ function updateTask(id, changes) {
     renderSubjectProgress();
     renderDonutChart();
     renderWeeklyChart();
+
+    // Perbarui ke Supabase jika aktif
+    if (supabaseClient && isSupabaseConnected) {
+      const dbChanges = toDbChanges(changes);
+      supabaseClient.from("tasks").update(dbChanges).eq("id", id).then(({ error }) => {
+        if (error) {
+          console.warn("Gagal update data di Supabase:", error.message);
+        }
+      });
+    }
   }
 }
 
 /**
- * Menghapus tugas berdasarkan id.
+ * Menghapus tugas berdasarkan id (lokal + Supabase).
  * @param {number} id - ID tugas yang akan dihapus.
  * @returns {void}
  */
@@ -301,6 +508,25 @@ function deleteTask(id) {
   renderSubjectProgress();
   renderDonutChart();
   renderWeeklyChart();
+
+  // Hapus dari Supabase jika aktif
+  if (supabaseClient && isSupabaseConnected) {
+    supabaseClient.from("tasks").delete().eq("id", id).then(({ error }) => {
+      if (error) {
+        console.warn("Gagal delete dari Supabase:", error.message);
+      }
+    });
+  }
+}
+
+/**
+ * Sesuai Spesifikasi MUK Slide 15 & 19:
+ * Memfilter tugas berdasarkan status.
+ * @param {string} status - Filter status ('all', 'todo', 'inprogress', 'done').
+ * @returns {Object[]} Daftar task hasil filter.
+ */
+function filterTasks(status) {
+  return filterByStatus(tasks, status);
 }
 
 /* ============================================================
@@ -1468,11 +1694,35 @@ function switchView(viewName) {
     renderAnalytics();
   } else if (viewName === "settings") {
     renderSettingsSubjects();
+    populateSupabaseConfigInputs();
   } else if (viewName === "dashboard") {
     renderMetricCards();
     renderSubjectProgress();
     renderDonutChart();
     renderWeeklyChart();
+  }
+}
+
+/**
+ * Mengisi input konfigurasi Supabase di halaman pengaturan jika sudah tersimpan.
+ * @returns {void}
+ */
+function populateSupabaseConfigInputs() {
+  try {
+    const raw = localStorage.getItem(KEYS.SUPABASE);
+    const urlInput = document.getElementById("sbUrlInput");
+    const keyInput = document.getElementById("sbKeyInput");
+    if (raw) {
+      const config = JSON.parse(raw);
+      if (urlInput) { urlInput.value = config.url || ""; }
+      if (keyInput) { keyInput.value = config.key || ""; }
+    } else {
+      if (urlInput) { urlInput.value = ""; }
+      if (keyInput) { keyInput.value = ""; }
+    }
+    updateDbUI(isSupabaseConnected);
+  } catch (err) {
+    console.warn("populateSupabaseConfigInputs error:", err);
   }
 }
 
@@ -1856,6 +2106,73 @@ function setupEventListeners() {
     }
   });
 
+  /* ----- SETTINGS: SUPABASE DATABASE CONFIG ----- */
+  const sbForm = document.getElementById("supabaseConfigForm");
+  if (sbForm) {
+    sbForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const url = document.getElementById("sbUrlInput").value.trim();
+      const key = document.getElementById("sbKeyInput").value.trim();
+
+      if (!url || !key) {
+        showToast("Project URL dan Anon Key tidak boleh kosong.", "error");
+        return;
+      }
+
+      showToast("Menghubungkan ke Supabase...", "info");
+      localStorage.setItem(KEYS.SUPABASE, JSON.stringify({ url, key }));
+
+      const connected = await initSupabase();
+      if (connected) {
+        await loadTasks();
+        showToast("Berhasil terhubung ke Supabase (PostgreSQL)! 🚀", "success");
+      } else {
+        showToast("Koneksi Supabase gagal dicek. Tetap menggunakan LocalStorage.", "warning");
+      }
+    });
+  }
+
+  const disconnectBtn = document.getElementById("disconnectSbBtn");
+  if (disconnectBtn) {
+    disconnectBtn.addEventListener("click", () => {
+      localStorage.removeItem(KEYS.SUPABASE);
+      supabaseClient = null;
+      isSupabaseConnected = false;
+      updateDbUI(false);
+      populateSupabaseConfigInputs();
+      showToast("Beralih ke mode penyimpanan lokal (LocalStorage). 📦", "info");
+    });
+  }
+
+  const syncBtn = document.getElementById("syncSbBtn");
+  if (syncBtn) {
+    syncBtn.addEventListener("click", async () => {
+      if (!supabaseClient || !isSupabaseConnected) {
+        showToast("Hubungkan ke Supabase terlebih dahulu.", "warning");
+        return;
+      }
+      showToast("Menyinkronkan data ke Supabase...", "info");
+      try {
+        const rows = tasks.map(toDbTask);
+        const { error } = await supabaseClient.from("tasks").upsert(rows);
+        if (!error) {
+          showToast("Data berhasil disinkronkan ke tabel Supabase! ✅", "success");
+        } else {
+          showToast(`Sinkronisasi gagal: ${error.message}`, "error");
+        }
+      } catch (err) {
+        showToast(`Error sinkronisasi: ${err.message}`, "error");
+      }
+    });
+  }
+
+  const topbarDbBadge = document.getElementById("topbarDbBadge");
+  if (topbarDbBadge) {
+    topbarDbBadge.addEventListener("click", () => {
+      switchView("settings");
+    });
+  }
+
   /* ----- WINDOW RESIZE: Redraw charts ----- */
   let resizeTimer;
   window.addEventListener("resize", () => {
@@ -1881,16 +2198,21 @@ function initApp() {
   /* 1. Pastikan user default ada */
   initDefaultUser();
 
-  /* 2. Tambahkan sidebar backdrop untuk mobile */
+  /* 2. Coba inisialisasi koneksi Supabase di latar belakang */
+  initSupabase().then(() => {
+    populateSupabaseConfigInputs();
+  });
+
+  /* 3. Tambahkan sidebar backdrop untuk mobile */
   const backdrop = document.createElement("div");
   backdrop.id = "sidebarBackdrop";
   backdrop.className = "sidebar-backdrop";
   document.body.appendChild(backdrop);
 
-  /* 3. Pasang event listeners */
+  /* 4. Pasang event listeners */
   setupEventListeners();
 
-  /* 4. Cek sesi aktif */
+  /* 5. Cek sesi aktif */
   const hasSession = loadSession();
   if (!hasSession) {
     document.getElementById("loginScreen").classList.remove("hidden");
@@ -1898,19 +2220,20 @@ function initApp() {
     return;
   }
 
-  /* 5. Tampilkan app dan render UI */
+  /* 6. Tampilkan app dan render UI */
   showApp();
 
-  /* 6. Set view awal */
+  /* 7. Set view awal */
   switchView("dashboard");
 
-  /* 9. Expose ke window untuk keperluan penilaian UKK */
+  /* 8. Expose ke window untuk keperluan penilaian UKK & pengujian */
   window._schoolTask = {
     tasks,
     addTask,
     updateTask,
     deleteTask,
     updateStatus,
+    filterTasks,
     getAllSubjects,
     addCustomSubject,
     removeCustomSubject,
@@ -1921,6 +2244,9 @@ function initApp() {
     getTodayString,
     showToast,
     logout,
+    initSupabase,
+    supabaseClient: () => supabaseClient,
+    isSupabaseConnected: () => isSupabaseConnected,
     currentUser: () => currentUser,
   };
 }

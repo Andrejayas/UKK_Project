@@ -1,23 +1,24 @@
-# To-Do List Website (Project Latihan UKK SMK)
+# SchoolTask – To-Do List Website Tugas Sekolah
 
-**Skema Sertifikasi**: Asisten Pemrogram Junior  
+**Skema Sertifikasi**: Asisten Pemrogram Junior (LSP Telematika / BNSP)  
+**Sekolah**: SMK Telkom Purwokerto  
 **Penulis**: Andrean Rayhan Wijaya  
-**Teknologi**: HTML5, CSS3, JavaScript (Vanilla / Tanpa Framework)
+**Teknologi**: HTML5, CSS3, Vanilla JavaScript, Supabase (PostgreSQL Cloud) & LocalStorage (Offline Fallback)
 
 ---
 
 ## 📋 Daftar Isi
 1. [Ringkasan Project](#ringkasan-project)
 2. [Struktur Folder](#struktur-folder)
-3. [Fitur-Fitur](#fitur-fitur)
-4. [Cara Menjalankan Project](#cara-menjalankan-project)
-5. [Spesifikasi Fungsi (Bagian 6 PRD)](#spesifikasi-fungsi-bagian-6-prd)
-6. [Panduan Menghadapi Asesor (8 Unit Kompetensi)](#panduan-menghadapi-asesor-8-unit-kompetensi)
+3. [Fitur Lengkap (Inti, Tambahan, & Database)](#fitur-lengkap)
+4. [Arsitektur Basis Data (Supabase & LocalStorage Dual-Mode)](#arsitektur-basis-data)
+5. [Cara Menghubungkan ke Supabase (3 Langkah Cepat)](#cara-menghubungkan-ke-supabase)
+6. [Panduan Menghadapi Asesor & Pembimbing](#panduan-menghadapi-asesor--pembimbing)
 
 ---
 
 ## 1. Ringkasan Project
-Aplikasi web To-Do List interaktif yang dibuat untuk memenuhi standar penilaian **Uji Kompetensi Keahlian (UKK)** skema **Asisten Pemrogram Junior**. Aplikasi ini memungkinkan pengguna menambah, melihat, memfilter, mengedit, mengubah status, serta menghapus tugas dengan validasi input yang ketat dan bebas dari error di Console browser maupun linter.
+**SchoolTask** adalah aplikasi manajemen tugas sekolah interaktif berbasis web yang dibangun untuk memenuhi standar Uji Kompetensi Keahlian (UKK) skema **Asisten Pemrogram Junior**. Aplikasi ini mendukung pencatatan tugas sekolah berdasarkan mata pelajaran, tenggat waktu (deadline), tingkat prioritas, status progres, analitik produktivitas, serta integrasi **Database Cloud Relasional (Supabase PostgreSQL)** dengan sistem cadangan **LocalStorage** offline.
 
 ---
 
@@ -25,97 +26,105 @@ Aplikasi web To-Do List interaktif yang dibuat untuk memenuhi standar penilaian 
 ```text
 To-Do List Website/
 ├── .vscode/
-│   └── settings.json          # Konfigurasi editor & auto-fix ESLint
+│   └── settings.json                  # Konfigurasi editor & auto-fix ESLint
 ├── PRD/
-│   └── PRD UKK To-Do List Website.pdf  # Dokumen spesifikasi kebutuhan produk
-├── index.html                 # Struktur markup semantik & aksesibel
-├── style.css                  # Desain modern, clean, dan responsif
-├── script.js                  # Logika aplikasi (1 fungsi 1 tugas, array of objects)
-├── eslint.config.js           # Konfigurasi ESLint (Flat Config)
-├── package.json               # Konfigurasi npm & dependensi linter
-└── README.md                  # Dokumentasi & panduan teknis
+│   ├── PRD UKK To-Do List Website.pdf # PRD v1 (Spesifikasi Inti)
+│   └── PRD UKK v2 To-Do List Tugas Sekolah (Tanggal, Mapel, Filter) (1).pdf # PRD v2
+├── index.html                         # Markup semantik (Login, Dashboard, Analytics, Settings)
+├── style.css                          # Desain antarmuka responsif & modern
+├── script.js                          # Logika aplikasi (CRUD, Supabase client, offline sync)
+├── supabase-schema.sql                # Skrip DDL SQL untuk tabel Supabase PostgreSQL
+├── eslint.config.js                   # Konfigurasi ESLint Flat Config (0 error, 0 warning)
+├── package.json                       # Konfigurasi npm & dependensi linter
+└── README.md                          # Dokumentasi teknis & panduan asesor
 ```
 
 ---
 
-## 3. Fitur-Fitur
-- **Fitur Inti (Wajib)**:
-  - `F1` **Tambah Task**: Menambahkan task baru dengan ID unik berbasis timestamp (`Date.now()`) dan status awal `todo`.
-  - `F2` **Tampilkan Daftar**: Menampilkan daftar tugas dengan badge status warna yang sesuai.
-  - `F3` **Ubah Status**: Memperbarui status tugas (`To Do` ➔ `In Progress` ➔ `Done`).
-  - `F4` **Hapus Task**: Menghapus tugas dari data array dan tampilan halaman.
-  - `F5` **Filter Status**: Memfilter tampilan tugas (`All`, `To Do`, `In Progress`, `Done`) dengan indikator tombol aktif.
-  - `F6` **Validasi Input**: Menolak input kosong dan whitespace (`trim()`) dengan pesan error jelas di layar.
-  - `F7` **Setup Tools**: ESLint dan VS Code terkonfigurasi dengan `0 error`.
-- **Fitur Bonus**:
-  - Penyimpanan persisten ke `localStorage` browser.
-  - Konfirmasi pop-up sebelum menghapus tugas.
-  - Fitur Edit judul tugas.
-  - Counter badge otomatis untuk menghitung jumlah task per kategori status.
+## 3. Fitur Lengkap
+
+### A. Fitur Inti MUK (Wajib)
+* `F1` **Create (Tambah Task)**: Menambahkan tugas dengan ID unik timestamp (`Date.now()`) dan status awal `todo`.
+* `F2` **Read (Tampilkan Daftar)**: Menampilkan tabel tugas dengan badge warna mata pelajaran dan status.
+* `F3` **Update (Ubah Status)**: Memperbarui status tugas (`To Do` ➔ `In Progress` ➔ `Selesai`).
+* `F4` **Delete (Hapus Task)**: Menghapus tugas dari data dan tampilan tabel.
+* `F5` **Filter Status**: Memfilter tugas (`All`, `To Do`, `In Progress`, `Done`) via `filterTasks(status)`.
+* `F6` **Validasi Input**: Validasi `trim()`, penolakan input kosong atau `< 3` karakter, console browser 0 error.
+* `F7` **Setup Tools**: VS Code dan ESLint terkonfigurasi dengan `0 error` (`npm run lint`).
+
+### B. Fitur Tambahan (Fase 2 & Nilai Plus)
+* **Kategori Mata Pelajaran (Mapel)** dengan warna badge otomatis & dinamis.
+* **Tenggat Waktu & Penanda Terlambat (Overdue Detection)**: Mendeteksi keterlambatan secara otomatis berdasarkan jam dan tanggal lokal saat ini.
+* **Tingkat Prioritas**: *High*, *Medium*, dan *Low*.
+* **Pencarian Real-Time & Pengurutan**: Berdasarkan deadline terdekat, terbaru, terlama, atau abjad A-Z.
+* **Dashboard Analytics & Chart**: Diagram donat distribusi status tugas dan grafik tren aktivitas mingguan (HTML5 Canvas).
+* **Ekspor Data JSON**: Cadangan riwayat tugas dan profil siswa.
+
+### C. Fitur Basis Data (Supabase & Dual-Mode)
+* **Cloud PostgreSQL**: Sinkronisasi data ke tabel cloud `tasks` di Supabase.
+* **Offline Fallback**: Jika koneksi internet di lab mati atau kredensial belum diisi, aplikasi otomatis memakai **LocalStorage** sehingga aplikasi **tidak pernah crash**.
+* **Indikator Status Real-Time**: Badge di topbar dan pengaturan menunjukkan status basis data secara langsung (`🟢 Supabase (PostgreSQL)` atau `📦 LocalStorage (Lokal)`).
 
 ---
 
-## 4. Cara Menjalankan Project
+## 4. Arsitektur Basis Data
 
-### A. Membuka Aplikasi
-1. Buka file `index.html` langsung menggunakan browser (Google Chrome, Brave, Edge, Firefox), **ATAU**
-2. Klik kanan file `index.html` di VS Code lalu pilih **Open with Live Server**.
+Aplikasi menggunakan skema tabel relasional PostgreSQL:
 
-### B. Menjalankan ESLint
-Pastikan tidak ada error sintaks atau standar kode yang dilanggar:
-```bash
-npm run lint
+```sql
+CREATE TABLE tasks (
+  id BIGINT PRIMARY KEY,
+  title TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  due_date TEXT DEFAULT '',
+  due_time TEXT DEFAULT '',
+  priority TEXT DEFAULT 'medium',
+  status TEXT DEFAULT 'todo',
+  created_at BIGINT
+);
 ```
-Jika ingin memperbaiki masalah format otomatis:
-```bash
-npm run lint:fix
-```
+
+### Alur Kerja Dual-Mode:
+1. **Saat Aplikasi Dibuka**: Aplikasi memuat data lokal secara instan, lalu jika Supabase terhubung, mengambil data terbaru dari PostgreSQL.
+2. **Saat Tambah/Ubah/Hapus**: Data diperbarui ke state memori dan LocalStorage seketika (tampilan responsif), lalu dikirim secara *asynchronous* ke Supabase.
+3. **Jika Offline**: Operasi tetap berjalan 100% lancar di LocalStorage browser tanpa error.
 
 ---
 
-## 5. Spesifikasi Fungsi (Bagian 6 PRD)
-| Nama Fungsi | Parameter | Nilai Kembalian | Tugas Utama |
-| :--- | :--- | :--- | :--- |
-| `validateTitle(title)` | `title: string` | `string` | Mengembalikan pesan error jika tidak valid, atau string kosong `""` jika lolos validasi. |
-| `addTask(title)` | `title: string` | `void` | Membuat objek task baru `{ id, title, status }` dan menambahkannya ke array (`tasks.push()`). |
-| `renderTasks(list)` | `list: Array` | `void` | Mengosongkan kontainer DOM lalu membuat elemen baris baru untuk setiap item (`list.forEach()`). |
-| `updateStatus(id, status)`| `id: number, status: string` | `void` | Mencari task berdasarkan ID (`tasks.find()`) lalu mengganti nilai statusnya. |
-| `deleteTask(id)` | `id: number` | `void` | Membuang task yang dipilih dari array (`tasks.filter()`). |
-| `filterTasks(status)` | `status: string` | `Array` | Mengembalikan array baru sesuai status filter atau seluruh array jika status `'all'`. |
+## 5. Cara Menghubungkan ke Supabase (3 Langkah Cepat)
+
+Jika Anda ingin mendemokan ke guru/pembimbing dengan database cloud aktif:
+
+1. **Buat Proyek di Supabase**:
+   * Buka [supabase.com](https://supabase.com) (gratis).
+   * Klik **New Project** dan beri nama proyek (contoh: `SchoolTask-UKK`).
+2. **Jalankan Skrip SQL**:
+   * Buka menu **SQL Editor** di dashboard Supabase Anda.
+   * Salin seluruh isi file [`supabase-schema.sql`](file:///home/andre/Documents/Coding/tugas%20sekolah/To-Do%20List%20Website/supabase-schema.sql) dan klik **Run**.
+3. **Hubungkan di Aplikasi**:
+   * Buka menu **Project Settings ➔ API** di Supabase untuk menyalin **Project URL** dan **Anon Key**.
+   * Buka aplikasi SchoolTask di browser, masuk ke menu **Pengaturan**, masukkan URL dan Key pada form **Database Supabase**, lalu klik **Simpan & Hubungkan**.
+   * Badge status di topbar akan otomatis berubah menjadi hijau: `🟢 Supabase (PostgreSQL)`.
 
 ---
 
-## 6. Panduan Menghadapi Asesor (8 Unit Kompetensi)
+## 6. Panduan Menghadapi Asesor & Pembimbing
 
-Ketika asesor menguji pemahaman Anda, berikut adalah jawaban dan penjelasannya:
+### Pertanyaan 1: "Aplikasi ini pakai database apa?"
+> **Jawaban:**  
+> *"Saya menggunakan **Database Relasional PostgreSQL di Cloud melalui Supabase** dengan tabel bernama `tasks`. Selain itu, saya juga melengkapinya dengan sistem cadangan **LocalStorage**, sehingga jika koneksi internet di lab bermasalah, aplikasi tetap dapat beroperasi normal 100% secara offline."*
 
-1. **J.620100.004.02 - Menggunakan Struktur Data**
-   - *Pertanyaan Asesor*: "Struktur data apa yang dipakai di aplikasi ini dan mengapa?"
-   - *Jawaban*: "Saya menggunakan **Array of Objects** (`tasks = [{ id, title, status }, ...]`). Karena satu task memiliki beberapa atribut terkait (id bertipe number, title bertipe string, status bertipe string), objek adalah struktur terbaik untuk mengelompokkannya, sedangkan array memudahkan operasi penambahan (`push`), pencarian (`find`), dan penyaringan (`filter`)."
+### Pertanyaan 2: "Bagaimana cara kerja CRUD-nya ke database?"
+> **Jawaban:**  
+> *"Saya menggunakan metode client-side query Supabase:*
+> - *Create: `supabase.from('tasks').insert([data])`*
+> - *Read: `supabase.from('tasks').select('*')`*
+> - *Update: `supabase.from('tasks').update({ status }).eq('id', id)`*
+> - *Delete: `supabase.from('tasks').delete().eq('id', id)`*  
+> *Semua fungsi ini dipisahkan secara terstruktur di `script.js` sesuai prinsip satu fungsi satu tugas."*
 
-2. **J.620100.009.01 - Menggunakan Spesifikasi Program**
-   - *Pertanyaan Asesor*: "Bagaimana Anda membagi kebutuhan menjadi kode program?"
-   - *Jawaban*: "Saya menerapkan prinsip *Single Responsibility* (satu fungsi satu tugas) sesuai Bagian 6 PRD: fungsi validasi dipisah ke `validateTitle`, pembuatan task ke `addTask`, manipulasi DOM ke `renderTasks`, pembaruan ke `updateStatus`, dan penghapusan ke `deleteTask`."
-
-3. **J.620100.010.01 - Menerapkan Perintah Eksekusi Bahasa Pemrograman**
-   - *Pertanyaan Asesor*: "Bagaimana alur interaksi pengguna diproses oleh JavaScript?"
-   - *Jawaban*: "Semua event ditangani dengan `addEventListener` (bukan inline onclick di HTML). Saat formulir disubmit atau dropdown status diubah, JavaScript menangkap event tersebut, memperbarui state array, lalu merender ulang tampilan DOM."
-
-4. **J.620100.011.01 & J.620100.012.01 - Software Tools & Konfigurasi**
-   - *Pertanyaan Asesor*: "Tools apa yang digunakan dan di mana konfigurasinya?"
-   - *Jawaban*: "Saya menggunakan VS Code dengan ekstensi ESLint dan Live Server, Node.js + npm sebagai runtime/package manager. Konfigurasinya berada pada `.vscode/settings.json` (auto format & ESLint on save) dan `eslint.config.js` (flat config) dengan mendeklarasikan browser globals seperti `document`, `window`, `localStorage`."
-
-5. **J.620100.016.01 - Guidelines dan Best Practices**
-   - *Pertanyaan Asesor*: "Best practice apa saja yang Anda terapkan pada kode ini?"
-   - *Jawaban*: "Saya menggunakan `const` dan `let` tanpa pernah menggunakan `var`, menggunakan operator perbandingan ketat `===` dan `!==`, indentasi konsisten 2 spasi, penamaan variabel yang deskriptif/semantik, dan dokumentasi fungsi menggunakan format JSDoc."
-
-6. **J.620100.017.02 - Pemrograman Terstruktur**
-   - *Pertanyaan Asesor*: "Tunjukkan contoh Sequence, Selection, dan Iteration di kode Anda!"
-   - *Jawaban*:
-     - **Sequence**: Alur inisialisasi di `initApp()` yang membaca data localStorage terlebih dahulu, lalu menerapkan filter, kemudian merender ke layar.
-     - **Selection**: Penggunaan percabangan `if (validationResult !== "")` untuk mendeteksi error input sebelum memproses tugas.
-     - **Iteration**: Penggunaan perulangan `list.forEach((task) => { ... })` di dalam fungsi `renderTasks` untuk menyusun elemen HTML setiap tugas.
-
-7. **J.620100.025.02 - Debugging**
-   - *Pertanyaan Asesor*: "Bagaimana Anda memastikan kode bebas bug?"
-   - *Jawaban*: "Saya memeriksa Console browser untuk memastikan 0 error dan 0 unhandled promise/rejection. Saya juga memasang pencegah error seperti pemotongan spasi (`trim()`), penanganan `null` pada data kosong (empty state), validasi tipe data ID yang konsisten (`number`), dan memuat script dengan atribut `defer` agar elemen DOM siap sebelum dimanipulasi."
+### Pertanyaan 3: "Tunjukkan contoh Sequence, Selection, dan Iteration di kode Anda!"
+> **Jawaban:**  
+> - **Sequence**: Alur `initApp` yang memuat user, menginisialisasi database, lalu memuat tampilan dashboard.
+> - **Selection**: Percabangan `if (!title || title.trim().length === 0)` pada fungsi `validateTitle`.
+> - **Iteration**: Perulangan `list.forEach((task) => { ... })` di fungsi `renderTasks` saat membuat baris tabel DOM.

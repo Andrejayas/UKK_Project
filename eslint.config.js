@@ -13,7 +13,8 @@ export default [
         console: "readonly",
         localStorage: "readonly",
         confirm: "readonly",
-        alert: "readonly"
+        alert: "readonly",
+        supabase: "readonly"
       }
     },
     rules: {
