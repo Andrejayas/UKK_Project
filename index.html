@@ -1,74 +1,556 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Aplikasi To-Do List interaktif untuk Uji Kompetensi Keahlian (UKK) Asisten Pemrogram Junior">
-  <title>To-Do List</title>
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SchoolTask – Manajemen Tugas Sekolah</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="app-container">
-    <header class="app-header">
-      <h1>To-Do List</h1>
-      <p class="subtitle">Kelola tugas harian Anda dengan mudah dan rapi</p>
-    </header>
 
-    <main class="app-main">
-      <!-- Form Input Task -->
-      <section class="card input-section">
-        <form id="taskForm" class="task-form" novalidate>
-          <div class="input-group">
-            <input 
-              type="text" 
-              id="taskInput" 
-              class="task-input" 
-              placeholder="Ketik judul tugas baru di sini..." 
-              autocomplete="off"
-            >
-            <button type="submit" id="addBtn" class="btn btn-primary">
-              <span class="btn-icon">+</span> Tambah
+  <!-- ===== LOGIN SCREEN ===== -->
+  <div id="loginScreen" class="login-overlay">
+    <div class="login-card">
+      <div class="login-logo">
+        <span class="logo-icon">📚</span>
+        <h1 class="login-title">SchoolTask</h1>
+        <p class="login-subtitle">Manajemen Tugas Sekolah</p>
+      </div>
+      <form id="loginForm" class="login-form" novalidate>
+        <div class="form-group">
+          <label for="loginUsername">Username</label>
+          <div class="input-icon-wrapper">
+            <svg class="input-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            <input type="text" id="loginUsername" name="username" class="form-input form-input-with-icon" placeholder="Masukkan username" autocomplete="username" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <div class="input-icon-wrapper">
+            <svg class="input-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <input type="password" id="loginPassword" name="password" class="form-input form-input-with-icon form-input-password" placeholder="Masukkan password" autocomplete="current-password" required />
+            <button type="button" id="togglePasswordBtn" class="toggle-password-btn" aria-label="Tampilkan atau sembunyikan password">
+              <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+              </svg>
             </button>
           </div>
-          <!-- Area Pesan Error Validasi -->
-          <div id="errorMessage" class="error-message" role="alert" aria-live="polite"></div>
-        </form>
-      </section>
-
-      <!-- Bagian Filter Status -->
-      <section class="filter-section">
-        <div class="filter-group" role="tablist" aria-label="Filter status tugas">
-          <button type="button" class="filter-btn active" data-filter="all">
-            Semua <span class="badge-count" id="countAll">0</span>
-          </button>
-          <button type="button" class="filter-btn" data-filter="todo">
-            To Do <span class="badge-count" id="countTodo">0</span>
-          </button>
-          <button type="button" class="filter-btn" data-filter="progress">
-            In Progress <span class="badge-count" id="countProgress">0</span>
-          </button>
-          <button type="button" class="filter-btn" data-filter="done">
-            Done <span class="badge-count" id="countDone">0</span>
+        </div>
+        <p id="loginError" class="login-error" aria-live="polite"></p>
+        <button type="submit" class="btn btn-primary btn-block">Masuk ke Dashboard</button>
+        <div class="login-demo-box">
+          <button type="button" id="demoFillBtn" class="demo-fill-btn">
+            <span class="demo-badge">⚡ Demo</span> Isi Otomatis: <strong>siswa</strong> / <strong>ukk2026</strong>
           </button>
         </div>
-      </section>
-
-      <!-- Daftar Task -->
-      <section class="card list-section">
-        <div class="list-header">
-          <h2>Daftar Tugas</h2>
-          <span id="activeFilterLabel" class="active-filter-label">Menampilkan: Semua</span>
-        </div>
-        <ul id="taskList" class="task-list" aria-live="polite">
-          <!-- Elemen task dirender secara dinamis oleh JavaScript -->
-        </ul>
-      </section>
-    </main>
-
-    <footer class="app-footer">
-      <p>Skema UKK: <strong>Asisten Pemrogram Junior</strong> &bull; Pembuat: <strong>Andrean Rayhan Wijaya</strong></p>
-    </footer>
+      </form>
+    </div>
   </div>
+
+  <!-- ===== APP SHELL ===== -->
+  <div id="appShell" class="app-shell hidden">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="logo-icon-sm">📚</span>
+          <span class="logo-text">SchoolTask</span>
+        </div>
+        <button id="sidebarToggle" class="sidebar-toggle" aria-label="Toggle Sidebar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Navigasi Utama">
+        <ul class="nav-list">
+          <li>
+            <button class="nav-item active" data-view="dashboard" aria-current="page">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              <span class="nav-label">Dashboard</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-view="analytics">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              <span class="nav-label">Analytics</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-item" data-view="settings">
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <span class="nav-label">Pengaturan</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <button class="nav-item nav-item-profile" id="sidebarProfileBtn">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span class="nav-label">Profil</span>
+        </button>
+        <button class="nav-item nav-item-logout" id="sidebarLogoutBtn">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          <span class="nav-label">Keluar</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main id="mainContent" class="main-content">
+
+      <!-- TOP BAR -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="topbarToggle" class="topbar-menu-btn" aria-label="Toggle Sidebar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+          <nav aria-label="Breadcrumb">
+            <span id="breadcrumb" class="breadcrumb">Dashboard</span>
+          </nav>
+        </div>
+        <div class="topbar-right">
+          <div id="topbarClock" class="topbar-clock" title="Waktu Lokal Saat Ini">
+            <svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span id="clockText">--:--:-- WIB</span>
+          </div>
+          <div class="search-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" id="topbarSearch" class="search-input" placeholder="Cari tugas..." aria-label="Cari tugas" />
+          </div>
+          <div class="avatar-wrapper">
+            <button id="avatarBtn" class="avatar-btn" aria-haspopup="true" aria-expanded="false" aria-label="Buka menu profil">
+              <img id="topbarAvatar" class="userAvatar avatar-circle" src="" alt="Avatar" />
+              <span id="topbarUsername" class="topbar-username"></span>
+            </button>
+            <!-- Profile Dropdown -->
+            <div id="profileDropdown" class="profile-dropdown hidden" role="menu" aria-label="Menu profil">
+              <div class="dropdown-header">
+                <img id="dropdownAvatar" class="userAvatar dropdown-avatar" src="" alt="Avatar besar" />
+                <div>
+                  <p id="dropdownName" class="dropdown-name"></p>
+                  <p class="dropdown-role">Siswa SMK</p>
+                </div>
+              </div>
+              <div class="dropdown-productivity">
+                <span class="prod-label">Produktivitas</span>
+                <div class="prod-bar-bg">
+                  <div id="dropdownProdBar" class="prod-bar-fill"></div>
+                </div>
+                <span id="dropdownProdPct" class="prod-pct">0%</span>
+              </div>
+              <div class="dropdown-actions">
+                <button id="dropdownEditProfileBtn" class="btn btn-secondary btn-sm btn-block">Edit Profil</button>
+                <button id="dropdownLogoutBtn" class="btn btn-danger btn-sm btn-block">Log Out</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ===== DASHBOARD VIEW ===== -->
+      <section id="viewDashboard" class="view active">
+
+        <!-- Metric Cards -->
+        <div class="metric-cards-grid">
+          <div class="metric-card">
+            <div class="metric-icon metric-icon-total">📋</div>
+            <div class="metric-info">
+              <p class="metric-label">Total Tugas</p>
+              <p id="metricTotal" class="metric-value">0</p>
+            </div>
+          </div>
+          <div class="metric-card metric-card-todo">
+            <div class="metric-icon metric-icon-todo">⏳</div>
+            <div class="metric-info">
+              <p class="metric-label">To Do</p>
+              <p id="metricTodo" class="metric-value">0</p>
+            </div>
+          </div>
+          <div class="metric-card metric-card-progress">
+            <div class="metric-icon metric-icon-progress">🚀</div>
+            <div class="metric-info">
+              <p class="metric-label">In Progress</p>
+              <p id="metricProgress" class="metric-value">0</p>
+            </div>
+          </div>
+          <div class="metric-card metric-card-done">
+            <div class="metric-icon metric-icon-done">✅</div>
+            <div class="metric-info">
+              <p class="metric-label">Selesai</p>
+              <p id="metricDone" class="metric-value">0</p>
+            </div>
+          </div>
+          <div class="metric-card metric-card-overdue">
+            <div class="metric-icon metric-icon-overdue">⚠️</div>
+            <div class="metric-info">
+              <p class="metric-label">Terlambat</p>
+              <p id="metricOverdue" class="metric-value">0</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Middle Section -->
+        <div class="two-col-grid">
+          <!-- Progress per Mapel -->
+          <div class="card">
+            <h2 class="card-title">Progress per Mapel</h2>
+            <div id="subjectProgressContainer" class="subject-progress-list">
+              <p class="empty-state-sm">Belum ada tugas.</p>
+            </div>
+          </div>
+          <!-- Donut Chart -->
+          <div class="card chart-card">
+            <h2 class="card-title">Task Distribution</h2>
+            <div class="canvas-wrapper">
+              <canvas id="donutChart" width="260" height="200" aria-label="Distribusi status tugas" role="img"></canvas>
+              <div id="donutLegend" class="donut-legend" aria-label="Keterangan status tugas"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Below Middle Section -->
+        <div class="two-col-grid">
+          <!-- Weekly Bar Chart -->
+          <div class="card chart-card">
+            <h2 class="card-title">Aktivitas Minggu Ini</h2>
+            <div class="canvas-wrapper canvas-wrapper-wide">
+              <canvas id="weeklyChart" width="400" height="220" aria-label="Tugas selesai per hari minggu ini" role="img"></canvas>
+            </div>
+          </div>
+          <!-- Quick Add Form -->
+          <div class="card">
+            <h2 class="card-title">Tambah Tugas Cepat</h2>
+            <form id="quickAddForm" class="quick-add-form" novalidate>
+              <div class="form-group">
+                <label for="qaTitle">Judul Tugas <span class="required">*</span></label>
+                <input type="text" id="qaTitle" class="form-input" placeholder="Contoh: PR Matematika Bab 5" required />
+              </div>
+              <div class="form-group">
+                <label for="qaSubject">Mata Pelajaran <span class="required">*</span></label>
+                <select id="qaSubject" class="form-input subject-select" required>
+                  <option value="">-- Pilih Mapel --</option>
+                </select>
+              </div>
+              <div id="qaCustomSubjectWrapper" class="form-group hidden">
+                <label for="qaCustomSubject">Nama Mapel Baru</label>
+                <input type="text" id="qaCustomSubject" class="form-input" placeholder="Ketik nama mata pelajaran baru" />
+              </div>
+              <div class="form-row-2col">
+                <div class="form-group">
+                  <label for="qaDueDate">Tenggat Waktu</label>
+                  <input type="date" id="qaDueDate" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label for="qaDueTime">Jam (Opsional)</label>
+                  <input type="time" id="qaDueTime" class="form-input" value="23:59" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="qaPriority">Prioritas</label>
+                <select id="qaPriority" class="form-input">
+                  <option value="low">Low</option>
+                  <option value="medium" selected>Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary btn-block">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Tambah Tugas
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Task Table Section -->
+        <div class="card task-table-card">
+          <div class="task-table-header">
+            <h2 class="card-title">Daftar Tugas</h2>
+            <div class="filter-toolbar">
+              <div class="search-wrapper search-wrapper-sm">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="search" id="filterSearch" class="search-input search-input-sm" placeholder="Cari..." aria-label="Filter pencarian tugas" />
+              </div>
+              <select id="filterStatus" class="form-input filter-select" aria-label="Filter status">
+                <option value="all">Semua Status</option>
+                <option value="todo">To Do</option>
+                <option value="inprogress">In Progress</option>
+                <option value="done">Selesai</option>
+              </select>
+              <select id="filterSubject" class="form-input filter-select subject-select" aria-label="Filter mata pelajaran">
+                <option value="all">Semua Mapel</option>
+              </select>
+              <select id="filterSort" class="form-input filter-select" aria-label="Urutan tugas">
+                <option value="newest">Terbaru</option>
+                <option value="oldest">Terlama</option>
+                <option value="due-asc">Deadline Terdekat</option>
+                <option value="title-az">Judul A-Z</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table class="task-table" aria-label="Daftar tugas">
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Judul Tugas</th>
+                  <th>Mata Pelajaran</th>
+                  <th>Tenggat</th>
+                  <th>Prioritas</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="taskTableBody">
+                <!-- Rows rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section><!-- /viewDashboard -->
+
+      <!-- ===== ANALYTICS VIEW ===== -->
+      <section id="viewAnalytics" class="view hidden">
+        <h1 class="view-title">Analytics</h1>
+
+        <div class="analytics-stats-grid">
+          <div class="card analytics-stat-card">
+            <p class="analytics-stat-label">Completion Rate</p>
+            <p id="analyticsCompletionRate" class="analytics-stat-value stat-green">0%</p>
+          </div>
+          <div class="card analytics-stat-card">
+            <p class="analytics-stat-label">Rata-rata Tugas/Minggu</p>
+            <p id="analyticsAvgPerWeek" class="analytics-stat-value stat-blue">0</p>
+          </div>
+          <div class="card analytics-stat-card">
+            <p class="analytics-stat-label">Overdue Rate</p>
+            <p id="analyticsOverdueRate" class="analytics-stat-value stat-red">0%</p>
+          </div>
+        </div>
+
+        <div class="card chart-card">
+          <h2 class="card-title">Tren Produktivitas Mingguan</h2>
+          <div class="canvas-wrapper canvas-wrapper-full">
+            <canvas id="analyticsWeeklyChart" width="600" height="260" aria-label="Tren produktivitas mingguan" role="img"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title">Performa per Mata Pelajaran</h2>
+          <div class="table-wrapper">
+            <table class="task-table" aria-label="Performa mata pelajaran">
+              <thead>
+                <tr>
+                  <th>Mata Pelajaran</th>
+                  <th>Total</th>
+                  <th>Selesai</th>
+                  <th>In Progress</th>
+                  <th>To Do</th>
+                  <th>Terlambat</th>
+                </tr>
+              </thead>
+              <tbody id="subjectPerformanceBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 class="card-title overdue-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Tugas Belum Selesai Melewati Deadline
+          </h2>
+          <div id="overdueList" class="overdue-list">
+            <p class="empty-state-sm">Tidak ada tugas terlambat. 🎉</p>
+          </div>
+        </div>
+
+      </section><!-- /viewAnalytics -->
+
+      <!-- ===== SETTINGS VIEW ===== -->
+      <section id="viewSettings" class="view hidden">
+        <h1 class="view-title">Pengaturan</h1>
+
+        <!-- Kelola Mata Pelajaran -->
+        <div class="card settings-section">
+          <h2 class="card-title">Kelola Mata Pelajaran</h2>
+          <p class="settings-desc">Tambah atau hapus mata pelajaran kustom Anda. Mata pelajaran bawaan tidak dapat dihapus.</p>
+          <div id="customSubjectsList" class="subjects-list">
+            <!-- Rendered by JS -->
+          </div>
+          <form id="addSubjectForm" class="add-subject-form" novalidate>
+            <input type="text" id="newSubjectInput" class="form-input" placeholder="Nama mata pelajaran baru..." />
+            <button type="submit" class="btn btn-primary">Tambah</button>
+          </form>
+        </div>
+
+        <!-- Data -->
+        <div class="card settings-section">
+          <h2 class="card-title">Manajemen Data</h2>
+          <div class="settings-actions">
+            <div class="settings-action-item">
+              <div class="action-info">
+                <span class="action-icon">📥</span>
+                <div>
+                  <p class="action-title">Export Data Tugas</p>
+                  <p class="action-desc">Unduh seluruh riwayat tugas, mapel, dan profil sebagai berkas cadangan JSON.</p>
+                </div>
+              </div>
+              <button id="exportDataBtn" class="btn btn-export">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Export JSON
+              </button>
+            </div>
+            <div class="settings-action-item danger-action">
+              <div class="action-info">
+                <span class="action-icon action-icon-danger">⚠️</span>
+                <div>
+                  <p class="action-title">Reset Semua Data</p>
+                  <p class="action-desc">Hapus seluruh data tugas dan pengaturan. Tindakan ini tidak dapat dibatalkan.</p>
+                </div>
+              </div>
+              <button id="resetDataBtn" class="btn btn-danger">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+                </svg>
+                Reset Data
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Info Aplikasi -->
+        <div class="card settings-section">
+          <h2 class="card-title">Info Aplikasi</h2>
+          <table class="info-table">
+            <tbody>
+              <tr><td>Nama Aplikasi</td><td>SchoolTask</td></tr>
+              <tr><td>Versi</td><td>1.0.0</td></tr>
+              <tr><td>Deskripsi</td><td>Manajemen Tugas Sekolah untuk Siswa SMK</td></tr>
+              <tr><td>Dibuat oleh</td><td>Andrean Rayhan Wijaya</td></tr>
+              <tr><td>Teknologi</td><td>HTML5, CSS3, Vanilla JavaScript</td></tr>
+              <tr><td>Penyimpanan</td><td>localStorage (lokal browser)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </section><!-- /viewSettings -->
+
+    </main><!-- /mainContent -->
+  </div><!-- /appShell -->
+
+  <!-- ===== PROFILE MODAL ===== -->
+  <div id="profileModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="profileModalTitle" class="modal-title">Edit Profil</h2>
+        <button id="profileModalClose" class="modal-close" aria-label="Tutup modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="avatar-upload-area" id="avatarUploadArea" role="button" tabindex="0" aria-label="Klik untuk unggah foto profil">
+          <img id="modalAvatar" class="userAvatar modal-avatar-preview" src="" alt="Pratinjau avatar" />
+          <div class="avatar-upload-overlay">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <span>Ganti Foto</span>
+          </div>
+          <input type="file" id="avatarFileInput" accept="image/jpeg,image/png,image/gif,image/webp" class="avatar-file-input" aria-label="Pilih file foto" />
+        </div>
+        <p id="avatarError" class="avatar-error" aria-live="polite"></p>
+        <form id="profileForm" class="profile-form" novalidate>
+          <div class="form-group">
+            <label for="profileUsername">Username</label>
+            <input type="text" id="profileUsername" class="form-input" placeholder="Username" readonly />
+          </div>
+          <div class="form-group">
+            <label for="profileFullName">Nama Lengkap</label>
+            <input type="text" id="profileFullName" class="form-input" placeholder="Nama lengkap Anda" />
+          </div>
+          <div class="form-group">
+            <label for="profileKelas">Kelas</label>
+            <input type="text" id="profileKelas" class="form-input" placeholder="Contoh: XII RPL 1" />
+          </div>
+          <div class="form-group">
+            <label for="profileJurusan">Jurusan</label>
+            <input type="text" id="profileJurusan" class="form-input" placeholder="Contoh: Rekayasa Perangkat Lunak" />
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Simpan Profil</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Task Modal -->
+  <div id="editTaskModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="editTaskModalTitle">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="editTaskModalTitle" class="modal-title">Edit Tugas</h2>
+        <button id="editTaskModalClose" class="modal-close" aria-label="Tutup modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="editTaskForm" class="profile-form" novalidate>
+          <input type="hidden" id="editTaskId" />
+          <div class="form-group">
+            <label for="editTitle">Judul Tugas <span class="required">*</span></label>
+            <input type="text" id="editTitle" class="form-input" placeholder="Judul tugas" required />
+          </div>
+          <div class="form-group">
+            <label for="editSubject">Mata Pelajaran <span class="required">*</span></label>
+            <select id="editSubject" class="form-input subject-select" required>
+              <option value="">-- Pilih Mapel --</option>
+            </select>
+          </div>
+          <div class="form-row-2col">
+            <div class="form-group">
+              <label for="editDueDate">Tanggal Tenggat</label>
+              <input type="date" id="editDueDate" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label for="editDueTime">Jam (Opsional)</label>
+              <input type="time" id="editDueTime" class="form-input" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="editPriority">Prioritas</label>
+            <select id="editPriority" class="form-input">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="editStatus">Status</label>
+            <select id="editStatus" class="form-input">
+              <option value="todo">To Do</option>
+              <option value="inprogress">In Progress</option>
+              <option value="done">Selesai</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Simpan Perubahan</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <script type="module" src="script.js"></script>
 </body>
 </html>
