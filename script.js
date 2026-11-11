@@ -93,11 +93,12 @@ function initDefaultUser() {
     const stored = localStorage.getItem(KEYS.USER);
     if (!stored) {
       const defaultUser = {
-        username: "siswa",
-        fullName: "Andrean Rayhan",
-        kelas:    "XII RPL",
-        jurusan:  "Rekayasa Perangkat Lunak",
-        avatar:   null,
+        username:       "siswa",
+        fullName:       "Andrean Rayhan",
+        kelas:          "XII RPL",
+        jurusan:        "Rekayasa Perangkat Lunak",
+        avatar:         null,
+        avatarPosition: 20,
       };
       localStorage.setItem(KEYS.USER, JSON.stringify(defaultUser));
     }
@@ -1278,16 +1279,20 @@ function renderSettingsSubjects() {
 /**
  * Memperbarui semua elemen img avatar di DOM berdasarkan currentUser.
  * Jika tidak ada avatar, tampilkan SVG inisial.
+ * Mengatur posisi vertikal foto (object-position) sesuai avatarPosition user.
  * @returns {void}
  */
 function updateAvatarDisplays() {
   const avatarEls = document.querySelectorAll(".userAvatar");
+  const name = currentUser && currentUser.fullName ? currentUser.fullName : "Andrean Rayhan";
   const src = currentUser && currentUser.avatar
     ? currentUser.avatar
-    : generateAvatarDataUrl(currentUser ? currentUser.fullName || currentUser.username : "?");
+    : generateAvatarDataUrl(name);
+  const pos = currentUser && typeof currentUser.avatarPosition === "number" ? currentUser.avatarPosition : 20;
 
   avatarEls.forEach((el) => {
     el.src = src;
+    el.style.objectPosition = `center ${pos}%`;
   });
 }
 
@@ -1308,14 +1313,33 @@ function generateAvatarDataUrl(name) {
 }
 
 /**
+ * Memperbarui badge teks persentase posisi vertikal avatar.
+ * @param {number} val - Nilai persentase 0-100.
+ * @returns {void}
+ */
+function updateAvatarPosLabel(val) {
+  const lbl = document.getElementById("avatarPosLabel");
+  if (!lbl) { return; }
+  let desc = `Tengah (${val}%)`;
+  if (val <= 25) {
+    desc = `Atas (${val}%)`;
+  } else if (val >= 75) {
+    desc = `Bawah (${val}%)`;
+  }
+  lbl.textContent = desc;
+}
+
+/**
  * Memperbarui konten profile dropdown (nama, produktivitas).
  * @returns {void}
  */
 function renderProfileDropdown() {
   if (!currentUser) { return; }
 
-  document.getElementById("dropdownName").textContent = currentUser.fullName || currentUser.username;
-  document.getElementById("topbarUsername").textContent = currentUser.username;
+  const fullName = currentUser.fullName || "Andrean Rayhan";
+  const firstName = fullName.trim().split(/\s+/)[0] || fullName;
+  document.getElementById("dropdownName").textContent = fullName;
+  document.getElementById("topbarUsername").textContent = firstName;
 
   const done  = tasks.filter((t) => t.status === "done").length;
   const total = tasks.length;
@@ -1568,11 +1592,18 @@ function closeEditModal() {
  */
 function openProfileModal() {
   if (!currentUser) { return; }
-  document.getElementById("profileUsername").value = currentUser.username;
   document.getElementById("profileFullName").value = currentUser.fullName || "";
   document.getElementById("profileKelas").value    = currentUser.kelas || "";
   document.getElementById("profileJurusan").value  = currentUser.jurusan || "";
   document.getElementById("avatarError").textContent = "";
+
+  const pos = currentUser && typeof currentUser.avatarPosition === "number" ? currentUser.avatarPosition : 20;
+  const slider = document.getElementById("avatarPosSlider");
+  if (slider) {
+    slider.value = pos;
+  }
+  updateAvatarPosLabel(pos);
+
   updateAvatarDisplays();
   document.getElementById("profileModal").classList.remove("hidden");
 }
@@ -1888,12 +1919,42 @@ function setupEventListeners() {
     if (e.target === document.getElementById("profileModal")) { closeProfileModal(); }
   });
 
+  /* Avatar vertical position slider live preview */
+  const avatarSlider = document.getElementById("avatarPosSlider");
+  if (avatarSlider) {
+    avatarSlider.addEventListener("input", (e) => {
+      const val = parseInt(e.target.value, 10);
+      const modalAvatar = document.getElementById("modalAvatar");
+      if (modalAvatar) {
+        modalAvatar.style.objectPosition = `center ${val}%`;
+      }
+      updateAvatarPosLabel(val);
+    });
+  }
+
+  /* Avatar position presets */
+  document.querySelectorAll(".btn-pos-preset").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const val = parseInt(btn.getAttribute("data-pos"), 10);
+      if (!isNaN(val)) {
+        if (avatarSlider) { avatarSlider.value = val; }
+        const modalAvatar = document.getElementById("modalAvatar");
+        if (modalAvatar) {
+          modalAvatar.style.objectPosition = `center ${val}%`;
+        }
+        updateAvatarPosLabel(val);
+      }
+    });
+  });
+
   document.getElementById("profileForm").addEventListener("submit", (e) => {
     e.preventDefault();
+    const posVal = avatarSlider ? parseInt(avatarSlider.value, 10) : 20;
     saveProfile({
-      fullName: document.getElementById("profileFullName").value.trim(),
-      kelas:    document.getElementById("profileKelas").value.trim(),
-      jurusan:  document.getElementById("profileJurusan").value.trim(),
+      fullName:       document.getElementById("profileFullName").value.trim(),
+      kelas:          document.getElementById("profileKelas").value.trim(),
+      jurusan:        document.getElementById("profileJurusan").value.trim(),
+      avatarPosition: isNaN(posVal) ? 20 : posVal,
     });
     updateAvatarDisplays();
     renderProfileDropdown();

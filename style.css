@@ -300,7 +300,18 @@ input:-webkit-autofill:active {
   overflow: hidden;
 }
 
-.logo-icon-sm { font-size: 1.3rem; flex-shrink: 0; }
+.logo-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.35);
+}
 
 .logo-text {
   font-weight: 800;
@@ -564,20 +575,26 @@ input:-webkit-autofill:active {
 .avatar-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: transparent;
-  border: none;
-  padding: 4px;
-  border-radius: 24px;
-  transition: background var(--transition);
+  gap: 10px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  padding: 4px 12px 4px 4px;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all var(--transition);
 }
-.avatar-btn:hover { background: var(--bg-tertiary); }
+.avatar-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
 
 .avatar-circle {
   width: 36px;
   height: 36px;
   border-radius: 50%;
   object-fit: cover;
+  object-position: center 20%;
   border: 2px solid var(--accent);
   flex-shrink: 0;
   background: var(--bg-tertiary);
@@ -587,10 +604,16 @@ input:-webkit-autofill:active {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--text-primary);
-  max-width: 100px;
+  max-width: 130px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.avatar-chevron {
+  color: var(--text-secondary);
+  transition: transform var(--transition);
+  margin-left: -2px;
 }
 
 /* ============================================================
@@ -766,9 +789,53 @@ input:-webkit-autofill:active {
 .metric-card-overdue::before { background: var(--danger); }
 
 .metric-icon {
-  font-size: 2rem;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  line-height: 1;
+  transition: transform var(--transition);
+}
+
+.metric-card:hover .metric-icon {
+  transform: scale(1.08);
+}
+
+.metric-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.metric-icon-total {
+  background: rgba(148, 163, 184, 0.12);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.metric-icon-todo {
+  background: rgba(234, 179, 8, 0.12);
+  color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.25);
+}
+
+.metric-icon-progress {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.metric-icon-done {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.metric-icon-overdue {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
 .metric-info {}
@@ -1338,9 +1405,80 @@ canvas {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 20%;
   border-radius: 50%;
   display: block;
   background: var(--bg-tertiary);
+  transition: object-position 0.1s ease;
+}
+
+/* Avatar vertical position adjuster */
+.avatar-pos-container {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+
+.avatar-pos-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.avatar-pos-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.avatar-pos-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(249, 115, 22, 0.12);
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.avatar-pos-range {
+  width: 100%;
+  height: 6px;
+  border-radius: 4px;
+  background: var(--bg-tertiary);
+  outline: none;
+  cursor: pointer;
+  accent-color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.avatar-pos-presets {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-pos-preset {
+  flex: 1;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-pos-preset:hover {
+  background: rgba(249, 115, 22, 0.15);
+  border-color: var(--accent);
+  color: var(--text-primary);
 }
 
 .avatar-upload-overlay {
@@ -1722,7 +1860,13 @@ canvas {
   }
 
   .metric-icon {
-    font-size: 1.4rem;
+    width: 38px;
+    height: 38px;
+  }
+
+  .metric-icon svg {
+    width: 20px;
+    height: 20px;
   }
 
   .metric-value {
