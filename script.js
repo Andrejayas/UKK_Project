@@ -1711,45 +1711,11 @@ function switchView(viewName) {
     renderAnalytics();
   } else if (viewName === "settings") {
     renderSettingsSubjects();
-    populateSupabaseConfigInputs();
   } else if (viewName === "dashboard") {
     renderMetricCards();
     renderSubjectProgress();
     renderDonutChart();
     renderWeeklyChart();
-  }
-}
-
-/**
- * Mengisi input konfigurasi Supabase di halaman pengaturan.
- * Menampilkan konfigurasi yang aktif (default atau custom dari localStorage).
- * @returns {void}
- */
-function populateSupabaseConfigInputs() {
-  try {
-    const raw = localStorage.getItem(KEYS.SUPABASE);
-    const urlInput = document.getElementById("sbUrlInput");
-    const keyInput = document.getElementById("sbKeyInput");
-    let currentConfig = { ...DEFAULT_SUPABASE_CONFIG };
-
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw);
-        if (parsed.disabled) {
-          currentConfig = { url: "", key: "" };
-        } else if (parsed.url && parsed.key && typeof parsed.url === "string" && parsed.url.startsWith("http")) {
-          currentConfig = parsed;
-        }
-      } catch {
-        // Abaikan parse error
-      }
-    }
-
-    if (urlInput) { urlInput.value = currentConfig.url || ""; }
-    if (keyInput) { keyInput.value = currentConfig.key || ""; }
-    updateDbUI(isSupabaseConnected);
-  } catch (err) {
-    console.warn("populateSupabaseConfigInputs error:", err);
   }
 }
 
@@ -2133,73 +2099,16 @@ function setupEventListeners() {
     }
   });
 
-  /* ----- SETTINGS: SUPABASE DATABASE CONFIG ----- */
-  const sbForm = document.getElementById("supabaseConfigForm");
-  if (sbForm) {
-    sbForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      let url = document.getElementById("sbUrlInput").value.trim();
-      let key = document.getElementById("sbKeyInput").value.trim();
-
-      if (!url && !key) {
-        url = DEFAULT_SUPABASE_CONFIG.url;
-        key = DEFAULT_SUPABASE_CONFIG.key;
-      } else if (!url || !key) {
-        showToast("Project URL dan Anon Key tidak boleh kosong.", "error");
-        return;
-      }
-
-      showToast("Menghubungkan ke Supabase...", "info");
-      localStorage.setItem(KEYS.SUPABASE, JSON.stringify({ url, key }));
-
-      const connected = await initSupabase();
-      if (connected) {
-        await loadTasks();
-        showToast("Berhasil terhubung ke Supabase (PostgreSQL)! 🚀", "success");
-      } else {
-        showToast("Koneksi Supabase gagal dicek. Tetap menggunakan LocalStorage.", "warning");
-      }
-    });
-  }
-
-  const disconnectBtn = document.getElementById("disconnectSbBtn");
-  if (disconnectBtn) {
-    disconnectBtn.addEventListener("click", () => {
-      localStorage.setItem(KEYS.SUPABASE, JSON.stringify({ disabled: true }));
-      supabaseClient = null;
-      isSupabaseConnected = false;
-      updateDbUI(false);
-      populateSupabaseConfigInputs();
-      showToast("Beralih ke mode penyimpanan lokal (LocalStorage). 📦", "info");
-    });
-  }
-
-  const syncBtn = document.getElementById("syncSbBtn");
-  if (syncBtn) {
-    syncBtn.addEventListener("click", async () => {
-      if (!supabaseClient || !isSupabaseConnected) {
-        showToast("Hubungkan ke Supabase terlebih dahulu.", "warning");
-        return;
-      }
-      showToast("Menyinkronkan data ke Supabase...", "info");
-      try {
-        const rows = tasks.map(toDbTask);
-        const { error } = await supabaseClient.from("tasks").upsert(rows);
-        if (!error) {
-          showToast("Data berhasil disinkronkan ke tabel Supabase! ✅", "success");
-        } else {
-          showToast(`Sinkronisasi gagal: ${error.message}`, "error");
-        }
-      } catch (err) {
-        showToast(`Error sinkronisasi: ${err.message}`, "error");
-      }
-    });
-  }
-
+  /* ----- TOPBAR DATABASE BADGE: Menampilkan status koneksi ----- */
   const topbarDbBadge = document.getElementById("topbarDbBadge");
   if (topbarDbBadge) {
     topbarDbBadge.addEventListener("click", () => {
-      switchView("settings");
+      showToast(
+        isSupabaseConnected
+          ? "Basis Data: Terhubung ke PostgreSQL Cloud (Supabase) 🟢"
+          : "Basis Data: Mode Offline Cadangan (LocalStorage) 📦",
+        "info"
+      );
     });
   }
 
@@ -2230,7 +2139,6 @@ function initApp() {
 
   /* 2. Coba inisialisasi koneksi Supabase di latar belakang */
   initSupabase().then((connected) => {
-    populateSupabaseConfigInputs();
     if (connected && loadSession()) {
       loadTasks();
     }

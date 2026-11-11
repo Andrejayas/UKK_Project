@@ -386,45 +386,6 @@
       <section id="viewSettings" class="view hidden">
         <h1 class="view-title">Pengaturan</h1>
 
-        <!-- Database Supabase (Cloud PostgreSQL) -->
-        <div class="card settings-section">
-          <div class="settings-header-with-badge">
-            <div>
-              <h2 class="card-title">Database Supabase (Cloud PostgreSQL)</h2>
-              <p class="settings-desc">Aplikasi telah terhubung langsung ke database cloud Supabase. Jika jaringan offline atau diputus, sistem otomatis beralih ke cadangan <strong>LocalStorage</strong> (bebas error).</p>
-            </div>
-            <span id="supabaseStatusBadge" class="badge db-status-badge">📦 LocalStorage</span>
-          </div>
-          <form id="supabaseConfigForm" class="supabase-config-form" novalidate>
-            <div class="form-group">
-              <label for="sbUrlInput">Supabase Project URL</label>
-              <input type="url" id="sbUrlInput" class="form-input" placeholder="https://xyzprojectid.supabase.co" autocomplete="off" />
-            </div>
-            <div class="form-group">
-              <label for="sbKeyInput">Supabase Anon Key (Public Key)</label>
-              <input type="password" id="sbKeyInput" class="form-input" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." autocomplete="off" />
-            </div>
-            <div class="settings-db-buttons">
-              <button type="submit" class="btn btn-primary">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                Simpan &amp; Hubungkan
-              </button>
-              <button type="button" id="disconnectSbBtn" class="btn btn-secondary">
-                Putuskan (Gunakan LocalStorage)
-              </button>
-              <button type="button" id="syncSbBtn" class="btn btn-export">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                Sinkronkan Data Sekarang
-              </button>
-            </div>
-          </form>
-          <div class="supabase-guide-box">
-            <p class="guide-title">💡 <strong>Catatan untuk Guru &amp; Asesor:</strong></p>
-            <p>1. Skema tabel SQL sudah disediakan di file <code>supabase-schema.sql</code> (tinggal copy-paste ke SQL Editor Supabase).</p>
-            <p>2. Disediakan mekanisme <em>Dual-Mode Fallback</em>: jika jaringan lab sekolah offline saat ujian, sistem tetap bekerja 100% menggunakan <em>LocalStorage</em> tanpa crash.</p>
-          </div>
-        </div>
-
         <!-- Kelola Mata Pelajaran -->
         <div class="card settings-section">
           <h2 class="card-title">Kelola Mata Pelajaran</h2>
