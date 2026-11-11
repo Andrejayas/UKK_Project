@@ -27,6 +27,15 @@ const KEYS = {
   SUPABASE: "schooltask_supabase_config",
 };
 
+/**
+ * Konfigurasi bawaan Supabase Cloud PostgreSQL
+ * Terhubung otomatis ke project Supabase tanpa konfigurasi manual dari user.
+ */
+const DEFAULT_SUPABASE_CONFIG = {
+  url: "https://qlvflsqbhkqsuyqvvbbm.supabase.co",
+  key: "sb_publishable_49djRHFJZxoJJ2Q_FJGjKQ_anvt5QvW",
+};
+
 /** State Klien Supabase (PostgreSQL Cloud) */
 let supabaseClient = null;
 let isSupabaseConnected = false;
@@ -300,20 +309,28 @@ function updateDbUI(isConnected) {
 
 /**
  * Menginisialisasi koneksi ke Supabase jika konfigurasi tersedia.
+ * Mengutamakan DEFAULT_SUPABASE_CONFIG, dapat di-override atau dinonaktifkan via localStorage.
  * @returns {Promise<boolean>}
  */
 async function initSupabase() {
   try {
+    let config = { ...DEFAULT_SUPABASE_CONFIG };
     const raw = localStorage.getItem(KEYS.SUPABASE);
-    if (!raw) {
-      supabaseClient = null;
-      isSupabaseConnected = false;
-      updateDbUI(false);
-      return false;
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed.disabled) {
+          // Pengguna sengaja memilih mode LocalStorage
+          config = null;
+        } else if (parsed.url && parsed.key) {
+          config = parsed;
+        }
+      } catch {
+        // Abaikan parse error, gunakan config default
+      }
     }
 
-    const config = JSON.parse(raw);
-    if (!config.url || !config.key) {
+    if (!config || !config.url || !config.key) {
       supabaseClient = null;
       isSupabaseConnected = false;
       updateDbUI(false);
@@ -1704,7 +1721,8 @@ function switchView(viewName) {
 }
 
 /**
- * Mengisi input konfigurasi Supabase di halaman pengaturan jika sudah tersimpan.
+ * Mengisi input konfigurasi Supabase di halaman pengaturan.
+ * Menampilkan konfigurasi yang aktif (default atau custom dari localStorage).
  * @returns {void}
  */
 function populateSupabaseConfigInputs() {
@@ -1712,14 +1730,23 @@ function populateSupabaseConfigInputs() {
     const raw = localStorage.getItem(KEYS.SUPABASE);
     const urlInput = document.getElementById("sbUrlInput");
     const keyInput = document.getElementById("sbKeyInput");
+    let currentConfig = { ...DEFAULT_SUPABASE_CONFIG };
+
     if (raw) {
-      const config = JSON.parse(raw);
-      if (urlInput) { urlInput.value = config.url || ""; }
-      if (keyInput) { keyInput.value = config.key || ""; }
-    } else {
-      if (urlInput) { urlInput.value = ""; }
-      if (keyInput) { keyInput.value = ""; }
+      try {
+        const parsed = JSON.parse(raw);
+        if (parsed.disabled) {
+          currentConfig = { url: "", key: "" };
+        } else if (parsed.url && parsed.key) {
+          currentConfig = parsed;
+        }
+      } catch {
+        // Abaikan parse error
+      }
     }
+
+    if (urlInput) { urlInput.value = currentConfig.url || ""; }
+    if (keyInput) { keyInput.value = currentConfig.key || ""; }
     updateDbUI(isSupabaseConnected);
   } catch (err) {
     console.warn("populateSupabaseConfigInputs error:", err);
@@ -2111,10 +2138,13 @@ function setupEventListeners() {
   if (sbForm) {
     sbForm.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const url = document.getElementById("sbUrlInput").value.trim();
-      const key = document.getElementById("sbKeyInput").value.trim();
+      let url = document.getElementById("sbUrlInput").value.trim();
+      let key = document.getElementById("sbKeyInput").value.trim();
 
-      if (!url || !key) {
+      if (!url && !key) {
+        url = DEFAULT_SUPABASE_CONFIG.url;
+        key = DEFAULT_SUPABASE_CONFIG.key;
+      } else if (!url || !key) {
         showToast("Project URL dan Anon Key tidak boleh kosong.", "error");
         return;
       }
@@ -2135,7 +2165,7 @@ function setupEventListeners() {
   const disconnectBtn = document.getElementById("disconnectSbBtn");
   if (disconnectBtn) {
     disconnectBtn.addEventListener("click", () => {
-      localStorage.removeItem(KEYS.SUPABASE);
+      localStorage.setItem(KEYS.SUPABASE, JSON.stringify({ disabled: true }));
       supabaseClient = null;
       isSupabaseConnected = false;
       updateDbUI(false);
@@ -2199,8 +2229,11 @@ function initApp() {
   initDefaultUser();
 
   /* 2. Coba inisialisasi koneksi Supabase di latar belakang */
-  initSupabase().then(() => {
+  initSupabase().then((connected) => {
     populateSupabaseConfigInputs();
+    if (connected && loadSession()) {
+      loadTasks();
+    }
   });
 
   /* 3. Tambahkan sidebar backdrop untuk mobile */
