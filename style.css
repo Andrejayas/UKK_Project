@@ -388,6 +388,15 @@ input:-webkit-autofill:active {
   width: var(--sidebar-collapsed-width);
 }
 
+.sidebar-collapsed .sidebar-header {
+  justify-content: center;
+  padding: 18px 0;
+}
+
+.sidebar-collapsed .sidebar-logo {
+  display: none !important;
+}
+
 .sidebar-collapsed .logo-text,
 .sidebar-collapsed .nav-label {
   opacity: 0;
@@ -403,6 +412,10 @@ input:-webkit-autofill:active {
 }
 
 .sidebar-collapsed .nav-item.active { border-left-color: transparent; }
+
+.sidebar-collapsed .sidebar-bottom {
+  padding: 8px 4px;
+}
 
 /* ============================================================
    8. MAIN CONTENT
