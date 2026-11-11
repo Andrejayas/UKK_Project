@@ -72,16 +72,18 @@
     <main id="mainContent" class="main-content">
 
       <!-- TOP BAR -->
-      <header class="topbar">
+      <header class="topbar" id="mainTopbar">
         <div class="topbar-left">
           <button id="topbarToggle" class="topbar-menu-btn" aria-label="Toggle Sidebar">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
             </svg>
           </button>
-          <nav aria-label="Breadcrumb">
+          <div class="topbar-breadcrumb-wrap">
+            <span class="topbar-tag">UKK RPL</span>
+            <span class="topbar-divider">/</span>
             <span id="breadcrumb" class="breadcrumb">Dashboard</span>
-          </nav>
+          </div>
         </div>
         <div class="topbar-right">
           <button type="button" id="topbarDbBadge" class="topbar-db-badge db-badge-supabase" title="Status: Sinkronisasi Cloud">
@@ -223,8 +225,8 @@
                 </select>
               </div>
               <div id="qaCustomSubjectWrapper" class="form-group hidden">
-                <label for="qaCustomSubject">Nama Mapel Baru</label>
-                <input type="text" id="qaCustomSubject" class="form-input" placeholder="Ketik nama mata pelajaran baru" />
+                <label for="qaCustomSubject">Nama Mata Pelajaran Baru</label>
+                <input type="text" id="qaCustomSubject" class="form-input" placeholder="Masukkan nama mata pelajaran..." />
               </div>
               <div class="form-row-2col">
                 <div class="form-group">

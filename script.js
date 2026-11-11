@@ -1214,7 +1214,7 @@ function updateSubjectSelects() {
     if (!isFilter) {
       const addNew = document.createElement("option");
       addNew.value = "__new__";
-      addNew.textContent = "✏️ Tambah Mapel Baru...";
+      addNew.textContent = "+ Tambah Mata Pelajaran Baru";
       sel.appendChild(addNew);
     }
 
@@ -1810,24 +1810,45 @@ function closeProfileModal() {
 
 /**
  * Menampilkan notifikasi toast di pojok kanan bawah.
+ * Menggunakan styling glassmorphism modern dengan badge ikon vektor SVG.
  * @param {string} message - Pesan yang ditampilkan.
  * @param {'success'|'error'|'warning'} [type='success'] - Tipe toast.
  * @returns {void}
  */
 function showToast(message, type = "success") {
   const container = document.getElementById("toastContainer");
-  const toast     = document.createElement("div");
+  if (!container) { return; }
+
+  const toast = document.createElement("div");
   toast.className = `toast toast-${type}`;
+  toast.setAttribute("role", "alert");
+  toast.setAttribute("aria-live", "polite");
 
-  const icon = type === "success" ? "✅" : type === "error" ? "❌" : "⚠️";
-  toast.textContent = `${icon} ${message}`;
+  let iconSvg = "";
+  if (type === "success") {
+    iconSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>`;
+  } else if (type === "error") {
+    iconSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
+  } else {
+    iconSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+  }
 
+  const iconBadge = document.createElement("div");
+  iconBadge.className = `toast-icon-badge toast-badge-${type}`;
+  iconBadge.innerHTML = iconSvg;
+
+  const msgSpan = document.createElement("span");
+  msgSpan.className = "toast-message";
+  msgSpan.textContent = message;
+
+  toast.appendChild(iconBadge);
+  toast.appendChild(msgSpan);
   container.appendChild(toast);
 
   setTimeout(() => {
     toast.classList.add("removing");
     toast.addEventListener("animationend", () => toast.remove(), { once: true });
-  }, 3000);
+  }, 3200);
 }
 
 /* ============================================================
@@ -2381,6 +2402,18 @@ function setupEventListeners() {
         "info"
       );
     });
+  }
+
+  /* ----- TOPBAR SCROLL ELEVATION (Persis gaya PT Artha Haridra Cipta) ----- */
+  const mainTopbar = document.getElementById("mainTopbar");
+  if (mainTopbar) {
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 15) {
+        mainTopbar.classList.add("topbar-scrolled");
+      } else {
+        mainTopbar.classList.remove("topbar-scrolled");
+      }
+    }, { passive: true });
   }
 
   /* ----- WINDOW RESIZE: Redraw charts ----- */
