@@ -94,7 +94,6 @@ function initDefaultUser() {
     if (!stored) {
       const defaultUser = {
         username: "siswa",
-        password: "ukk2026",
         fullName: "Andrean Rayhan",
         kelas:    "XII RPL",
         jurusan:  "Rekayasa Perangkat Lunak",
@@ -135,72 +134,12 @@ function saveProfile(data) {
 }
 
 /**
- * Memproses login pengguna.
- * @param {string} username - Username yang dimasukkan.
- * @param {string} password - Password yang dimasukkan.
- * @returns {boolean} true jika login berhasil, false jika gagal.
- */
-function login(username, password) {
-  const user = loadProfile();
-  if (!user) { return false; }
-  if (username === user.username && password === user.password) {
-    currentUser = user;
-    try {
-      localStorage.setItem(KEYS.SESSION, JSON.stringify({ username: user.username, ts: Date.now() }));
-    } catch (err) {
-      console.error("Session save error:", err);
-    }
-    showApp();
-    return true;
-  }
-  return false;
-}
-
-/**
- * Memproses logout pengguna.
- * @returns {void}
- */
-function logout() {
-  try {
-    localStorage.removeItem(KEYS.SESSION);
-  } catch (err) {
-    console.error("logout error:", err);
-  }
-  currentUser = null;
-  document.getElementById("appShell").classList.add("hidden");
-  document.getElementById("loginScreen").classList.remove("hidden");
-  document.getElementById("loginUsername").value = "";
-  document.getElementById("loginPassword").value = "";
-  document.getElementById("loginError").textContent = "";
-}
-
-/**
- * Memeriksa sesi aktif saat halaman dimuat.
- * @returns {boolean} true jika sesi valid, false jika tidak.
- */
-function loadSession() {
-  try {
-    const raw = localStorage.getItem(KEYS.SESSION);
-    if (!raw) { return false; }
-    const session = JSON.parse(raw);
-    const user = loadProfile();
-    if (user && session.username === user.username) {
-      currentUser = user;
-      return true;
-    }
-    return false;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Menampilkan app shell, memuat data, menyembunyikan login screen, dan merender antarmuka.
+ * Menampilkan app shell, memuat data, dan merender antarmuka.
  * @returns {void}
  */
 function showApp() {
-  document.getElementById("loginScreen").classList.add("hidden");
-  document.getElementById("appShell").classList.remove("hidden");
+  const appShell = document.getElementById("appShell");
+  if (appShell) { appShell.classList.remove("hidden"); }
   loadSubjects();
   loadTasks();
   updateSubjectSelects();
@@ -284,24 +223,26 @@ function updateDbUI(isConnected) {
     if (topbarBadge) {
       topbarBadge.classList.add("db-badge-supabase");
       topbarBadge.classList.remove("db-badge-local");
+      topbarBadge.title = "Status Sistem: Sinkronisasi Cloud (Online)";
     }
     if (badgeText) {
-      badgeText.innerHTML = '<span class="db-text-full">Supabase (PostgreSQL)</span><span class="db-text-short">Supabase</span>';
+      badgeText.innerHTML = '<span class="db-text-full">Cloud Sync (Online)</span><span class="db-text-short">Online</span>';
     }
     if (settingsBadge) {
-      settingsBadge.textContent = "🟢 Terhubung ke Supabase";
+      settingsBadge.textContent = "🟢 Terhubung ke Cloud";
       settingsBadge.classList.add("connected");
     }
   } else {
     if (topbarBadge) {
       topbarBadge.classList.remove("db-badge-supabase");
       topbarBadge.classList.add("db-badge-local");
+      topbarBadge.title = "Status Sistem: Mode Offline Cadangan (Lokal)";
     }
     if (badgeText) {
-      badgeText.innerHTML = '<span class="db-text-full">LocalStorage (Lokal)</span><span class="db-text-short">Local</span>';
+      badgeText.innerHTML = '<span class="db-text-full">Mode Offline</span><span class="db-text-short">Offline</span>';
     }
     if (settingsBadge) {
-      settingsBadge.textContent = "📦 Mode: LocalStorage";
+      settingsBadge.textContent = "📦 Mode: Offline";
       settingsBadge.classList.remove("connected");
     }
   }
@@ -1810,48 +1751,6 @@ function closeMobileSidebar() {
  */
 function setupEventListeners() {
 
-  /* ----- LOGIN ----- */
-  document.getElementById("loginForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const username = document.getElementById("loginUsername").value.trim();
-    const password = document.getElementById("loginPassword").value;
-    const success  = login(username, password);
-    if (!success) {
-      document.getElementById("loginError").textContent = "Username atau password salah.";
-    }
-  });
-
-  /* Toggle Password Visibility */
-  const togglePassBtn = document.getElementById("togglePasswordBtn");
-  const passInput     = document.getElementById("loginPassword");
-  if (togglePassBtn && passInput) {
-    togglePassBtn.addEventListener("click", () => {
-      const isPass = passInput.type === "password";
-      passInput.type = isPass ? "text" : "password";
-      const eyeIcon = document.getElementById("eyeIcon");
-      if (eyeIcon) {
-        eyeIcon.innerHTML = isPass
-          ? `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`
-          : `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
-      }
-    });
-  }
-
-  /* Demo Account Quick Fill */
-  const demoFillBtn = document.getElementById("demoFillBtn");
-  if (demoFillBtn) {
-    demoFillBtn.addEventListener("click", () => {
-      document.getElementById("loginUsername").value = "siswa";
-      document.getElementById("loginPassword").value = "ukk2026";
-      document.getElementById("loginError").textContent = "";
-      showToast("Akun demo terisi otomatis. Klik Masuk!", "info");
-    });
-  }
-
-  /* ----- LOGOUT ----- */
-  document.getElementById("sidebarLogoutBtn").addEventListener("click", logout);
-  document.getElementById("dropdownLogoutBtn").addEventListener("click", logout);
-
   /* ----- SIDEBAR TOGGLE ----- */
   document.getElementById("sidebarToggle").addEventListener("click", toggleSidebar);
   document.getElementById("topbarToggle").addEventListener("click", toggleSidebar);
@@ -2136,10 +2035,17 @@ function setupEventListeners() {
 function initApp() {
   /* 1. Pastikan user default ada */
   initDefaultUser();
+  currentUser = loadProfile() || {
+    username: "siswa",
+    fullName: "Andrean Rayhan",
+    kelas:    "XII RPL",
+    jurusan:  "Rekayasa Perangkat Lunak",
+    avatar:   null,
+  };
 
   /* 2. Coba inisialisasi koneksi Supabase di latar belakang */
   initSupabase().then((connected) => {
-    if (connected && loadSession()) {
+    if (connected) {
       loadTasks();
     }
   });
@@ -2153,21 +2059,13 @@ function initApp() {
   /* 4. Pasang event listeners */
   setupEventListeners();
 
-  /* 5. Cek sesi aktif */
-  const hasSession = loadSession();
-  if (!hasSession) {
-    document.getElementById("loginScreen").classList.remove("hidden");
-    document.getElementById("appShell").classList.add("hidden");
-    return;
-  }
-
-  /* 6. Tampilkan app dan render UI */
+  /* 5. Tampilkan app dan render UI langsung */
   showApp();
 
-  /* 7. Set view awal */
+  /* 6. Set view awal */
   switchView("dashboard");
 
-  /* 8. Expose ke window untuk keperluan penilaian UKK & pengujian */
+  /* 7. Expose ke window untuk keperluan penilaian UKK & pengujian */
   window._schoolTask = {
     tasks,
     addTask,
@@ -2184,7 +2082,6 @@ function initApp() {
     formatDate,
     getTodayString,
     showToast,
-    logout,
     initSupabase,
     supabaseClient: () => supabaseClient,
     isSupabaseConnected: () => isSupabaseConnected,

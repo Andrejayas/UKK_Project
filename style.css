@@ -258,104 +258,6 @@ input:-webkit-autofill:active {
 }
 
 /* ============================================================
-   5. LOGIN SCREEN
-   ============================================================ */
-.login-overlay {
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle at 50% 20%, #1f2937 0%, #0f172a 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-}
-
-.login-card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-top: 3px solid var(--accent);
-  border-radius: var(--radius-lg);
-  padding: 44px 38px;
-  width: 100%;
-  max-width: 430px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-  animation: fadeInUp 0.4s ease;
-}
-
-.login-logo {
-  text-align: center;
-  margin-bottom: 28px;
-}
-
-.logo-icon {
-  font-size: 2.5rem;
-  display: block;
-  margin-bottom: 8px;
-}
-
-.login-title {
-  font-size: 1.85rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--accent), #fbbf24);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.login-subtitle {
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  margin-top: 4px;
-}
-
-.login-form { display: flex; flex-direction: column; gap: 4px; }
-
-.login-error {
-  color: var(--danger);
-  font-size: 0.8rem;
-  min-height: 1.2em;
-  margin-bottom: 4px;
-}
-
-.login-demo-box {
-  margin-top: 14px;
-}
-
-.demo-fill-btn {
-  width: 100%;
-  background: rgba(249, 115, 22, 0.08);
-  border: 1px dashed rgba(249, 115, 22, 0.35);
-  border-radius: var(--radius-sm);
-  padding: 10px 14px;
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-  text-align: center;
-  transition: all var(--transition);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.demo-fill-btn:hover {
-  background: rgba(249, 115, 22, 0.16);
-  border-color: var(--accent);
-  color: var(--text-primary);
-  transform: translateY(-1px);
-}
-
-.demo-badge {
-  background: var(--accent);
-  color: #fff;
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 4px;
-}
-
-/* ============================================================
    6. APP LAYOUT
    ============================================================ */
 .app-shell {
@@ -1816,24 +1718,6 @@ canvas {
 
   .metric-label {
     font-size: 0.68rem;
-  }
-
-  /* Login card responsif */
-  .login-overlay {
-    padding: 12px;
-  }
-
-  .login-card {
-    padding: 28px 16px;
-    border-radius: var(--radius-md);
-  }
-
-  .login-title {
-    font-size: 1.5rem;
-  }
-
-  .logo-icon {
-    font-size: 2rem;
   }
 
   /* Modal responsif tidak overflow */
