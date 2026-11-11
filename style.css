@@ -1529,67 +1529,6 @@ canvas {
 }
 
 /* ============================================================
-   26. RESPONSIVE
-   ============================================================ */
-@media (max-width: 1200px) {
-  .metric-cards-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-@media (max-width: 1024px) {
-  .two-col-grid { grid-template-columns: 1fr; }
-  .analytics-stats-grid { grid-template-columns: 1fr 1fr; }
-}
-
-@media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
-    width: var(--sidebar-width);
-  }
-
-  .sidebar.mobile-open {
-    transform: translateX(0);
-  }
-
-  .main-content {
-    margin-left: 0 !important;
-  }
-
-  .topbar-menu-btn { display: flex; }
-
-  .metric-cards-grid { grid-template-columns: 1fr 1fr; }
-  .analytics-stats-grid { grid-template-columns: 1fr; }
-
-  .task-table-header { flex-direction: column; align-items: stretch; }
-  .filter-toolbar { flex-direction: column; align-items: stretch; }
-  .filter-select { width: 100%; }
-  .search-wrapper-sm { width: 100%; }
-  .search-wrapper-sm .search-input { width: 100%; }
-
-  .topbar-username { display: none; }
-  .search-input { width: 150px; }
-  .search-input:focus { width: 190px; }
-
-  .settings-action-item { flex-direction: column; align-items: flex-start; }
-}
-
-@media (max-width: 480px) {
-  .metric-cards-grid { grid-template-columns: 1fr; }
-  .login-card { padding: 32px 24px; }
-  .view { padding: 16px; gap: 16px; }
-}
-
-/* Mobile sidebar overlay backdrop */
-.sidebar-backdrop {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,.5);
-  z-index: 99;
-}
-
-.sidebar-backdrop.active { display: block; }
-
-/* ============================================================
    17. SUPABASE DATABASE STYLES
    ============================================================ */
 .topbar-db-badge {
@@ -1605,6 +1544,8 @@ canvas {
   color: var(--text-secondary);
   cursor: pointer;
   transition: all var(--transition);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .topbar-db-badge:hover {
@@ -1625,6 +1566,9 @@ canvas {
   background-color: currentColor;
   flex-shrink: 0;
 }
+
+.db-text-short { display: none; }
+.db-text-full  { display: inline; }
 
 .settings-header-with-badge {
   display: flex;
@@ -1687,4 +1631,346 @@ canvas {
   font-size: 0.8rem;
   color: var(--text-primary);
 }
+
+/* ============================================================
+   18. RESPONSIVE DESIGN (OPTIMASI LAYAR MOBILE / SMARTPHONE)
+   ============================================================ */
+
+/* Tablet & Laptop Sedang */
+@media (max-width: 1200px) {
+  .metric-cards-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 1024px) {
+  .two-col-grid { grid-template-columns: 1fr; }
+  .analytics-stats-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* Tablet & HP Landscape (<= 768px) */
+@media (max-width: 768px) {
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  .app-shell {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  .sidebar {
+    transform: translateX(-100%);
+    width: var(--sidebar-width);
+    z-index: 100;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  /* Topbar Mobile */
+  .topbar {
+    padding: 0 14px;
+    height: 58px;
+    gap: 8px;
+  }
+
+  .topbar-left {
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .topbar-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .topbar-menu-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .breadcrumb {
+    font-size: 0.95rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .topbar-right {
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  /* Sembunyikan pencarian topbar pada mobile karena sudah ada di toolbar tabel */
+  .topbar-right .search-wrapper {
+    display: none;
+  }
+
+  .topbar-username {
+    display: none;
+  }
+
+  /* Metric Cards 2 kolom rapi */
+  .metric-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .analytics-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  /* Toolbar Filter & Tabel */
+  .task-table-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .filter-toolbar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .search-wrapper-sm {
+    grid-column: span 2;
+    width: 100%;
+  }
+
+  .search-wrapper-sm .search-input {
+    width: 100%;
+  }
+
+  #filterStatus {
+    grid-column: span 1;
+    width: 100%;
+  }
+
+  #filterSubject {
+    grid-column: span 1;
+    width: 100%;
+  }
+
+  #filterSort {
+    grid-column: span 2;
+    width: 100%;
+  }
+
+  .settings-action-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .settings-action-item .btn {
+    width: 100%;
+  }
+}
+
+/* Smartphone Layar Menengah & Kecil (<= 640px) */
+@media (max-width: 640px) {
+  .topbar {
+    padding: 0 10px;
+    height: 54px;
+  }
+
+  /* Sembunyikan jam widget karena HP sudah ada jam status bar bawaan */
+  .topbar-clock {
+    display: none;
+  }
+
+  /* Teks DB Badge disingkat agar pas di layar kecil */
+  .db-text-full  { display: none; }
+  .db-text-short { display: inline; }
+
+  .topbar-db-badge {
+    padding: 5px 9px;
+    font-size: 0.72rem;
+  }
+
+  /* Kartu Terlambat (ke-5) mengisi 2 kolom agar layout seimbang */
+  .metric-card.metric-card-overdue,
+  .metric-card:last-child {
+    grid-column: span 2;
+  }
+
+  .form-row-2col {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  /* Tabel dengan smooth touch scrolling */
+  .table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius-sm);
+  }
+
+  .task-table {
+    min-width: 580px;
+  }
+
+  .task-table th,
+  .task-table td {
+    padding: 10px 8px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Smartphone Portrait Sempit (<= 480px / 400px seperti screenshot) */
+@media (max-width: 480px) {
+  .view {
+    padding: 14px 10px;
+    gap: 14px;
+  }
+
+  .card {
+    padding: 16px 12px;
+    border-radius: var(--radius-md);
+  }
+
+  .card-title {
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+  }
+
+  /* Metric cards compact & proporsional */
+  .metric-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .metric-card {
+    padding: 12px 10px;
+    gap: 10px;
+    border-radius: var(--radius-sm);
+  }
+
+  .metric-icon {
+    font-size: 1.4rem;
+  }
+
+  .metric-value {
+    font-size: 1.3rem;
+  }
+
+  .metric-label {
+    font-size: 0.68rem;
+  }
+
+  /* Login card responsif */
+  .login-overlay {
+    padding: 12px;
+  }
+
+  .login-card {
+    padding: 28px 16px;
+    border-radius: var(--radius-md);
+  }
+
+  .login-title {
+    font-size: 1.5rem;
+  }
+
+  .logo-icon {
+    font-size: 2rem;
+  }
+
+  /* Modal responsif tidak overflow */
+  .modal-overlay {
+    padding: 10px;
+  }
+
+  .modal-card {
+    width: 95%;
+    max-width: 95%;
+    max-height: 90vh;
+    border-radius: var(--radius-md);
+  }
+
+  .modal-header {
+    padding: 14px 16px;
+  }
+
+  .modal-body {
+    padding: 16px 14px;
+  }
+
+  /* Pengaturan DB & Tombol */
+  .settings-header-with-badge {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .settings-db-buttons {
+    flex-direction: column;
+  }
+
+  .settings-db-buttons .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .add-subject-form {
+    flex-direction: column;
+  }
+
+  .add-subject-form .btn {
+    width: 100%;
+  }
+
+  /* Notifikasi Toast */
+  .toast-container {
+    bottom: 16px;
+    left: 12px;
+    right: 12px;
+    align-items: center;
+  }
+
+  .toast {
+    min-width: 0;
+    width: 100%;
+    max-width: 360px;
+    font-size: 0.8rem;
+    padding: 10px 14px;
+  }
+}
+
+/* Mobile sidebar overlay backdrop */
+.sidebar-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  z-index: 99;
+}
+
+.sidebar-backdrop.active {
+  display: block;
+}
+
 

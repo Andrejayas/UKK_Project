@@ -277,7 +277,7 @@ function updateDbUI(isConnected) {
       topbarBadge.classList.remove("db-badge-local");
     }
     if (badgeText) {
-      badgeText.textContent = "Supabase (PostgreSQL)";
+      badgeText.innerHTML = '<span class="db-text-full">Supabase (PostgreSQL)</span><span class="db-text-short">Supabase</span>';
     }
     if (settingsBadge) {
       settingsBadge.textContent = "🟢 Terhubung ke Supabase";
@@ -289,7 +289,7 @@ function updateDbUI(isConnected) {
       topbarBadge.classList.add("db-badge-local");
     }
     if (badgeText) {
-      badgeText.textContent = "LocalStorage (Lokal)";
+      badgeText.innerHTML = '<span class="db-text-full">LocalStorage (Lokal)</span><span class="db-text-short">Local</span>';
     }
     if (settingsBadge) {
       settingsBadge.textContent = "📦 Mode: LocalStorage";
