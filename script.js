@@ -322,7 +322,7 @@ async function initSupabase() {
         if (parsed.disabled) {
           // Pengguna sengaja memilih mode LocalStorage
           config = null;
-        } else if (parsed.url && parsed.key) {
+        } else if (parsed.url && parsed.key && typeof parsed.url === "string" && parsed.url.startsWith("http")) {
           config = parsed;
         }
       } catch {
@@ -1737,7 +1737,7 @@ function populateSupabaseConfigInputs() {
         const parsed = JSON.parse(raw);
         if (parsed.disabled) {
           currentConfig = { url: "", key: "" };
-        } else if (parsed.url && parsed.key) {
+        } else if (parsed.url && parsed.key && typeof parsed.url === "string" && parsed.url.startsWith("http")) {
           currentConfig = parsed;
         }
       } catch {
