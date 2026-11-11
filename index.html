@@ -441,32 +441,28 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="avatar-upload-area" id="avatarUploadArea" role="button" tabindex="0" aria-label="Klik untuk unggah foto profil">
-          <img id="modalAvatar" class="userAvatar modal-avatar-preview" src="" alt="Pratinjau avatar" />
-          <div class="avatar-upload-overlay">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-            <span>Ganti Foto</span>
+        <div class="avatar-edit-section">
+          <div class="avatar-upload-area" id="avatarUploadArea" role="button" tabindex="0" aria-label="Klik untuk unggah foto profil">
+            <img id="modalAvatar" class="userAvatar modal-avatar-preview" src="" alt="Pratinjau avatar" />
+            <div class="avatar-upload-overlay">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              <span>Ganti Foto</span>
+            </div>
+            <input type="file" id="avatarFileInput" accept="image/jpeg,image/png,image/gif,image/webp" class="avatar-file-input" aria-label="Pilih file foto" />
           </div>
-          <input type="file" id="avatarFileInput" accept="image/jpeg,image/png,image/gif,image/webp" class="avatar-file-input" aria-label="Pilih file foto" />
+
+          <div class="avatar-action-row">
+            <button type="button" id="btnUploadAvatar" class="btn btn-secondary btn-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Ganti Foto
+            </button>
+            <button type="button" id="btnOpenCropper" class="btn btn-secondary btn-sm">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+              Atur Posisi &amp; Zoom
+            </button>
+          </div>
         </div>
         <p id="avatarError" class="avatar-error" aria-live="polite"></p>
-
-        <!-- Kontrol Posisi Vertikal Foto Profil -->
-        <div class="avatar-pos-container" id="avatarPosContainer">
-          <div class="avatar-pos-header">
-            <label for="avatarPosSlider" class="avatar-pos-title">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M8 6l4-4 4 4M8 18l4 4 4-4"/></svg>
-              Atur Posisi Foto
-            </label>
-            <span id="avatarPosLabel" class="avatar-pos-badge">Atas (20%)</span>
-          </div>
-          <input type="range" id="avatarPosSlider" min="0" max="100" value="20" class="avatar-pos-range" aria-label="Atur posisi foto" />
-          <div class="avatar-pos-presets">
-            <button type="button" class="btn-pos-preset" data-pos="10">Wajah / Atas</button>
-            <button type="button" class="btn-pos-preset" data-pos="50">Tengah</button>
-            <button type="button" class="btn-pos-preset" data-pos="85">Bawah</button>
-          </div>
-        </div>
 
         <form id="profileForm" class="profile-form" novalidate>
           <div class="form-group">
@@ -483,6 +479,72 @@
           </div>
           <button type="submit" class="btn btn-primary btn-block">Simpan Profil</button>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DISCORD-STYLE AVATAR CROP MODAL ===== -->
+  <div id="avatarCropModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="cropModalTitle">
+    <div class="modal-card modal-card-cropper">
+      <div class="modal-header">
+        <div>
+          <h2 id="cropModalTitle" class="modal-title">Sesuaikan Foto Profil</h2>
+          <p class="crop-modal-subtitle">Geser foto (bebas arah X &amp; Y) dan atur zoom seperti di Discord</p>
+        </div>
+        <button id="cropModalClose" class="modal-close" aria-label="Tutup modal crop">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body crop-modal-body">
+        <!-- Viewport Lingkaran -->
+        <div class="crop-viewport-wrap">
+          <div id="cropViewport" class="crop-viewport" tabindex="0" role="region" aria-label="Area penyesuaian foto">
+            <img id="cropImage" class="crop-img" src="" alt="Pratinjau crop" draggable="false" />
+            <div class="crop-mask-circle" aria-hidden="true">
+              <div class="crop-mask-ring"></div>
+            </div>
+          </div>
+          <div class="crop-hint">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            Klik &amp; geser foto ke segala arah &bull; Scroll mouse untuk zoom
+          </div>
+        </div>
+
+        <!-- Kontrol Zoom & Preset -->
+        <div class="crop-controls">
+          <div class="crop-zoom-row">
+            <button type="button" id="cropZoomOutBtn" class="crop-btn-icon" aria-label="Perkecil zoom">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </button>
+            <input type="range" id="cropZoomSlider" min="100" max="300" value="100" class="crop-zoom-range" aria-label="Tingkat zoom foto" />
+            <button type="button" id="cropZoomInBtn" class="crop-btn-icon" aria-label="Perbesar zoom">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+            </button>
+            <span id="cropZoomBadge" class="crop-zoom-badge">100%</span>
+          </div>
+
+          <div class="crop-presets">
+            <button type="button" id="cropPresetCenter" class="btn-crop-preset">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="2"/></svg>
+              Pusatkan
+            </button>
+            <button type="button" id="cropPresetFace" class="btn-crop-preset">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Fokus Wajah
+            </button>
+            <button type="button" id="cropPresetReset" class="btn-crop-preset">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer crop-modal-footer">
+        <button type="button" id="cropCancelBtn" class="btn btn-secondary">Batal</button>
+        <button type="button" id="cropApplyBtn" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Terapkan Foto
+        </button>
       </div>
     </div>
   </div>
