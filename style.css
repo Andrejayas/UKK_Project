@@ -1428,6 +1428,47 @@ canvas {
   animation: fadeInUp 0.22s ease;
 }
 
+/* Welcome Onboarding Modal */
+.welcome-card {
+  max-width: 420px;
+  padding: 32px 28px;
+  text-align: center;
+  border-top: 4px solid var(--accent);
+}
+
+.welcome-header {
+  margin-bottom: 22px;
+}
+
+.welcome-icon-wrap {
+  width: 64px;
+  height: 64px;
+  background: rgba(249, 115, 22, 0.12);
+  border: 1.5px solid rgba(249, 115, 22, 0.35);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 2rem;
+  box-shadow: 0 10px 20px -5px rgba(249, 115, 22, 0.3);
+}
+
+.welcome-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  line-height: 1.45;
+}
+
+.welcome-form {
+  text-align: left;
+}
+
+.welcome-btn-row {
+  margin-top: 20px;
+}
+
 .modal-header {
   display: flex;
   align-items: center;

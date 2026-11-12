@@ -433,6 +433,33 @@
     </main><!-- /mainContent -->
   </div><!-- /appShell -->
 
+  <!-- ===== WELCOME ONBOARDING MODAL ===== -->
+  <div id="welcomeModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="welcomeModalTitle">
+    <div class="modal-card welcome-card">
+      <div class="welcome-header">
+        <div class="welcome-icon-wrap" aria-hidden="true">
+          <span class="welcome-icon">👋</span>
+        </div>
+        <h2 id="welcomeModalTitle" class="modal-title">Selamat Datang di SchoolTask!</h2>
+        <p class="welcome-subtitle">Masukkan namamu untuk mempersonalisasi daftar tugas sekolah.</p>
+      </div>
+      <form id="welcomeForm" class="welcome-form" novalidate>
+        <div class="form-group">
+          <label for="welcomeNameInput">Siapa nama atau nama panggilanmu?</label>
+          <div class="input-icon-wrapper">
+            <svg class="input-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            <input type="text" id="welcomeNameInput" class="form-input form-input-with-icon" placeholder="Contoh: Budi, Siti, Andre..." maxlength="30" autocomplete="name" required />
+          </div>
+        </div>
+        <div class="welcome-btn-row">
+          <button type="submit" class="btn btn-primary btn-block">Mulai Sekarang 🚀</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ===== PROFILE MODAL ===== -->
   <div id="profileModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
     <div class="modal-card">
@@ -468,16 +495,8 @@
 
         <form id="profileForm" class="profile-form" novalidate>
           <div class="form-group">
-            <label for="profileFullName">Nama Lengkap</label>
-            <input type="text" id="profileFullName" class="form-input" placeholder="Nama lengkap Anda" />
-          </div>
-          <div class="form-group">
-            <label for="profileKelas">Kelas</label>
-            <input type="text" id="profileKelas" class="form-input" placeholder="Contoh: XII RPL 1" />
-          </div>
-          <div class="form-group">
-            <label for="profileJurusan">Jurusan</label>
-            <input type="text" id="profileJurusan" class="form-input" placeholder="Contoh: Rekayasa Perangkat Lunak" />
+            <label for="profileFullName">Nama Lengkap / Panggilan</label>
+            <input type="text" id="profileFullName" class="form-input" placeholder="Masukkan nama Anda" maxlength="40" />
           </div>
           <button type="submit" class="btn btn-primary btn-block">Simpan Profil</button>
         </form>

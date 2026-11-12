@@ -85,25 +85,16 @@ let currentView = "dashboard";
    ============================================================ */
 
 /**
- * Membuat objek user default jika belum ada di localStorage.
+ * Memuat objek user dari localStorage jika sudah ada.
+ * Jika belum ada, biarkan null agar modal sambutan dapat ditampilkan.
  * @returns {void}
  */
 function initDefaultUser() {
   try {
-    const stored = localStorage.getItem(KEYS.USER);
-    if (!stored) {
-      const defaultUser = {
-        username:  "siswa",
-        fullName:  "Andrean Rayhan",
-        kelas:     "XII RPL",
-        jurusan:   "Rekayasa Perangkat Lunak",
-        avatar:    null,
-        rawAvatar: null,
-      };
-      localStorage.setItem(KEYS.USER, JSON.stringify(defaultUser));
-    }
+    currentUser = loadProfile();
   } catch (err) {
     console.error("initDefaultUser error:", err);
+    currentUser = null;
   }
 }
 
@@ -1283,7 +1274,7 @@ function renderSettingsSubjects() {
  */
 function updateAvatarDisplays() {
   const avatarEls = document.querySelectorAll(".userAvatar");
-  const name = currentUser && currentUser.fullName ? currentUser.fullName : "Andrean Rayhan";
+  const name = currentUser && currentUser.fullName ? currentUser.fullName : "Siswa";
   const src = currentUser && currentUser.avatar
     ? currentUser.avatar
     : generateAvatarDataUrl(name);
@@ -1317,7 +1308,7 @@ function generateAvatarDataUrl(name) {
 function renderProfileDropdown() {
   if (!currentUser) { return; }
 
-  const fullName = currentUser.fullName || "Andrean Rayhan";
+  const fullName = currentUser.fullName || "Siswa";
   const firstName = fullName.trim().split(/\s+/)[0] || fullName;
   document.getElementById("dropdownName").textContent = fullName;
   document.getElementById("topbarUsername").textContent = firstName;
@@ -1785,10 +1776,10 @@ function closeEditModal() {
  * @returns {void}
  */
 function openProfileModal() {
-  if (!currentUser) { return; }
-  document.getElementById("profileFullName").value = currentUser.fullName || "";
-  document.getElementById("profileKelas").value    = currentUser.kelas || "";
-  document.getElementById("profileJurusan").value  = currentUser.jurusan || "";
+  const fullNameInput = document.getElementById("profileFullName");
+  if (fullNameInput) {
+    fullNameInput.value = (currentUser && currentUser.fullName) ? currentUser.fullName : "";
+  }
   const errEl = document.getElementById("avatarError");
   if (errEl) { errEl.textContent = ""; }
 
@@ -1802,6 +1793,30 @@ function openProfileModal() {
  */
 function closeProfileModal() {
   document.getElementById("profileModal").classList.add("hidden");
+}
+
+/**
+ * Membuka modal sambutan untuk pengunjung baru.
+ * @returns {void}
+ */
+function openWelcomeModal() {
+  const modal = document.getElementById("welcomeModal");
+  if (modal) {
+    modal.classList.remove("hidden");
+    const input = document.getElementById("welcomeNameInput");
+    if (input) {
+      setTimeout(() => input.focus(), 150);
+    }
+  }
+}
+
+/**
+ * Menutup modal sambutan.
+ * @returns {void}
+ */
+function closeWelcomeModal() {
+  const modal = document.getElementById("welcomeModal");
+  if (modal) { modal.classList.add("hidden"); }
 }
 
 /* ============================================================
@@ -2131,16 +2146,47 @@ function setupEventListeners() {
   /* Profile form submission */
   document.getElementById("profileForm").addEventListener("submit", (e) => {
     e.preventDefault();
+    const fullNameVal = document.getElementById("profileFullName").value.trim() || "Siswa";
     saveProfile({
-      fullName: document.getElementById("profileFullName").value.trim(),
-      kelas:    document.getElementById("profileKelas").value.trim(),
-      jurusan:  document.getElementById("profileJurusan").value.trim(),
+      fullName: fullNameVal,
     });
     updateAvatarDisplays();
     renderProfileDropdown();
     closeProfileModal();
-    showToast("Profil disimpan.", "success");
+    showToast("Profil berhasil disimpan! ✨", "success");
   });
+
+  /* Welcome onboarding form submission */
+  const welcomeForm = document.getElementById("welcomeForm");
+  if (welcomeForm) {
+    welcomeForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const inputEl = document.getElementById("welcomeNameInput");
+      const rawName = inputEl ? inputEl.value.trim() : "";
+      const finalName = rawName || "Siswa";
+      const newUser = {
+        username: finalName.toLowerCase().replace(/\s+/g, ""),
+        fullName: finalName,
+        avatar: null,
+        rawAvatar: null,
+      };
+      saveProfile(newUser);
+      currentUser = newUser;
+      updateAvatarDisplays();
+      renderProfileDropdown();
+      closeWelcomeModal();
+      showToast(`Halo, ${finalName}! Selamat datang di SchoolTask 🎉`, "success");
+    });
+  }
+
+  const welcomeModal = document.getElementById("welcomeModal");
+  if (welcomeModal) {
+    welcomeModal.addEventListener("click", (e) => {
+      if (e.target === welcomeModal) {
+        closeWelcomeModal();
+      }
+    });
+  }
 
   /* ----- AVATAR UPLOAD & CROPPER CONTROLS ----- */
   const avatarFileInput = document.getElementById("avatarFileInput");
@@ -2440,13 +2486,15 @@ function setupEventListeners() {
 function initApp() {
   /* 1. Pastikan user default ada */
   initDefaultUser();
-  currentUser = loadProfile() || {
-    username: "siswa",
-    fullName: "Andrean Rayhan",
-    kelas:    "XII RPL",
-    jurusan:  "Rekayasa Perangkat Lunak",
-    avatar:   null,
-  };
+  const isFirstVisit = !currentUser;
+  if (isFirstVisit) {
+    currentUser = {
+      username:  "siswa",
+      fullName:  "Siswa",
+      avatar:    null,
+      rawAvatar: null,
+    };
+  }
 
   /* 2. Coba inisialisasi koneksi Supabase di latar belakang */
   initSupabase().then((connected) => {
@@ -2470,7 +2518,12 @@ function initApp() {
   /* 6. Set view awal */
   switchView("dashboard");
 
-  /* 7. Expose ke window untuk keperluan penilaian UKK & pengujian */
+  /* 7. Jika pengunjung baru (belum ada data di localStorage), tampilkan modal sambutan onboarding */
+  if (isFirstVisit) {
+    openWelcomeModal();
+  }
+
+  /* 8. Expose ke window untuk keperluan penilaian UKK & pengujian */
   window._schoolTask = {
     tasks,
     addTask,
@@ -2487,6 +2540,10 @@ function initApp() {
     formatDate,
     getTodayString,
     showToast,
+    openWelcomeModal,
+    closeWelcomeModal,
+    loadProfile,
+    saveProfile,
     initSupabase,
     supabaseClient: () => supabaseClient,
     isSupabaseConnected: () => isSupabaseConnected,
