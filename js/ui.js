@@ -309,7 +309,7 @@ function updateSubjectSelects() {
       sel.appendChild(opt);
     });
 
-    if (!isFilter) {
+    if (sel.id === "qaSubject") {
       const addNew = document.createElement("option");
       addNew.value = "__new__";
       addNew.textContent = "+ Tambah Mata Pelajaran Baru";
@@ -435,6 +435,12 @@ function openEditModal(id) {
   /* Populate subject dropdown */
   const sel = document.getElementById("editSubject");
   updateSubjectSelects();
+  if (task.subject && ![...sel.options].some((o) => o.value === task.subject)) {
+    const opt = document.createElement("option");
+    opt.value = task.subject;
+    opt.textContent = task.subject;
+    sel.appendChild(opt);
+  }
   sel.value = task.subject;
 
   document.getElementById("editTaskModal").classList.remove("hidden");

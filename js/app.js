@@ -493,11 +493,14 @@ function initApp() {
     };
   }
 
-  /* 2. Tambahkan sidebar backdrop untuk mobile */
-  const backdrop = document.createElement("div");
-  backdrop.id = "sidebarBackdrop";
-  backdrop.className = "sidebar-backdrop";
-  document.body.appendChild(backdrop);
+  /* 2. Pastikan sidebar backdrop untuk mobile ada */
+  let backdrop = document.getElementById("sidebarBackdrop");
+  if (!backdrop) {
+    backdrop = document.createElement("div");
+    backdrop.id = "sidebarBackdrop";
+    backdrop.className = "sidebar-backdrop";
+    document.body.appendChild(backdrop);
+  }
 
   /* 3. Pasang event listeners */
   setupEventListeners();
@@ -515,7 +518,7 @@ function initApp() {
 
   /* 7. Expose ke window untuk keperluan penilaian UKK & pengujian */
   window._schoolTask = {
-    tasks,
+    get tasks() { return tasks; },
     addTask,
     updateTask,
     deleteTask,

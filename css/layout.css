@@ -491,11 +491,6 @@
   color: var(--text-primary);
 }
 
-.dropdown-role {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
 .dropdown-productivity {
   display: flex;
   align-items: center;

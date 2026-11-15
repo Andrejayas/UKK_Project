@@ -3,39 +3,56 @@
 **Skema Sertifikasi**: Asisten Pemrogram Junior (LSP Telematika / BNSP)  
 **Sekolah**: SMK Telkom Purwokerto  
 **Penulis**: Andrean Rayhan Wijaya  
-**Teknologi**: HTML5, CSS3, Vanilla JavaScript, Supabase (PostgreSQL Cloud) & LocalStorage (Offline Fallback)
+**Teknologi**: HTML5 Semantik, CSS3 Modular, Vanilla JavaScript (ES6+), LocalStorage Browser  
 
 ---
 
 ## 📋 Daftar Isi
 1. [Ringkasan Project](#ringkasan-project)
-2. [Struktur Folder](#struktur-folder)
-3. [Fitur Lengkap (Inti, Tambahan, & Database)](#fitur-lengkap)
-4. [Arsitektur Basis Data (Supabase & LocalStorage Dual-Mode)](#arsitektur-basis-data)
-5. [Cara Menghubungkan ke Supabase (3 Langkah Cepat)](#cara-menghubungkan-ke-supabase)
-6. [Panduan Menghadapi Asesor & Pembimbing](#panduan-menghadapi-asesor--pembimbing)
+2. [Struktur Folder & Arsitektur Kode](#struktur-folder--arsitektur-kode)
+3. [Fitur Lengkap (Inti & Nilai Tambah)](#fitur-lengkap)
+4. [Arsitektur Penyimpanan Data (LocalStorage)](#arsitektur-penyimpanan-data)
+5. [Panduan Lengkap Menghadapi Asesor & Guru Penguji](#panduan-lengkap-menghadapi-asesor--guru-penguji)
 
 ---
 
 ## 1. Ringkasan Project
-**SchoolTask** adalah aplikasi manajemen tugas sekolah interaktif berbasis web yang dibangun untuk memenuhi standar Uji Kompetensi Keahlian (UKK) skema **Asisten Pemrogram Junior**. Aplikasi ini mendukung pencatatan tugas sekolah berdasarkan mata pelajaran, tenggat waktu (deadline), tingkat prioritas, status progres, analitik produktivitas, serta integrasi **Database Cloud Relasional (Supabase PostgreSQL)** dengan sistem cadangan **LocalStorage** offline.
+**SchoolTask** adalah aplikasi manajemen tugas sekolah interaktif berbasis web yang dibangun untuk memenuhi standar **Uji Kompetensi Keahlian (UKK)** skema **Asisten Pemrogram Junior**.
+
+Aplikasi ini dirancang dengan prinsip **100% Offline-First**, bersih tanpa dependensi eksternal (`node_modules`), berbobot ringan, serta memanfaatkan penyimpanan browser **LocalStorage** yang persisten. Aplikasi mendukung pencatatan tugas sekolah berdasarkan mata pelajaran, tenggat waktu (deadline), tingkat prioritas, status progres, analitik produktivitas visual (Canvas 2D), editor foto profil interaktif (pan, zoom, crop), dan responsif penuh pada desktop maupun mobile.
 
 ---
 
-## 2. Struktur Folder
+## 2. Struktur Folder & Arsitektur Kode
+
+Kode program dipisahkan secara modular mengikuti prinsip **Separation of Concerns** (pemisahan tanggung jawab kode) agar terstruktur rapi, mudah dibaca, dan mudah dipresentasikan saat uji kompetensi:
+
 ```text
 To-Do List Website/
-├── .vscode/
-│   └── settings.json                  # Konfigurasi editor & auto-fix ESLint
-├── PRD/
-│   ├── PRD UKK To-Do List Website.pdf # PRD v1 (Spesifikasi Inti)
-│   └── PRD UKK v2 To-Do List Tugas Sekolah (Tanggal, Mapel, Filter) (1).pdf # PRD v2
-├── index.html                         # Markup semantik (Login, Dashboard, Analytics, Settings)
-├── style.css                          # Desain antarmuka responsif & modern
-├── script.js                          # Logika aplikasi (CRUD, Supabase client, offline sync)
-├── supabase-schema.sql                # Skrip DDL SQL untuk tabel Supabase PostgreSQL
-├── eslint.config.js                   # Konfigurasi ESLint Flat Config (0 error, 0 warning)
-├── package.json                       # Konfigurasi npm & dependensi linter
+├── css/                               # Styling Modular CSS3
+│   ├── base.css                       # Variabel warna (design tokens), reset, dan tipografi dasar
+│   ├── layout.css                     # Struktur grid/flex: Sidebar, Topbar, dan Kontainer Utama
+│   ├── components.css                 # Form input, tombol, kartu metrik, dan tabel tugas
+│   ├── charts.css                     # Wadah canvas grafik dan legenda status
+│   ├── modals.css                     # Dialog pop-up (Modal Edit, Profil, dan Onboarding Sambutan)
+│   ├── cropper.css                    # Editor foto profil gaya Discord (lingkaran pratinjau & slider zoom)
+│   ├── toast.css                      # Sistem notifikasi melayang (glassmorphism toast)
+│   └── responsive.css                 # Media queries breakpoint tablet (<1024px) dan mobile (<768px)
+├── js/                                # Logika Modular JavaScript (ES6+)
+│   ├── config.js                      # State global, kunci LocalStorage, konfigurasi mapel, profil
+│   ├── tasks.js                       # Logika CRUD tugas, filter, sorting, validasi, dan overdue check
+│   ├── charts.js                      # Visualisasi grafik donat & diagram batang (HTML5 Canvas 2D)
+│   ├── cropper.js                     # Logika crop avatar (drag/pan kursor, zoom 100%-300%, render canvas)
+│   ├── ui.js                          # Render tabel DOM, update kartu metrik, jam digital, modal, navigasi
+│   └── app.js                         # Inisialisasi aplikasi (DOM ready), event listeners, expose window API
+├── PRD/                               # Panduan Persyaratan Produk (Spesifikasi MUK)
+│   ├── PRD UKK To-Do List Website.pdf
+│   └── PRD UKK v2 To-Do List Tugas Sekolah (Tanggal, Mapel, Filter) (1).pdf
+├── .vscode/                           # Konfigurasi editor
+│   └── settings.json                  # Standar indentasi 2 spasi & format otomatis
+├── .gitignore                         # Mengabaikan file log / OS cache
+├── index.html                         # Dokumen HTML5 semantik utama
+├── style.css                          # Master stylesheet (mengimpor 8 file modular dari folder css/)
 └── README.md                          # Dokumentasi teknis & panduan asesor
 ```
 
@@ -43,88 +60,102 @@ To-Do List Website/
 
 ## 3. Fitur Lengkap
 
-### A. Fitur Inti MUK (Wajib)
-* `F1` **Create (Tambah Task)**: Menambahkan tugas dengan ID unik timestamp (`Date.now()`) dan status awal `todo`.
-* `F2` **Read (Tampilkan Daftar)**: Menampilkan tabel tugas dengan badge warna mata pelajaran dan status.
-* `F3` **Update (Ubah Status)**: Memperbarui status tugas (`To Do` ➔ `In Progress` ➔ `Selesai`).
-* `F4` **Delete (Hapus Task)**: Menghapus tugas dari data dan tampilan tabel.
-* `F5` **Filter Status**: Memfilter tugas (`All`, `To Do`, `In Progress`, `Done`) via `filterTasks(status)`.
-* `F6` **Validasi Input**: Validasi `trim()`, penolakan input kosong atau `< 3` karakter, console browser 0 error.
-* `F7` **Setup Tools**: VS Code dan ESLint terkonfigurasi dengan `0 error` (`npm run lint`).
+### A. Fitur Inti MUK (Kriteria Wajib UKK)
+* **F1 (Create)**: Menambahkan tugas baru dengan judul, mata pelajaran, tenggat waktu, dan prioritas. ID tugas menggunakan timestamp unik (`Date.now()`).
+* **F2 (Read)**: Menampilkan seluruh tugas dalam tabel rapi lengkap dengan badge warna mata pelajaran dan indikator status.
+* **F3 (Update)**: Memperbarui status tugas secara instan lewat dropdown tabel (`To Do` ➔ `In Progress` ➔ `Selesai`) atau mengubah detail tugas lewat modal edit.
+* **F4 (Delete)**: Menghapus tugas disertai dialog konfirmasi keamanan agar tidak terhapus secara tidak sengaja.
+* **F5 (Filter & Search)**: Memfilter tugas berdasarkan status (`All`, `To Do`, `In Progress`, `Done`), mata pelajaran, serta pencarian judul secara real-time.
+* **F6 (Validasi Form)**: Validasi input wajib diisi, pencegahan spasi kosong (`trim()`), batas panjang judul, serta konsol browser bersih (`0 Error`).
+* **F7 (Lingkungan Pengembangan)**: Kode rapi, terindentasi standar 2 spasi, dan memiliki dokumentasi komentar JSDoc yang jelas di setiap fungsi.
 
-### B. Fitur Tambahan (Fase 2 & Nilai Plus)
-* **Kategori Mata Pelajaran (Mapel)** dengan warna badge otomatis & dinamis.
-* **Tenggat Waktu & Penanda Terlambat (Overdue Detection)**: Mendeteksi keterlambatan secara otomatis berdasarkan jam dan tanggal lokal saat ini.
-* **Tingkat Prioritas**: *High*, *Medium*, dan *Low*.
-* **Pencarian Real-Time & Pengurutan**: Berdasarkan deadline terdekat, terbaru, terlama, atau abjad A-Z.
-* **Dashboard Analytics & Chart**: Diagram donat distribusi status tugas dan grafik tren aktivitas mingguan (HTML5 Canvas).
-* **Ekspor Data JSON**: Cadangan riwayat tugas dan profil siswa.
-
-### C. Fitur Basis Data (Supabase & Dual-Mode)
-* **Cloud PostgreSQL**: Sinkronisasi data ke tabel cloud `tasks` di Supabase.
-* **Offline Fallback**: Jika koneksi internet di lab mati atau kredensial belum diisi, aplikasi otomatis memakai **LocalStorage** sehingga aplikasi **tidak pernah crash**.
-* **Indikator Status Real-Time**: Badge di topbar dan pengaturan menunjukkan status basis data secara langsung (`🟢 Supabase (PostgreSQL)` atau `📦 LocalStorage (Lokal)`).
+### B. Fitur Tambahan (Nilai Plus UKK)
+* **Kategori Mata Pelajaran Fleksibel**: Menyediakan mata pelajaran umum SMK bawaan + kemampuan menambah/menghapus mata pelajaran kustom di menu Pengaturan.
+* **Deteksi Keterlambatan Otomatis (Overdue Detection)**: Mendeteksi keterlambatan secara cerdas berdasarkan jam dan tanggal lokal saat ini (`WIB`).
+* **Visualisasi Grafik Canvas 2D**:
+  - *Donut Chart*: Menampilkan persentase proporsi tugas (To Do, In Progress, Selesai, Terlambat).
+  - *Weekly Bar Chart*: Diagram batang aktivitas pembuatan/penyelesaian tugas mingguan (Senin–Minggu).
+* **Editor Avatar Gaya Discord**: Siswa dapat mengunggah foto, menggeser posisi (pan), memperbesar (zoom 100%–300%), dan memotongnya dalam lingkaran sempurna beresolusi tinggi.
+* **Ekspor Data Cadangan**: Mendukung ekspor data seluruh tugas ke format JSON yang dapat disimpan siswa.
+* **Jam Digital Real-Time**: Topbar menampilkan hari, tanggal, bulan, serta jam digital yang berdetik setiap detik.
 
 ---
 
-## 4. Arsitektur Basis Data
+## 4. Arsitektur Penyimpanan Data (LocalStorage)
 
-Aplikasi menggunakan skema tabel relasional PostgreSQL:
+Seluruh data disimpan secara persisten di penyimpanan browser pengguna:
 
-```sql
-CREATE TABLE tasks (
-  id BIGINT PRIMARY KEY,
-  title TEXT NOT NULL,
-  subject TEXT NOT NULL,
-  due_date TEXT DEFAULT '',
-  due_time TEXT DEFAULT '',
-  priority TEXT DEFAULT 'medium',
-  status TEXT DEFAULT 'todo',
-  created_at BIGINT
-);
+### Skema Struktur Tugas (`schooltask_tasks`):
+```json
+[
+  {
+    "id": 1731664800000,
+    "title": "Laporan Praktikum Basis Data",
+    "subject": "Informatika",
+    "dueDate": "2026-11-20",
+    "dueTime": "23:59",
+    "priority": "high",
+    "status": "todo",
+    "createdAt": 1731664800000
+  }
+]
 ```
 
-### Alur Kerja Dual-Mode:
-1. **Saat Aplikasi Dibuka**: Aplikasi memuat data lokal secara instan, lalu jika Supabase terhubung, mengambil data terbaru dari PostgreSQL.
-2. **Saat Tambah/Ubah/Hapus**: Data diperbarui ke state memori dan LocalStorage seketika (tampilan responsif), lalu dikirim secara *asynchronous* ke Supabase.
-3. **Jika Offline**: Operasi tetap berjalan 100% lancar di LocalStorage browser tanpa error.
+### Skema Profil Siswa (`schooltask_user`):
+```json
+{
+  "username": "andre",
+  "fullName": "Andrean Rayhan Wijaya",
+  "avatar": "data:image/jpeg;base64,...",
+  "rawAvatar": "data:image/jpeg;base64,..."
+}
+```
 
 ---
 
-## 5. Cara Menghubungkan ke Supabase (3 Langkah Cepat)
+## 5. Panduan Lengkap Menghadapi Asesor & Guru Penguji
 
-Jika Anda ingin mendemokan ke guru/pembimbing dengan database cloud aktif:
+Bagian ini dirancang untuk membantu Anda menjawab pertanyaan teknis penguji dengan percaya diri dan tepat:
 
-1. **Buat Proyek di Supabase**:
-   * Buka [supabase.com](https://supabase.com) (gratis).
-   * Klik **New Project** dan beri nama proyek (contoh: `SchoolTask-UKK`).
-2. **Jalankan Skrip SQL**:
-   * Buka menu **SQL Editor** di dashboard Supabase Anda.
-   * Salin seluruh isi file [`supabase-schema.sql`](file:///home/andre/Documents/Coding/tugas%20sekolah/To-Do%20List%20Website/supabase-schema.sql) dan klik **Run**.
-3. **Hubungkan di Aplikasi**:
-   * Buka menu **Project Settings ➔ API** di Supabase untuk menyalin **Project URL** dan **Anon Key**.
-   * Buka aplikasi SchoolTask di browser, masuk ke menu **Pengaturan**, masukkan URL dan Key pada form **Database Supabase**, lalu klik **Simpan & Hubungkan**.
-   * Badge status di topbar akan otomatis berubah menjadi hijau: `🟢 Supabase (PostgreSQL)`.
+### Pertanyaan 1: "Aplikasi ini menyimpan datanya di mana?"
+> **Jawaban:**  
+> *"Aplikasi ini menggunakan teknologi **Web Storage API (LocalStorage)** browser. Data tugas, profil siswa, dan mata pelajaran kustom dikonversi menjadi format JSON string menggunakan `JSON.stringify()` saat disimpan, dan diuraikan kembali dengan `JSON.parse()` saat halaman dibuka. Dengan LocalStorage, aplikasi bersifat 100% offline-first, tidak memerlukan server internet di lab sekolah, dan data siswa tetap tersimpan bahkan ketika tab browser ditutup atau komputer direstart."*
 
 ---
 
-## 6. Panduan Menghadapi Asesor & Pembimbing
-
-### Pertanyaan 1: "Aplikasi ini pakai database apa?"
+### Pertanyaan 2: "Mengapa kode JavaScript dan CSS dipisah menjadi banyak file di dalam folder js/ dan css/?"
 > **Jawaban:**  
-> *"Saya menggunakan **Database Relasional PostgreSQL di Cloud melalui Supabase** dengan tabel bernama `tasks`. Selain itu, saya juga melengkapinya dengan sistem cadangan **LocalStorage**, sehingga jika koneksi internet di lab bermasalah, aplikasi tetap dapat beroperasi normal 100% secara offline."*
+> *"Saya menerapkan prinsip arsitektur **Clean Code** dan **Separation of Concerns (Pemisahan Tanggung Jawab)**:*
+> - *Folder `css/` memisahkan styling per modul: dasar (`base.css`), tata letak (`layout.css`), komponen form & tabel (`components.css`), modal (`modals.css`), grafik (`charts.css`), dan responsif (`responsive.css`).*
+> - *Folder `js/` memisahkan logika: konfigurasi & storage (`config.js`), operasi data CRUD (`tasks.js`), visualisasi grafik canvas (`charts.js`), pengolah foto avatar (`cropper.js`), manipulasi DOM tampilan (`ui.js`), dan pintu masuk event listener (`app.js`).*
+> *Hal ini memudahkan perawatan kode (maintainability) serta mencegah satu file menjadi terlalu panjang dan sulit dibaca."*
 
-### Pertanyaan 2: "Bagaimana cara kerja CRUD-nya ke database?"
-> **Jawaban:**  
-> *"Saya menggunakan metode client-side query Supabase:*
-> - *Create: `supabase.from('tasks').insert([data])`*
-> - *Read: `supabase.from('tasks').select('*')`*
-> - *Update: `supabase.from('tasks').update({ status }).eq('id', id)`*
-> - *Delete: `supabase.from('tasks').delete().eq('id', id)`*  
-> *Semua fungsi ini dipisahkan secara terstruktur di `script.js` sesuai prinsip satu fungsi satu tugas."*
+---
 
-### Pertanyaan 3: "Tunjukkan contoh Sequence, Selection, dan Iteration di kode Anda!"
+### Pertanyaan 3: "Tunjukkan contoh Sequence, Selection, dan Iteration pada kode Anda!"
 > **Jawaban:**  
-> - **Sequence**: Alur `initApp` yang memuat user, menginisialisasi database, lalu memuat tampilan dashboard.
-> - **Selection**: Percabangan `if (!title || title.trim().length === 0)` pada fungsi `validateTitle`.
-> - **Iteration**: Perulangan `list.forEach((task) => { ... })` di fungsi `renderTasks` saat membuat baris tabel DOM.
+> - **Sequence (Urutan Langkah)**: Terlihat pada fungsi `initApp()` di `js/app.js` yang mengeksekusi langkah secara berurutan: memuat data pengguna (`initDefaultUser`), menyiapkan tampilan (`showApp`), memasang pendengar aksi (`setupEventListeners`), lalu menampilkan halaman utama.
+> - **Selection (Percabangan Logika)**: Terlihat pada fungsi validasi `validateTitle()` di `js/tasks.js`:
+>   ```javascript
+>   if (!title || title.trim().length === 0) {
+>     return "Judul tugas tidak boleh kosong.";
+>   }
+>   ```
+> - **Iteration (Perulangan Data)**: Terlihat pada fungsi `renderTasks()` di `js/ui.js` yang menggunakan method `list.forEach((task) => { ... })` untuk menelusuri setiap objek tugas di dalam array dan merendernya menjadi baris tabel (`<tr>`) di layar.
+
+---
+
+### Pertanyaan 4: "Bagaimana cara kerja fitur deteksi tugas terlambat (Overdue)?"
+> **Jawaban:**  
+> *"Fitur ini ditangani oleh fungsi `isTaskOverdue(t)` di `js/tasks.js`. Logikanya:*
+> 1. *Jika tugas sudah berstatus `'done'` atau tidak memiliki tanggal batas, maka tugas **tidak terlambat**.*
+> 2. *Jika tanggal tenggat (`dueDate`) lebih kecil dari tanggal hari ini (`getTodayString()`), maka tugas **terlambat**.*
+> 3. *Jika tenggatnya jatuh pada hari ini dan memiliki input jam (`dueTime`), aplikasi membandingkan jam tenggat dengan waktu lokal saat ini (`getNowTimeString()`). Jika jam sekarang sudah melebihi jam tenggat, tugas otomatis ditandai **terlambat**."*
+
+---
+
+### Pertanyaan 5: "Bagaimana cara kerja grafik Donut dan Diagram Batang? Apakah memakai library eksternal?"
+> **Jawaban:**  
+> *"Saya tidak menggunakan library eksternal sama sekali. Grafik digambar secara murni menggunakan **HTML5 Canvas 2D API** (`getContext('2d')`) di file `js/charts.js`:*
+> - *Grafik donat digambar dengan metode `ctx.arc()` yang menghitung sudut lingkaran (`angle = (count / total) * Math.PI * 2`) untuk masing-masing porsi status, lalu membuat lubang tengah di radius dalam.*
+> - *Diagram batang dihitung dengan mencari nilai tertinggi (`maxVal`), lalu menggambar batang vertikal proporsional dengan `ctx.roundRect()` dan gradien warna `ctx.createLinearGradient()`."*

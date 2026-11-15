@@ -257,7 +257,9 @@ function sortTasks(list, mode) {
       if (!a.dueDate && !b.dueDate) { return 0; }
       if (!a.dueDate) { return 1; }
       if (!b.dueDate) { return -1; }
-      return a.dueDate < b.dueDate ? -1 : a.dueDate > b.dueDate ? 1 : 0;
+      const dateCmp = a.dueDate.localeCompare(b.dueDate);
+      if (dateCmp !== 0) { return dateCmp; }
+      return (a.dueTime || "23:59").localeCompare(b.dueTime || "23:59");
     });
   }
   if (mode === "title-az") {
@@ -392,6 +394,6 @@ function validateTitle(title) {
  * @returns {string} Pesan error, atau string kosong jika valid.
  */
 function validateSubject(subject) {
-  if (!subject || subject.trim().length === 0) { return "Pilih atau masukkan mata pelajaran."; }
+  if (!subject || subject.trim().length === 0 || subject === "__new__") { return "Pilih atau masukkan mata pelajaran."; }
   return "";
 }
