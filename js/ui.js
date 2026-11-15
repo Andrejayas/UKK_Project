@@ -252,6 +252,8 @@ function renderSubjectProgress() {
 
     const item = document.createElement("div");
     item.className = "subject-progress-item";
+    item.style.cursor = "pointer";
+    item.title = `Klik untuk memfilter daftar tugas mata pelajaran "${subj}"`;
 
     const header = document.createElement("div");
     header.className = "subject-progress-header";
@@ -262,7 +264,10 @@ function renderSubjectProgress() {
 
     const detailEl = document.createElement("div");
     detailEl.className = "subject-progress-detail";
-    detailEl.innerHTML = `<span class="subject-progress-count">${done} dari ${subjTasks.length} selesai</span> <span class="subject-progress-pct">${pct}%</span>`;
+    detailEl.innerHTML = `
+      <span class="subject-progress-count">${done} dari ${subjTasks.length} selesai</span>
+      <span class="subject-progress-pct ${pct === 100 ? "done-100" : ""}">${pct}%</span>
+    `;
 
     header.appendChild(nameEl);
     header.appendChild(detailEl);
@@ -272,10 +277,23 @@ function renderSubjectProgress() {
     const fill = document.createElement("div");
     fill.className = "progress-bar-fill";
     fill.style.width = `${pct}%`;
+    if (pct === 100) { fill.style.background = "var(--success)"; }
     bg.appendChild(fill);
 
     item.appendChild(header);
     item.appendChild(bg);
+
+    /* Interaktivitas: Klik untuk filter daftar tugas sesuai mapel ini */
+    item.addEventListener("click", () => {
+      const filterSubjEl = document.getElementById("filterSubject");
+      if (filterSubjEl) {
+        filterSubjEl.value = subj;
+        currentFilter.subject = subj;
+        applyFilters();
+        showToast(`Menampilkan tugas ${subj} 📚`, "info");
+      }
+    });
+
     container.appendChild(item);
   });
 }

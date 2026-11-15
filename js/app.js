@@ -82,6 +82,11 @@ function setupEventListeners() {
     wrapper.classList.toggle("hidden", qaSubject.value !== "__new__");
   });
 
+  const qaTitleEl = document.getElementById("qaTitle");
+  if (qaTitleEl) {
+    qaTitleEl.addEventListener("input", () => qaTitleEl.classList.remove("input-error"));
+  }
+
   const qaDueDateEl = document.getElementById("qaDueDate");
   if (qaDueDateEl) {
     qaDueDateEl.addEventListener("input", () => qaDueDateEl.classList.remove("input-error"));
@@ -106,6 +111,14 @@ function setupEventListeners() {
     }
     const subjErr = validateSubject(subject);
     if (subjErr) { showToast(subjErr, "error"); return; }
+
+    /* Validasi Duplikat: Cegah tugas dengan nama sama di satu mapel */
+    if (isDuplicateTask(titleEl.value, subject)) {
+      showToast(`Tugas "${titleEl.value.trim()}" sudah ada di mapel ${subject}! ⚠️`, "error");
+      titleEl.classList.add("input-error");
+      titleEl.focus();
+      return;
+    }
 
     /* Validasi Tenggat Waktu (Wajib Diisi Sesuai Permintaan) */
     const dueDateErr = validateDueDate(dueDateEl.value);
@@ -391,6 +404,11 @@ function setupEventListeners() {
     editDueDateInput.addEventListener("input", () => editDueDateInput.classList.remove("input-error"));
   }
 
+  const editTitleInput = document.getElementById("editTitle");
+  if (editTitleInput) {
+    editTitleInput.addEventListener("input", () => editTitleInput.classList.remove("input-error"));
+  }
+
   const editStatusSelect = document.getElementById("editStatus");
   if (editStatusSelect) {
     editStatusSelect.addEventListener("change", (e) => {
@@ -420,6 +438,17 @@ function setupEventListeners() {
     const subjectVal = document.getElementById("editSubject").value;
     const subjectErr = validateSubject(subjectVal);
     if (subjectErr) { showToast(subjectErr, "error"); return; }
+
+    /* Validasi Duplikat untuk Edit Tugas */
+    if (isDuplicateTask(titleVal, subjectVal, id)) {
+      showToast(`Tugas "${titleVal}" sudah ada di mapel ${subjectVal}! ⚠️`, "error");
+      const editTitleEl = document.getElementById("editTitle");
+      if (editTitleEl) {
+        editTitleEl.classList.add("input-error");
+        editTitleEl.focus();
+      }
+      return;
+    }
 
     const dueDateVal = editDueDateInput ? editDueDateInput.value : "";
     const dueDateErr = validateDueDate(dueDateVal);

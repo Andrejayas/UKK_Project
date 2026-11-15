@@ -370,6 +370,17 @@ input:-webkit-autofill:active {
 }
 
 /* Subject Progress Details */
+.subject-progress-item {
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  transition: background 0.2s ease;
+  margin-bottom: 6px;
+}
+
+.subject-progress-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
 .subject-progress-detail {
   display: flex;
   align-items: center;
@@ -380,4 +391,18 @@ input:-webkit-autofill:active {
   font-size: 0.76rem;
   color: var(--text-muted);
   font-weight: 500;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px 7px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.subject-progress-pct {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.subject-progress-pct.done-100 {
+  color: var(--success);
 }

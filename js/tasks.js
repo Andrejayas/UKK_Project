@@ -454,3 +454,22 @@ function validateDueDate(dueDate) {
   }
   return "";
 }
+
+/**
+ * Memeriksa apakah sudah ada tugas dengan judul yang sama di mata pelajaran yang sama.
+ * Bersifat case-insensitive dan mengabaikan spasi berlebih.
+ * @param {string} title - Judul tugas.
+ * @param {string} subject - Nama mata pelajaran.
+ * @param {number|null} [excludeId=null] - ID tugas yang sedang diedit (opsional).
+ * @returns {boolean} true jika terdeteksi duplikat.
+ */
+function isDuplicateTask(title, subject, excludeId = null) {
+  if (!title || !subject) { return false; }
+  const tNorm = title.trim().toLowerCase();
+  const sNorm = subject.trim().toLowerCase();
+  return tasks.some((t) =>
+    t.id !== excludeId &&
+    t.title.trim().toLowerCase() === tNorm &&
+    t.subject.trim().toLowerCase() === sNorm
+  );
+}

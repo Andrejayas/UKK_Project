@@ -553,14 +553,13 @@ function initCalendar() {
     });
   }
 
-  /* 8. Tombol Hari Ini (Reset ke tanggal & bulan saat ini) */
+  /* 8. Tombol Hari Ini (Reset ke tanggal & bulan saat ini secara hening & mulus) */
   if (todayBtn) {
     todayBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       const now = new Date();
       calendarState.selectedDate = getTodayString();
       renderCalendar(now.getFullYear(), now.getMonth());
-      showToast("Kembali ke bulan & hari ini! 📍", "success");
     });
   }
 }
