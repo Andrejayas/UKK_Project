@@ -86,10 +86,6 @@
           </div>
         </div>
         <div class="topbar-right">
-          <button type="button" id="topbarDbBadge" class="topbar-db-badge db-badge-supabase" title="Status: Sinkronisasi Cloud">
-            <span class="db-dot"></span>
-            <span id="dbBadgeText"><span class="db-text-full">Cloud Sync (Online)</span><span class="db-text-short">Online</span></span>
-          </button>
           <div id="topbarClock" class="topbar-clock" title="Waktu Lokal Saat Ini">
             <svg class="clock-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
@@ -647,12 +643,8 @@
   <!-- Toast Container -->
   <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
-  <!-- Supabase JS Client Library (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <!-- Modular Scripts SchoolTask UKK -->
+  <!-- Modular Scripts SchoolTask UKK (100% Vanilla JS & LocalStorage) -->
   <script src="js/config.js"></script>
-  <script src="js/database.js"></script>
   <script src="js/tasks.js"></script>
   <script src="js/charts.js"></script>
   <script src="js/cropper.js"></script>

@@ -16,7 +16,6 @@ export default [
         localStorage: "readonly",
         confirm: "readonly",
         alert: "readonly",
-        supabase: "readonly",
 
         /* Shared Global State across modular scripts */
         tasks: "writable",
@@ -24,8 +23,6 @@ export default [
         currentUser: "writable",
         customSubjects: "writable",
         currentView: "writable",
-        supabaseClient: "writable",
-        isSupabaseConnected: "writable",
         sidebarCollapsed: "writable",
         mobileSidebarOpen: "writable",
         cropperState: "writable",
@@ -33,7 +30,6 @@ export default [
         /* Shared Global Constants */
         DEFAULT_SUBJECTS: "readonly",
         KEYS: "readonly",
-        DEFAULT_SUPABASE_CONFIG: "readonly",
         SUBJECT_COLORS: "readonly",
 
         /* Config & Auth functions */
@@ -42,16 +38,8 @@ export default [
         saveProfile: "readonly",
         generateAvatarDataUrl: "readonly",
 
-        /* Database functions */
-        toDbTask: "readonly",
-        fromDbTask: "readonly",
-        toDbChanges: "readonly",
-        updateDbUI: "readonly",
-        initSupabase: "readonly",
-
         /* Task & Subject functions */
         loadTasks: "readonly",
-        saveTasksLocally: "readonly",
         saveTasks: "readonly",
         addTask: "readonly",
         updateStatus: "readonly",

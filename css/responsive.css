@@ -173,15 +173,6 @@
     display: none;
   }
 
-  /* Teks DB Badge disingkat agar pas di layar kecil */
-  .db-text-full  { display: none; }
-  .db-text-short { display: inline; }
-
-  .topbar-db-badge {
-    padding: 5px 9px;
-    font-size: 0.72rem;
-  }
-
   /* Kartu Terlambat (ke-5) mengisi 2 kolom agar layout seimbang */
   .metric-card.metric-card-overdue,
   .metric-card:last-child {

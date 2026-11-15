@@ -2,71 +2,41 @@
  * @file js/tasks.js
  * @description Manajemen data tugas (CRUD), kategori mata pelajaran, logika filter & sort,
  *              perhitungan batas waktu (due date), dan validasi form input.
+ *              Menggunakan LocalStorage browser secara mandiri tanpa ketergantungan eksternal.
  * @author Andrean Rayhan Wijaya
  */
 
 /* ============================================================
-   SECTION 1: TASK CRUD & SYNC
+   SECTION 1: TASK CRUD (LOCALSTORAGE)
    ============================================================ */
 
 /**
- * Memuat daftar tugas dari localStorage dan menyinkronkan dengan Supabase (jika aktif).
- * @returns {Promise<void>}
+ * Memuat daftar tugas dari localStorage.
+ * @returns {void}
  */
-async function loadTasks() {
-  // 1. Muat data lokal secara instan (agar tampilan cepat dan aman jika offline)
+function loadTasks() {
   try {
     const raw = localStorage.getItem(KEYS.TASKS);
     tasks = raw ? JSON.parse(raw) : [];
   } catch {
     tasks = [];
   }
-
-  // 2. Jika Supabase aktif, muat dan sinkronkan data cloud terbaru
-  if (supabaseClient && isSupabaseConnected) {
-    try {
-      const { data, error } = await supabaseClient
-        .from("tasks")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (!error && Array.isArray(data)) {
-        tasks = data.map(fromDbTask);
-        saveTasksLocally();
-        applyFilters();
-        renderMetricCards();
-        renderSubjectProgress();
-        renderDonutChart();
-        renderWeeklyChart();
-      }
-    } catch (err) {
-      console.warn("Gagal memuat tugas dari Supabase:", err);
-    }
-  }
 }
 
 /**
- * Menyimpan daftar tugas ke localStorage browser (offline backup).
- * @returns {void}
- */
-function saveTasksLocally() {
-  try {
-    localStorage.setItem(KEYS.TASKS, JSON.stringify(tasks));
-  } catch (err) {
-    console.error("saveTasksLocally error:", err);
-  }
-}
-
-/**
- * Menyimpan daftar tugas ke media penyimpanan.
+ * Menyimpan daftar tugas ke localStorage browser.
  * @returns {void}
  */
 function saveTasks() {
-  saveTasksLocally();
+  try {
+    localStorage.setItem(KEYS.TASKS, JSON.stringify(tasks));
+  } catch (err) {
+    console.error("saveTasks error:", err);
+  }
 }
 
 /**
- * Menambahkan tugas baru (tersimpan ke state, localStorage, dan Supabase jika terhubung).
+ * Menambahkan tugas baru ke dalam state dan menyimpannya ke LocalStorage.
  * @param {{title: string, subject: string, dueDate: string, dueTime?: string, priority: string}} data
  * @returns {Object} Objek tugas yang baru dibuat.
  */
@@ -84,21 +54,11 @@ function addTask(data) {
 
   tasks.unshift(task);
   saveTasks();
-
-  // Kirim secara asynchronous ke Supabase jika aktif
-  if (supabaseClient && isSupabaseConnected) {
-    supabaseClient.from("tasks").insert([toDbTask(task)]).then(({ error }) => {
-      if (error) {
-        console.warn("Gagal insert ke Supabase:", error.message);
-      }
-    });
-  }
-
   return task;
 }
 
 /**
- * Memperbarui status tugas berdasarkan id (lokal + Supabase).
+ * Memperbarui status tugas berdasarkan id.
  * @param {number} id - ID tugas.
  * @param {string} status - Status baru: 'todo' | 'inprogress' | 'done'.
  * @returns {void}
@@ -113,20 +73,11 @@ function updateStatus(id, status) {
     renderSubjectProgress();
     renderDonutChart();
     renderWeeklyChart();
-
-    // Perbarui ke Supabase jika aktif
-    if (supabaseClient && isSupabaseConnected) {
-      supabaseClient.from("tasks").update({ status }).eq("id", id).then(({ error }) => {
-        if (error) {
-          console.warn("Gagal update status di Supabase:", error.message);
-        }
-      });
-    }
   }
 }
 
 /**
- * Memperbarui data tugas berdasarkan id (lokal + Supabase).
+ * Memperbarui data tugas berdasarkan id.
  * @param {number} id - ID tugas.
  * @param {Object} changes - Objek perubahan yang akan diterapkan.
  * @returns {void}
@@ -141,21 +92,11 @@ function updateTask(id, changes) {
     renderSubjectProgress();
     renderDonutChart();
     renderWeeklyChart();
-
-    // Perbarui ke Supabase jika aktif
-    if (supabaseClient && isSupabaseConnected) {
-      const dbChanges = toDbChanges(changes);
-      supabaseClient.from("tasks").update(dbChanges).eq("id", id).then(({ error }) => {
-        if (error) {
-          console.warn("Gagal update data di Supabase:", error.message);
-        }
-      });
-    }
   }
 }
 
 /**
- * Menghapus tugas berdasarkan id (lokal + Supabase).
+ * Menghapus tugas berdasarkan id.
  * @param {number} id - ID tugas yang akan dihapus.
  * @returns {void}
  */
@@ -167,15 +108,6 @@ function deleteTask(id) {
   renderSubjectProgress();
   renderDonutChart();
   renderWeeklyChart();
-
-  // Hapus dari Supabase jika aktif
-  if (supabaseClient && isSupabaseConnected) {
-    supabaseClient.from("tasks").delete().eq("id", id).then(({ error }) => {
-      if (error) {
-        console.warn("Gagal delete dari Supabase:", error.message);
-      }
-    });
-  }
 }
 
 /**

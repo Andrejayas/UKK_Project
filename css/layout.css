@@ -450,56 +450,6 @@
   margin-left: -2px;
 }
 
-/* Supabase Database Topbar Badge */
-.topbar-db-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 6px 12px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-
-.topbar-db-badge:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-}
-
-.topbar-db-badge.db-badge-supabase {
-  background: rgba(16, 185, 129, 0.1);
-  border-color: rgba(16, 185, 129, 0.35);
-  color: #10b981;
-}
-
-.topbar-db-badge.db-badge-supabase:hover {
-  background: rgba(16, 185, 129, 0.16);
-  border-color: #10b981;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.2);
-}
-
-.db-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background-color: currentColor;
-  flex-shrink: 0;
-  box-shadow: 0 0 8px currentColor;
-  animation: dotGlow 2s infinite ease-in-out;
-}
-
-.db-text-short { display: none; }
-.db-text-full  { display: inline; }
-
 /* ============================================================
    5. PROFILE DROPDOWN
    ============================================================ */

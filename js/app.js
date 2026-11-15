@@ -3,7 +3,7 @@
  * @description Pintu masuk (entry point) aplikasi SchoolTask.
  *              Mengatur semua event listeners antarmuka, inisialisasi lifecycle saat DOM ready,
  *              serta mengekspos API publik `window._schoolTask` untuk pengujian & asesmen UKK.
- * @author Andrean Rayhan Wijaya
+ * @author Andre
  */
 
 /* ============================================================
@@ -447,19 +447,6 @@ function setupEventListeners() {
     }
   });
 
-  /* ----- TOPBAR DATABASE BADGE: Menampilkan status koneksi ----- */
-  const topbarDbBadge = document.getElementById("topbarDbBadge");
-  if (topbarDbBadge) {
-    topbarDbBadge.addEventListener("click", () => {
-      showToast(
-        isSupabaseConnected
-          ? "Basis Data: Terhubung ke PostgreSQL Cloud (Supabase) 🟢"
-          : "Basis Data: Mode Offline Cadangan (LocalStorage) 📦",
-        "info"
-      );
-    });
-  }
-
   /* ----- TOPBAR SCROLL ELEVATION (Persis gaya PT Artha Haridra Cipta) ----- */
   const mainTopbar = document.getElementById("mainTopbar");
   if (mainTopbar) {
@@ -506,34 +493,27 @@ function initApp() {
     };
   }
 
-  /* 2. Coba inisialisasi koneksi Supabase di latar belakang */
-  initSupabase().then((connected) => {
-    if (connected) {
-      loadTasks();
-    }
-  });
-
-  /* 3. Tambahkan sidebar backdrop untuk mobile */
+  /* 2. Tambahkan sidebar backdrop untuk mobile */
   const backdrop = document.createElement("div");
   backdrop.id = "sidebarBackdrop";
   backdrop.className = "sidebar-backdrop";
   document.body.appendChild(backdrop);
 
-  /* 4. Pasang event listeners */
+  /* 3. Pasang event listeners */
   setupEventListeners();
 
-  /* 5. Tampilkan app dan render UI langsung */
+  /* 4. Tampilkan app dan render UI langsung */
   showApp();
 
-  /* 6. Set view awal */
+  /* 5. Set view awal */
   switchView("dashboard");
 
-  /* 7. Jika pengunjung baru (belum ada data di localStorage), tampilkan modal sambutan onboarding */
+  /* 6. Jika pengunjung baru (belum ada data di localStorage), tampilkan modal sambutan onboarding */
   if (isFirstVisit) {
     openWelcomeModal();
   }
 
-  /* 8. Expose ke window untuk keperluan penilaian UKK & pengujian */
+  /* 7. Expose ke window untuk keperluan penilaian UKK & pengujian */
   window._schoolTask = {
     tasks,
     addTask,
@@ -554,9 +534,6 @@ function initApp() {
     closeWelcomeModal,
     loadProfile,
     saveProfile,
-    initSupabase,
-    supabaseClient: () => supabaseClient,
-    isSupabaseConnected: () => isSupabaseConnected,
     currentUser: () => currentUser,
   };
 }

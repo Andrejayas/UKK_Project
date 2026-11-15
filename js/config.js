@@ -21,17 +21,6 @@ const KEYS = {
   TASKS:    "schooltask_tasks",
   USER:     "schooltask_user",
   SUBJECTS: "schooltask_subjects",
-  SESSION:  "schooltask_session",
-  SUPABASE: "schooltask_supabase_config",
-};
-
-/**
- * Konfigurasi bawaan Supabase Cloud PostgreSQL.
- * Terhubung otomatis ke project Supabase tanpa konfigurasi manual dari user.
- */
-const DEFAULT_SUPABASE_CONFIG = {
-  url: "https://qlvflsqbhkqsuyqvvbbm.supabase.co",
-  key: "sb_publishable_49djRHFJZxoJJ2Q_FJGjKQ_anvt5QvW",
 };
 
 /**
@@ -77,12 +66,6 @@ let customSubjects = [];
 
 /** Nama view yang sedang aktif: 'dashboard' | 'analytics' | 'settings' */
 let currentView = "dashboard";
-
-/** Instance klien Supabase (PostgreSQL Cloud) */
-let supabaseClient = null;
-
-/** Status konektivitas ke database Supabase */
-let isSupabaseConnected = false;
 
 /* ============================================================
    SECTION 3: MANAJEMEN PROFIL PENGGUNA
