@@ -3,7 +3,7 @@
  * @description Widget Kalender Interaktif & Jadwal Hari Libur Nasional & Cuti Bersama (2026 - 2027)
  *              mengadopsi estetika Linux Desktop Shell (Hyprland / Aylur's GTK Shell style)
  *              dengan fitur deteksi tanggal hari ini, hari libur mendatang, dan countdown otomatis.
- * @author Andrean Rayhan Wijaya
+ * @author Andre 
  */
 
 /* ============================================================

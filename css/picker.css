@@ -1,0 +1,489 @@
+/**
+ * @file css/picker.css
+ * @description Custom Frosted Glass Date & Time Picker untuk SchoolTask UKK
+ *              Menggantikan browser UA picker bawaan yang berwarna putih kaku menjadi
+ *              antarmuka bernuansa gelap (dark mode), transparan menyatu dengan background,
+ *              dilengkapi preset tugas sekolah dan aksen oranye khas SchoolTask.
+ * @author Andrean Rayhan Wijaya
+ */
+
+/* ============================================================
+   1. INPUT WRAPPER ("NYATU SAMA BACKGROUND")
+   ============================================================ */
+.picker-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.picker-input-container .form-input {
+  padding-right: 36px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.picker-input-container .form-input:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.picker-input-container .form-input:focus,
+.picker-input-container.active .form-input {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.22);
+}
+
+.picker-addon-icon {
+  position: absolute;
+  right: 12px;
+  pointer-events: none;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.picker-input-container:hover .picker-addon-icon,
+.picker-input-container.active .picker-addon-icon {
+  color: #fb923c;
+  transform: scale(1.1);
+}
+
+/* Sembunyikan ikon native browser picker agar tidak memicu popup putih UA */
+.picker-input-container input[type="date"]::-webkit-calendar-picker-indicator,
+.picker-input-container input[type="time"]::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none !important;
+  pointer-events: none !important;
+}
+
+/* ============================================================
+   2. POPUP BASE (FROSTED GLASS SHELL)
+   ============================================================ */
+.st-picker-popup {
+  position: fixed;
+  z-index: 2100;
+  width: 320px;
+  background: rgba(18, 22, 34, 0.97);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.85),
+              0 0 0 1px rgba(255, 255, 255, 0.08),
+              0 0 20px rgba(249, 115, 22, 0.12);
+  padding: 16px;
+  color: var(--text-primary);
+  user-select: none;
+  animation: stPickerEnter 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.st-picker-popup.hidden {
+  display: none !important;
+}
+
+@keyframes stPickerEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ============================================================
+   3. DATE PICKER SPECIFICS
+   ============================================================ */
+
+/* Presets chip bar */
+.st-picker-presets {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  overflow-x: auto;
+}
+
+.st-preset-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+}
+
+.st-preset-chip:hover {
+  background: rgba(249, 115, 22, 0.18);
+  border-color: rgba(249, 115, 22, 0.4);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.st-preset-chip:active {
+  transform: translateY(0);
+}
+
+/* Header Month Navigation */
+.st-picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.st-picker-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.2px;
+}
+
+.st-picker-nav-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: var(--text-secondary);
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.st-picker-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.st-picker-nav-btn:active {
+  transform: scale(0.92);
+}
+
+/* Weekday header columns */
+.st-picker-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.st-picker-weekdays .sun-col {
+  color: #f87171;
+}
+
+/* Calendar Date Grid */
+.st-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 4px;
+  column-gap: 2px;
+  margin-bottom: 14px;
+}
+
+.st-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin: auto;
+  border-radius: 50%;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.st-cell:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+.st-cell.other-month {
+  color: #4b5563;
+  opacity: 0.4;
+}
+
+.st-cell.is-sunday:not(.is-selected):not(.is-today) {
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.st-cell.is-today:not(.is-selected) {
+  border: 1.5px solid var(--accent);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.st-cell.is-selected {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.45);
+  transform: scale(1.05);
+}
+
+/* Dot indicator untuk hari libur nasional */
+.st-cell.has-holiday::after {
+  content: "";
+  position: absolute;
+  bottom: 3px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #f87171;
+}
+
+.st-cell.is-selected.has-holiday::after {
+  background: #ffffff;
+}
+
+/* Footer Action Buttons */
+.st-picker-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.st-picker-btn-text {
+  background: transparent;
+  border: none;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: color 0.18s ease;
+}
+
+.st-picker-btn-text:hover {
+  color: #f87171;
+}
+
+.st-picker-btn-action {
+  background: rgba(249, 115, 22, 0.18);
+  border: 1px solid rgba(249, 115, 22, 0.35);
+  color: #fb923c;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.st-picker-btn-action:hover {
+  background: var(--accent);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
+}
+
+/* ============================================================
+   4. TIME PICKER SPECIFICS
+   ============================================================ */
+.st-timepicker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.st-timepicker-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.st-timepicker-title-wrap svg {
+  color: var(--accent);
+}
+
+.st-timepicker-close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.18s ease;
+}
+
+.st-timepicker-close-btn:hover {
+  color: #ffffff;
+}
+
+/* Time Presets Grid */
+.st-time-presets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.st-time-chip {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 7px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.18s ease;
+}
+
+.st-time-chip:hover {
+  background: rgba(249, 115, 22, 0.15);
+  border-color: rgba(249, 115, 22, 0.35);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.st-time-chip.featured {
+  background: rgba(249, 115, 22, 0.12);
+  border-color: rgba(249, 115, 22, 0.3);
+  color: #fb923c;
+}
+
+/* Digital Stepper */
+.st-digital-clock-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.st-stepper-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.st-stepper-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: var(--text-secondary);
+  width: 44px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.65rem;
+  transition: all 0.15s ease;
+}
+
+.st-stepper-btn:hover {
+  background: rgba(249, 115, 22, 0.25);
+  color: #ffffff;
+  border-color: var(--accent);
+}
+
+.st-stepper-val {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  padding: 2px 8px;
+  min-width: 48px;
+  text-align: center;
+}
+
+.st-stepper-label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.st-clock-colon {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--accent);
+  padding-bottom: 18px;
+  animation: colonBlink 1.5s infinite ease-in-out;
+}
+
+@keyframes colonBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* Quick minute increments row */
+.st-minute-quick-row {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.st-min-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  flex: 1;
+  transition: all 0.16s ease;
+}
+
+.st-min-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.st-min-btn.active {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+}
