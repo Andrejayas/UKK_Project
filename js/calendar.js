@@ -433,22 +433,14 @@ function renderUpcomingHolidaysList() {
  * @returns {void}
  */
 function updateTopbarCalendarBadge() {
-  const dateEl = document.getElementById("topbarCalendarDate");
   const pillEl = document.getElementById("topbarHolidayPill");
-
-  const todayStr = getTodayString();
-  const [y, m, d] = todayStr.split("-").map(Number);
-  const monthsShort = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
-
-  if (dateEl) {
-    dateEl.textContent = `${d} ${monthsShort[m - 1]} ${y}`;
-  }
 
   if (pillEl) {
     const upcoming = getUpcomingHolidays();
     if (upcoming.length > 0) {
       const nextH = upcoming[0];
-      const shortName = nextH.name.length > 18 ? nextH.name.slice(0, 16) + "…" : nextH.name;
+      const cleanName = nextH.name.replace(/^Hari Raya\s+/i, "");
+      const shortName = cleanName.length > 20 ? cleanName.slice(0, 18) + "…" : cleanName;
       if (nextH.daysLeft === 0) {
         pillEl.textContent = `🎉 Libur: ${shortName}`;
       } else {
@@ -542,7 +534,7 @@ function initCalendar() {
   renderCalendar(calendarState.viewYear, calendarState.viewMonth);
   renderUpcomingHolidaysList();
 
-  /* 1. HOVER TRIGGER: Saat kursor mouse mendekati tombol kalender / clock */
+  /* 1. HOVER TRIGGER: Saat kursor mouse mendekati pill terpadu */
   if (wrapper) {
     wrapper.addEventListener("mouseenter", () => {
       cancelCloseCalendar();
@@ -551,24 +543,7 @@ function initCalendar() {
     wrapper.addEventListener("mouseleave", scheduleCloseCalendar);
   }
 
-  if (clockEl) {
-    clockEl.style.cursor = "pointer";
-    clockEl.addEventListener("mouseenter", () => {
-      cancelCloseCalendar();
-      openCalendarPopup();
-    });
-    clockEl.addEventListener("mouseleave", scheduleCloseCalendar);
-    clockEl.addEventListener("click", (e) => {
-      e.stopPropagation();
-      if (calendarState.isOpen) {
-        closeCalendarPopup();
-      } else {
-        openCalendarPopup();
-      }
-    });
-  }
-
-  /* 2. CLICK TRIGGER: Klik tombol untuk toggle */
+  /* 2. CLICK TRIGGER: Klik pill terpadu untuk toggle kalender */
   if (calBtn) {
     calBtn.addEventListener("click", (e) => {
       e.stopPropagation();

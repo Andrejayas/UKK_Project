@@ -6,7 +6,7 @@
  */
 
 /* ============================================================
-   1. TOPBAR TRIGGER BUTTON & PILL
+   1. UNIFIED DATE-TIME & CALENDAR TRIGGER PILL (LINUX SHELL STYLE)
    ============================================================ */
 .calendar-widget-wrapper {
   position: relative;
@@ -14,15 +14,15 @@
   align-items: center;
 }
 
-.topbar-calendar-btn {
-  display: flex;
+.topbar-unified-pill {
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  border-radius: 22px;
   padding: 6px 14px;
   font-size: 0.82rem;
   font-weight: 600;
@@ -31,38 +31,85 @@
   cursor: pointer;
   outline: none;
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.topbar-calendar-btn:hover,
-.topbar-calendar-btn.active {
+.topbar-unified-pill:hover,
+.topbar-unified-pill.active {
   background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(249, 115, 22, 0.4);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 12px rgba(249, 115, 22, 0.15);
+  border-color: rgba(249, 115, 22, 0.45);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), 0 0 14px rgba(249, 115, 22, 0.18);
   transform: translateY(-1px);
 }
 
-.topbar-calendar-btn .calendar-btn-icon {
-  width: 15px;
-  height: 15px;
+.pill-clock-section {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.pill-clock-section .clock-icon {
+  width: 14px;
+  height: 14px;
   color: var(--accent);
   flex-shrink: 0;
-  transition: transform 0.25s ease;
+  animation: clockPulse 2s infinite ease-in-out;
 }
 
-.topbar-calendar-btn:hover .calendar-btn-icon {
-  transform: scale(1.1);
+#clockText {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  letter-spacing: -0.1px;
 }
 
-.topbar-calendar-date {
-  font-weight: 600;
-  letter-spacing: -0.2px;
+.pill-divider {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 0.85rem;
+  font-weight: 300;
+  user-select: none;
+}
+
+.pill-holiday-section {
+  display: inline-flex;
+  align-items: center;
 }
 
 .topbar-holiday-pill {
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   font-weight: 700;
   background: rgba(239, 68, 68, 0.16);
   color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.topbar-unified-pill:hover .topbar-holiday-pill {
+  background: rgba(239, 68, 68, 0.24);
+  border-color: rgba(239, 68, 68, 0.45);
+}
+
+.pill-chevron {
+  color: var(--text-muted);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s ease;
+  flex-shrink: 0;
+}
+
+.topbar-unified-pill:hover .pill-chevron,
+.topbar-unified-pill.active .pill-chevron {
+  color: var(--accent);
+}
+
+.topbar-unified-pill.active .pill-chevron {
+  transform: rotate(180deg);
+}
   border: 1px solid rgba(239, 68, 68, 0.3);
   padding: 2px 7px;
   border-radius: 10px;

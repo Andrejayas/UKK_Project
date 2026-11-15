@@ -319,30 +319,7 @@
 }
 
 /* Live Clock Widget */
-.topbar-clock {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
-  padding: 6px 14px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  white-space: nowrap;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.topbar-clock:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(249, 115, 22, 0.35);
-  transform: translateY(-1px);
-}
-
-.topbar-clock .clock-icon {
+.clock-icon {
   width: 15px;
   height: 15px;
   color: var(--accent);

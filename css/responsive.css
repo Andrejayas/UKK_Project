@@ -97,13 +97,17 @@
     display: none;
   }
 
-  .topbar-holiday-pill {
+  .topbar-holiday-pill,
+  .pill-divider,
+  .pill-chevron {
     display: none;
   }
 
+  .topbar-unified-pill,
   .topbar-calendar-btn {
     padding: 5px 10px;
     font-size: 0.78rem;
+    gap: 6px;
   }
 
   .linux-calendar-card {
