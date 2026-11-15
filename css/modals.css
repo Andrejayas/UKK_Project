@@ -1,0 +1,321 @@
+/**
+ * @file css/modals.css
+ * @description Dialog modal antarmuka: Modal Edit Tugas, Modal Profil Pengguna,
+ *              Modal Sambutan Pengunjung Baru (Welcome Onboarding), dan Bagian Pengaturan (Settings View).
+ * @author Andrean Rayhan Wijaya
+ */
+
+/* ============================================================
+   1. MODAL BASE
+   ============================================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 20px;
+  animation: fadeIn 0.18s ease;
+}
+
+.modal-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: fadeInUp 0.22s ease;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg-secondary);
+  z-index: 1;
+}
+
+.modal-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  display: flex;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition), background var(--transition);
+}
+.modal-close:hover { color: var(--text-primary); background: var(--bg-tertiary); }
+
+.modal-body { padding: 24px; }
+
+/* ============================================================
+   2. WELCOME / ONBOARDING MODAL
+   ============================================================ */
+.welcome-card {
+  max-width: 420px;
+  padding: 32px 28px;
+  text-align: center;
+  border-top: 4px solid var(--accent);
+}
+
+.welcome-header {
+  margin-bottom: 22px;
+}
+
+.welcome-icon-wrap {
+  width: 64px;
+  height: 64px;
+  background: rgba(249, 115, 22, 0.12);
+  border: 1.5px solid rgba(249, 115, 22, 0.35);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 2rem;
+  box-shadow: 0 10px 20px -5px rgba(249, 115, 22, 0.3);
+}
+
+.welcome-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 6px;
+  line-height: 1.45;
+}
+
+.welcome-form {
+  text-align: left;
+}
+
+.welcome-btn-row {
+  margin-top: 20px;
+}
+
+/* ============================================================
+   3. PROFILE MODAL & AVATAR UPLOAD
+   ============================================================ */
+.avatar-upload-area {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  border: 3px solid var(--accent);
+}
+
+.modal-avatar-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  border-radius: 50%;
+  display: block;
+  background: var(--bg-tertiary);
+  transition: transform var(--transition);
+}
+
+.avatar-edit-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.avatar-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.avatar-action-row .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+}
+
+.avatar-upload-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+
+.avatar-upload-area:hover .avatar-upload-overlay { opacity: 1; }
+
+.avatar-file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.avatar-error {
+  color: var(--danger);
+  font-size: 0.8rem;
+  text-align: center;
+  min-height: 1.2em;
+  margin-bottom: 8px;
+}
+
+.profile-form {}
+
+/* ============================================================
+   4. SETTINGS VIEW
+   ============================================================ */
+.settings-section {}
+
+.settings-desc {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+.subjects-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.subject-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+}
+
+.subject-list-item .subject-name { color: var(--text-primary); }
+.subject-list-item .subject-builtin { color: var(--text-muted); font-size: 0.75rem; }
+
+.add-subject-form {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.add-subject-form .form-input { margin-bottom: 0; }
+
+.settings-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.settings-action-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.settings-action-item:hover {
+  border-color: #4b5563;
+  box-shadow: var(--shadow-sm);
+}
+
+.action-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.action-icon {
+  font-size: 1.4rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.action-icon-danger {
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+.danger-action {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.04);
+}
+
+.danger-action:hover {
+  border-color: rgba(239, 68, 68, 0.6);
+}
+
+.action-title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.action-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.info-table td {
+  padding: 10px 14px;
+  border-top: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.info-table td:first-child {
+  font-weight: 600;
+  color: var(--text-primary);
+  width: 180px;
+}

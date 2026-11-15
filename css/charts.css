@@ -1,0 +1,309 @@
+/**
+ * @file css/charts.css
+ * @description Styling untuk Kartu Metrik (Metric Cards), Bilah Kemajuan Mata Pelajaran (Progress Bars),
+ *              Visualisasi Grafik Canvas 2D (Donut Chart & Bar Chart), Keterangan (Legend),
+ *              dan Tampilan Halaman Statistik / Analytics.
+ * @author Andrean Rayhan Wijaya
+ */
+
+/* ============================================================
+   1. METRIC CARDS
+   ============================================================ */
+.metric-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+
+.metric-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition), transform var(--transition), border-color var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--bg-tertiary);
+}
+
+.metric-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.metric-card-total::before    { background: linear-gradient(90deg, #818cf8, #6366f1); }
+.metric-card-todo::before     { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+.metric-card-progress::before { background: linear-gradient(90deg, #60a5fa, #3b82f6); }
+.metric-card-done::before     { background: linear-gradient(90deg, #4ade80, #22c55e); }
+.metric-card-overdue::before  { background: linear-gradient(90deg, #f87171, #ef4444); }
+
+.metric-card-total:hover    { border-color: rgba(129, 140, 248, 0.4); }
+.metric-card-todo:hover     { border-color: rgba(234, 179, 8, 0.4); }
+.metric-card-progress:hover { border-color: rgba(59, 130, 246, 0.4); }
+.metric-card-done:hover     { border-color: rgba(34, 197, 94, 0.4); }
+.metric-card-overdue:hover  { border-color: rgba(239, 68, 68, 0.4); }
+
+.metric-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.metric-card:hover .metric-icon {
+  transform: scale(1.08);
+}
+
+.metric-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.metric-icon-total {
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.16), rgba(99, 102, 241, 0.06));
+  color: #818cf8;
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  box-shadow: 0 4px 12px -2px rgba(99, 102, 241, 0.2);
+}
+
+.metric-icon-todo {
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.16), rgba(202, 138, 4, 0.06));
+  color: #fbbf24;
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  box-shadow: 0 4px 12px -2px rgba(234, 179, 8, 0.2);
+}
+
+.metric-icon-progress {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.16), rgba(37, 99, 235, 0.06));
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  box-shadow: 0 4px 12px -2px rgba(59, 130, 246, 0.2);
+}
+
+.metric-icon-done {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.16), rgba(22, 163, 74, 0.06));
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  box-shadow: 0 4px 12px -2px rgba(34, 197, 94, 0.2);
+}
+
+.metric-icon-overdue {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.16), rgba(220, 38, 38, 0.06));
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  box-shadow: 0 4px 12px -2px rgba(239, 68, 68, 0.2);
+}
+
+.metric-info {}
+
+.metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+/* ============================================================
+   2. SUBJECT PROGRESS BARS
+   ============================================================ */
+.subject-progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.subject-progress-item {}
+
+.subject-progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.subject-progress-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.subject-progress-pct {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.progress-bar-bg {
+  height: 8px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #fbbf24);
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+
+.empty-state-sm {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 16px 0;
+}
+
+/* ============================================================
+   3. CANVAS CHARTS (DONUT & WEEKLY BAR)
+   ============================================================ */
+.chart-card {}
+
+.canvas-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.canvas-wrapper-wide canvas { width: 100% !important; max-width: 100%; }
+.canvas-wrapper-full canvas { width: 100% !important; max-width: 100%; }
+
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+/* Donut Chart Legend */
+.donut-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 12px;
+  margin-top: 14px;
+  width: 100%;
+}
+
+.legend-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  transition: all var(--transition);
+}
+
+.legend-chip:hover {
+  color: var(--text-primary);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-count {
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-left: 2px;
+}
+
+/* ============================================================
+   4. ANALYTICS VIEW
+   ============================================================ */
+.analytics-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.analytics-stat-card {
+  text-align: center;
+  padding: 24px;
+}
+
+.analytics-stat-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.analytics-stat-value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.stat-green { color: var(--success); }
+.stat-blue  { color: var(--info); }
+.stat-red   { color: var(--danger); }
+
+.overdue-title { color: var(--danger); }
+
+.overdue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.overdue-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(239,68,68,.07);
+  border: 1px solid rgba(239,68,68,.2);
+  border-radius: var(--radius-sm);
+}
+
+.overdue-item-title {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.overdue-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

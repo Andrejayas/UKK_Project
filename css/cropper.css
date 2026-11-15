@@ -1,0 +1,187 @@
+/**
+ * @file css/cropper.css
+ * @description Styling editor pemotong avatar gaya Discord (Discord-style avatar cropper),
+ *              termasuk viewport interaktif, masking lingkaran (circular mask ring),
+ *              slider kontrol zoom, dan tombol preset posisi wajah/tengah.
+ * @author Andrean Rayhan Wijaya
+ */
+
+/* ============================================================
+   DISCORD-STYLE AVATAR CROPPER
+   ============================================================ */
+.modal-card-cropper {
+  max-width: 440px;
+  width: 92%;
+}
+
+.crop-modal-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 3px;
+}
+
+.crop-viewport-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.crop-viewport {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  border-radius: var(--radius-md);
+  background: #090d16;
+  overflow: hidden;
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  border: 1px solid var(--border);
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.crop-viewport:active {
+  cursor: grabbing;
+}
+
+.crop-viewport:focus-visible {
+  outline: 2px solid var(--accent);
+}
+
+.crop-img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  pointer-events: none;
+  transform-origin: center center;
+  will-change: transform;
+  max-width: none;
+  user-select: none;
+}
+
+.crop-mask-circle {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crop-mask-ring {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  box-shadow: 0 0 0 9999px rgba(10, 15, 29, 0.72);
+  position: relative;
+}
+
+.crop-mask-ring::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.45);
+}
+
+.crop-hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.73rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.crop-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.crop-zoom-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-primary);
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.crop-btn-icon {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all var(--transition);
+}
+
+.crop-btn-icon:hover {
+  color: var(--accent);
+  background: rgba(249, 115, 22, 0.12);
+}
+
+.crop-zoom-range {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-tertiary);
+  outline: none;
+  cursor: pointer;
+  accent-color: var(--accent);
+}
+
+.crop-zoom-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 44px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.crop-presets {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-crop-preset {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-crop-preset:hover {
+  background: rgba(249, 115, 22, 0.12);
+  border-color: var(--accent);
+  color: var(--text-primary);
+}
+
+.crop-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 14px;
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+}
