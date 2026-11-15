@@ -375,12 +375,22 @@ function updateTopbarCalendarBadge() {
     const upcoming = getUpcomingHolidays();
     if (upcoming.length > 0) {
       const nextH = upcoming[0];
-      const cleanName = nextH.name.replace(/^Hari Raya\s+/i, "");
-      const shortName = cleanName.length > 20 ? cleanName.slice(0, 18) + "…" : cleanName;
+      let cleanName = nextH.name;
+      cleanName = cleanName.replace(/^Cuti Bersama Hari Raya\s+/i, "Cuti ");
+      cleanName = cleanName.replace(/^Cuti Bersama\s+/i, "Cuti ");
+      cleanName = cleanName.replace(/^Hari Raya\s+/i, "");
+      cleanName = cleanName.replace(/^Hari Suci\s+/i, "");
+      cleanName = cleanName.replace(/\s*\(.*?\)/g, "");
+      cleanName = cleanName.replace(/\s+Masehi$/i, "");
+      cleanName = cleanName.trim();
+      if (cleanName.length > 16) {
+        cleanName = cleanName.slice(0, 15) + "…";
+      }
+
       if (nextH.daysLeft === 0) {
-        pillEl.textContent = `🎉 Libur: ${shortName}`;
+        pillEl.textContent = `🎉 Libur: ${cleanName}`;
       } else {
-        pillEl.textContent = `${nextH.daysLeft}h ${shortName}`;
+        pillEl.textContent = `${nextH.daysLeft}h ${cleanName}`;
       }
       pillEl.title = `Libur terdekat: ${nextH.name} (${formatFullDateIndonesian(nextH.date)}) – ${nextH.daysLeft} hari lagi`;
     } else {
