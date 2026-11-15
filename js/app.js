@@ -82,6 +82,11 @@ function setupEventListeners() {
     wrapper.classList.toggle("hidden", qaSubject.value !== "__new__");
   });
 
+  const qaDueDateEl = document.getElementById("qaDueDate");
+  if (qaDueDateEl) {
+    qaDueDateEl.addEventListener("input", () => qaDueDateEl.classList.remove("input-error"));
+  }
+
   document.getElementById("quickAddForm").addEventListener("submit", (e) => {
     e.preventDefault();
 
@@ -101,6 +106,15 @@ function setupEventListeners() {
     }
     const subjErr = validateSubject(subject);
     if (subjErr) { showToast(subjErr, "error"); return; }
+
+    /* Validasi Tenggat Waktu (Wajib Diisi Sesuai Permintaan) */
+    const dueDateErr = validateDueDate(dueDateEl.value);
+    if (dueDateErr) {
+      showToast(dueDateErr, "warning");
+      dueDateEl.classList.add("input-error");
+      dueDateEl.focus();
+      return;
+    }
 
     /* Auto-add to custom subjects if not in list */
     if (!getAllSubjects().includes(subject)) {
@@ -153,8 +167,13 @@ function setupEventListeners() {
   document.getElementById("profileForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const fullNameVal = document.getElementById("profileFullName").value.trim() || "Siswa";
+    const kelasVal    = (document.getElementById("profileKelas")?.value || "").trim();
+    const jurusanVal  = (document.getElementById("profileJurusan")?.value || "").trim();
+
     saveProfile({
       fullName: fullNameVal,
+      kelas:    kelasVal,
+      jurusan:  jurusanVal,
     });
     updateAvatarDisplays();
     renderProfileDropdown();
@@ -367,6 +386,29 @@ function setupEventListeners() {
     if (e.target === document.getElementById("editTaskModal")) { closeEditModal(); }
   });
 
+  const editDueDateInput = document.getElementById("editDueDate");
+  if (editDueDateInput) {
+    editDueDateInput.addEventListener("input", () => editDueDateInput.classList.remove("input-error"));
+  }
+
+  const editStatusSelect = document.getElementById("editStatus");
+  if (editStatusSelect) {
+    editStatusSelect.addEventListener("change", (e) => {
+      const compGroup = document.getElementById("editCompletedGroup");
+      const compInfo  = document.getElementById("editCompletedInfo");
+      if (compGroup && compInfo) {
+        if (e.target.value === "done") {
+          compGroup.classList.remove("hidden");
+          const timeStr = formatCompletedTimestamp(Date.now());
+          compInfo.innerHTML = `<span>✅ <strong>Tugas Selesai</strong></span> <span class="completed-time-tag">${timeStr}</span>`;
+        } else {
+          compGroup.classList.add("hidden");
+          compInfo.innerHTML = "";
+        }
+      }
+    });
+  }
+
   document.getElementById("editTaskForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const id = Number(document.getElementById("editTaskId").value);
@@ -379,10 +421,21 @@ function setupEventListeners() {
     const subjectErr = validateSubject(subjectVal);
     if (subjectErr) { showToast(subjectErr, "error"); return; }
 
+    const dueDateVal = editDueDateInput ? editDueDateInput.value : "";
+    const dueDateErr = validateDueDate(dueDateVal);
+    if (dueDateErr) {
+      showToast(dueDateErr, "warning");
+      if (editDueDateInput) {
+        editDueDateInput.classList.add("input-error");
+        editDueDateInput.focus();
+      }
+      return;
+    }
+
     updateTask(id, {
       title:    titleVal,
       subject:  subjectVal,
-      dueDate:  document.getElementById("editDueDate").value,
+      dueDate:  dueDateVal,
       dueTime:  document.getElementById("editDueTime").value,
       priority: document.getElementById("editPriority").value,
       status:   document.getElementById("editStatus").value,
@@ -390,6 +443,39 @@ function setupEventListeners() {
 
     closeEditModal();
     showToast("Tugas diperbarui.", "success");
+  });
+
+  /* ----- CONFIRM DELETE MODAL ----- */
+  const cancelDelBtn = document.getElementById("cancelDeleteBtn");
+  if (cancelDelBtn) {
+    cancelDelBtn.addEventListener("click", closeDeleteModal);
+  }
+
+  const confirmDelBtn = document.getElementById("confirmDeleteBtn");
+  if (confirmDelBtn) {
+    confirmDelBtn.addEventListener("click", () => {
+      if (pendingDeleteTaskId) {
+        deleteTask(pendingDeleteTaskId);
+        closeDeleteModal();
+        showToast("Tugas berhasil dihapus.", "success");
+      }
+    });
+  }
+
+  const deleteModal = document.getElementById("confirmDeleteModal");
+  if (deleteModal) {
+    deleteModal.addEventListener("click", (e) => {
+      if (e.target === deleteModal) { closeDeleteModal(); }
+    });
+  }
+
+  /* Tutup modal jika tombol Escape ditekan */
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (typeof closeDeleteModal === "function") { closeDeleteModal(); }
+      if (typeof closeEditModal === "function") { closeEditModal(); }
+      if (typeof closeProfileModal === "function") { closeProfileModal(); }
+    }
   });
 
   /* ----- SETTINGS: ADD SUBJECT ----- */

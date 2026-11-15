@@ -42,14 +42,15 @@ function saveTasks() {
  */
 function addTask(data) {
   const task = {
-    id:        Date.now(),
-    title:     data.title.trim(),
-    subject:   data.subject.trim(),
-    dueDate:   data.dueDate || "",
-    dueTime:   data.dueTime || "",
-    priority:  data.priority || "medium",
-    status:    "todo",
-    createdAt: Date.now(),
+    id:          Date.now(),
+    title:       data.title.trim(),
+    subject:     data.subject.trim(),
+    dueDate:     data.dueDate || "",
+    dueTime:     data.dueTime || "",
+    priority:    data.priority || "medium",
+    status:      "todo",
+    completedAt: null,
+    createdAt:   Date.now(),
   };
 
   tasks.unshift(task);
@@ -59,6 +60,7 @@ function addTask(data) {
 
 /**
  * Memperbarui status tugas berdasarkan id.
+ * Menyimpan timestamp saat tugas ditandai selesai (done) untuk tracking riwayat.
  * @param {number} id - ID tugas.
  * @param {string} status - Status baru: 'todo' | 'inprogress' | 'done'.
  * @returns {void}
@@ -67,18 +69,17 @@ function updateStatus(id, status) {
   const task = tasks.find((t) => t.id === id);
   if (task) {
     task.status = status;
+    if (status === "done") {
+      task.completedAt = task.completedAt || Date.now();
+    } else {
+      task.completedAt = null;
+    }
     saveTasks();
     applyFilters();
     renderMetricCards();
     renderSubjectProgress();
     renderDonutChart();
     renderWeeklyChart();
-    if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
-      renderCalendar(calendarState.viewYear, calendarState.viewMonth);
-    }
-    if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
-      renderCalendar(calendarState.viewYear, calendarState.viewMonth);
-    }
     if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
       renderCalendar(calendarState.viewYear, calendarState.viewMonth);
     }
@@ -94,19 +95,23 @@ function updateStatus(id, status) {
 function updateTask(id, changes) {
   const idx = tasks.findIndex((t) => t.id === id);
   if (idx !== -1) {
-    tasks[idx] = { ...tasks[idx], ...changes };
+    const oldStatus = tasks[idx].status;
+    const newStatus = changes.status !== undefined ? changes.status : oldStatus;
+    let completedAt = tasks[idx].completedAt;
+
+    if (newStatus === "done") {
+      completedAt = completedAt || changes.completedAt || Date.now();
+    } else {
+      completedAt = null;
+    }
+
+    tasks[idx] = { ...tasks[idx], ...changes, completedAt };
     saveTasks();
     applyFilters();
     renderMetricCards();
     renderSubjectProgress();
     renderDonutChart();
     renderWeeklyChart();
-    if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
-      renderCalendar(calendarState.viewYear, calendarState.viewMonth);
-    }
-    if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
-      renderCalendar(calendarState.viewYear, calendarState.viewMonth);
-    }
     if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
       renderCalendar(calendarState.viewYear, calendarState.viewMonth);
     }
@@ -370,6 +375,25 @@ function formatDate(dateString) {
 }
 
 /**
+ * Memformat waktu penyelesaian tugas (timestamp ms) menjadi string yang rapi.
+ * Contoh: "15 Nov 2026 • 21:15 WIB".
+ * @param {number|null} timestamp - Epoch timestamp dalam milidetik.
+ * @returns {string}
+ */
+function formatCompletedTimestamp(timestamp) {
+  if (!timestamp) { return ""; }
+  const d = new Date(timestamp);
+  if (isNaN(d.getTime())) { return ""; }
+  const months = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+  const day = d.getDate();
+  const mon = months[d.getMonth()];
+  const year = d.getFullYear();
+  const hours = String(d.getHours()).padStart(2, "0");
+  const mins = String(d.getMinutes()).padStart(2, "0");
+  return `${day} ${mon} ${year} • ${hours}:${mins} WIB`;
+}
+
+/**
  * Mendapatkan tanggal hari ini dalam format YYYY-MM-DD (lokal, bukan UTC).
  * @returns {string} Tanggal hari ini.
  */
@@ -416,5 +440,17 @@ function validateTitle(title) {
  */
 function validateSubject(subject) {
   if (!subject || subject.trim().length === 0 || subject === "__new__") { return "Pilih atau masukkan mata pelajaran."; }
+  return "";
+}
+
+/**
+ * Memvalidasi tanggal tenggat waktu tugas sekolah (wajib diisi).
+ * @param {string} dueDate - Tanggal dalam format YYYY-MM-DD.
+ * @returns {string} Pesan error, atau string kosong jika valid.
+ */
+function validateDueDate(dueDate) {
+  if (!dueDate || dueDate.trim().length === 0) {
+    return "Tanggal tenggat waktu wajib diisi! 📅";
+  }
   return "";
 }

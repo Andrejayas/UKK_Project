@@ -151,10 +151,13 @@ function renderCalendar(year, month) {
     titleEl.textContent = `${MONTH_NAMES_ID[month]} ${year}`;
   }
 
-  /* 2. Bersihkan Grid */
+  /* 2. Bersihkan Grid & Picu Animasi Transisi Halus */
   const gridEl = document.getElementById("calGrid");
   if (!gridEl) { return; }
   gridEl.innerHTML = "";
+  gridEl.classList.remove("animating");
+  void gridEl.offsetWidth; // Reflow untuk memicu keyframe animation
+  gridEl.classList.add("animating");
 
   const todayStr = getTodayString();
 

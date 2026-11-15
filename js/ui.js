@@ -143,7 +143,7 @@ function renderTasks(list) {
     tdSubject.appendChild(createSubjectBadge(task.subject));
     tr.appendChild(tdSubject);
 
-    /* --- Due date --- */
+    /* --- Due date & Completion info --- */
     const tdDue = document.createElement("td");
     const dueStatus = getDueStatus(task.dueDate, task.status, task.dueTime);
     const dateText = document.createElement("span");
@@ -156,7 +156,14 @@ function renderTasks(list) {
     dateText.style.display = "block";
     dateText.style.fontSize = "0.82rem";
     tdDue.appendChild(dateText);
-    if (dueStatus) {
+
+    if (task.status === "done") {
+      const compBadge = document.createElement("span");
+      compBadge.className = "badge completed-badge";
+      const compTimeStr = formatCompletedTimestamp(task.completedAt);
+      compBadge.textContent = compTimeStr ? `✅ Selesai: ${compTimeStr}` : "✅ Selesai";
+      tdDue.appendChild(compBadge);
+    } else if (dueStatus) {
       const dueBadge = document.createElement("span");
       dueBadge.className = `badge due-${dueStatus}`;
       dueBadge.textContent = getDueLabel(dueStatus);
@@ -164,10 +171,14 @@ function renderTasks(list) {
     }
     tr.appendChild(tdDue);
 
-    /* --- Priority badge --- */
+    /* --- Priority / Difficulty badge --- */
     const tdPriority = document.createElement("td");
     const priBadge = document.createElement("span");
-    const priMap = { high: ["priority-high", "🔴 High"], medium: ["priority-medium", "🟡 Medium"], low: ["priority-low", "🟢 Low"] };
+    const priMap = {
+      high:   ["priority-high",   "🔴 Tinggi (Sulit)"],
+      medium: ["priority-medium", "🟡 Sedang (Normal)"],
+      low:    ["priority-low",    "🟢 Rendah (Mudah)"],
+    };
     const [priClass, priLabel] = priMap[task.priority] || priMap["medium"];
     priBadge.className = `badge ${priClass}`;
     priBadge.textContent = priLabel;
@@ -190,10 +201,7 @@ function renderTasks(list) {
     delBtn.setAttribute("aria-label", `Hapus tugas ${task.title}`);
     delBtn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`;
     delBtn.addEventListener("click", () => {
-      if (confirm(`Hapus tugas "${task.title}"?`)) {
-        deleteTask(task.id);
-        showToast("Tugas dihapus.", "success");
-      }
+      openDeleteModal(task.id, task.title);
     });
 
     actionsDiv.appendChild(editBtn);
@@ -252,12 +260,12 @@ function renderSubjectProgress() {
     nameEl.className = "subject-progress-name";
     nameEl.textContent = subj;
 
-    const pctEl = document.createElement("span");
-    pctEl.className = "subject-progress-pct";
-    pctEl.textContent = `${pct}%`;
+    const detailEl = document.createElement("div");
+    detailEl.className = "subject-progress-detail";
+    detailEl.innerHTML = `<span class="subject-progress-count">${done} dari ${subjTasks.length} selesai</span> <span class="subject-progress-pct">${pct}%</span>`;
 
     header.appendChild(nameEl);
-    header.appendChild(pctEl);
+    header.appendChild(detailEl);
 
     const bg   = document.createElement("div");
     bg.className = "progress-bar-bg";
@@ -392,8 +400,41 @@ function updateAvatarDisplays() {
   });
 }
 
+/** State ID tugas yang sedang menunggu konfirmasi hapus */
+let pendingDeleteTaskId = null;
+
 /**
- * Memperbarui konten profile dropdown (nama, produktivitas).
+ * Membuka modal konfirmasi hapus tugas kustom yang modern.
+ * @param {number} taskId - ID tugas yang akan dihapus.
+ * @param {string} taskTitle - Judul tugas.
+ * @returns {void}
+ */
+function openDeleteModal(taskId, taskTitle) {
+  pendingDeleteTaskId = taskId;
+  const modal = document.getElementById("confirmDeleteModal");
+  const titleEl = document.getElementById("deleteTaskTitle");
+  if (titleEl) {
+    titleEl.textContent = `"${taskTitle}"`;
+  }
+  if (modal) {
+    modal.classList.remove("hidden");
+  }
+}
+
+/**
+ * Menutup modal konfirmasi hapus tugas.
+ * @returns {void}
+ */
+function closeDeleteModal() {
+  pendingDeleteTaskId = null;
+  const modal = document.getElementById("confirmDeleteModal");
+  if (modal) {
+    modal.classList.add("hidden");
+  }
+}
+
+/**
+ * Memperbarui konten profile dropdown (nama, kelas/jurusan, produktivitas).
  * @returns {void}
  */
 function renderProfileDropdown() {
@@ -403,6 +444,24 @@ function renderProfileDropdown() {
   const firstName = fullName.trim().split(/\s+/)[0] || fullName;
   document.getElementById("dropdownName").textContent = fullName;
   document.getElementById("topbarUsername").textContent = firstName;
+
+  const subtitleEl = document.getElementById("dropdownSubtitle");
+  if (subtitleEl) {
+    const parts = [];
+    if (currentUser.kelas && currentUser.kelas.trim()) {
+      parts.push(currentUser.kelas.trim());
+    }
+    if (currentUser.jurusan && currentUser.jurusan.trim()) {
+      parts.push(currentUser.jurusan.trim());
+    }
+    if (parts.length > 0) {
+      subtitleEl.textContent = parts.join(" • ");
+      subtitleEl.style.display = "block";
+    } else {
+      subtitleEl.textContent = "";
+      subtitleEl.style.display = "none";
+    }
+  }
 
   const done  = tasks.filter((t) => t.status === "done").length;
   const total = tasks.length;
@@ -431,6 +490,20 @@ function openEditModal(id) {
   document.getElementById("editDueTime").value    = task.dueTime || "";
   document.getElementById("editPriority").value   = task.priority;
   document.getElementById("editStatus").value     = task.status;
+
+  /* Tampilkan timestamp penyelesaian jika status selesai */
+  const compGroup = document.getElementById("editCompletedGroup");
+  const compInfo  = document.getElementById("editCompletedInfo");
+  if (compGroup && compInfo) {
+    if (task.status === "done") {
+      compGroup.classList.remove("hidden");
+      const timeStr = formatCompletedTimestamp(task.completedAt);
+      compInfo.innerHTML = `<span>✅ <strong>Tugas Selesai</strong></span> <span class="completed-time-tag">${timeStr || "Waktu otomatis tercatat"}</span>`;
+    } else {
+      compGroup.classList.add("hidden");
+      compInfo.innerHTML = "";
+    }
+  }
 
   /* Populate subject dropdown */
   const sel = document.getElementById("editSubject");
@@ -462,6 +535,14 @@ function openProfileModal() {
   const fullNameInput = document.getElementById("profileFullName");
   if (fullNameInput) {
     fullNameInput.value = (currentUser && currentUser.fullName) ? currentUser.fullName : "";
+  }
+  const kelasInput = document.getElementById("profileKelas");
+  if (kelasInput) {
+    kelasInput.value = (currentUser && currentUser.kelas) ? currentUser.kelas : "";
+  }
+  const jurusanInput = document.getElementById("profileJurusan");
+  if (jurusanInput) {
+    jurusanInput.value = (currentUser && currentUser.jurusan) ? currentUser.jurusan : "";
   }
   const errEl = document.getElementById("avatarError");
   if (errEl) { errEl.textContent = ""; }
