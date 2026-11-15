@@ -51,21 +51,14 @@ function setupEventListeners() {
     }
   });
 
-  /* ----- TOPBAR SEARCH (syncs with filter) ----- */
-  document.getElementById("topbarSearch").addEventListener("input", (e) => {
-    if (currentView === "dashboard") {
+  /* ----- FILTER TOOLBAR SEARCH ----- */
+  const filterSearch = document.getElementById("filterSearch");
+  if (filterSearch) {
+    filterSearch.addEventListener("input", (e) => {
       currentFilter.search = e.target.value;
-      document.getElementById("filterSearch").value = e.target.value;
       applyFilters();
-    }
-  });
-
-  /* ----- FILTER TOOLBAR ----- */
-  document.getElementById("filterSearch").addEventListener("input", (e) => {
-    currentFilter.search = e.target.value;
-    document.getElementById("topbarSearch").value = e.target.value;
-    applyFilters();
-  });
+    });
+  }
 
   document.getElementById("filterStatus").addEventListener("change", (e) => {
     currentFilter.status = e.target.value;
@@ -127,6 +120,9 @@ function setupEventListeners() {
     renderSubjectProgress();
     renderDonutChart();
     renderWeeklyChart();
+    if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
+      renderCalendar(calendarState.viewYear, calendarState.viewMonth);
+    }
 
     /* Reset form */
     document.getElementById("quickAddForm").reset();
@@ -507,6 +503,9 @@ function initApp() {
 
   /* 4. Tampilkan app dan render UI langsung */
   showApp();
+  if (typeof initCalendar === "function") {
+    initCalendar();
+  }
 
   /* 5. Set view awal */
   switchView("dashboard");
@@ -538,6 +537,9 @@ function initApp() {
     loadProfile,
     saveProfile,
     currentUser: () => currentUser,
+    openCalendar: () => typeof openCalendarPopup === "function" && openCalendarPopup(),
+    closeCalendar: () => typeof closeCalendarPopup === "function" && closeCalendarPopup(),
+    holidays: () => typeof INDONESIA_HOLIDAYS !== "undefined" ? INDONESIA_HOLIDAYS : [],
   };
 }
 

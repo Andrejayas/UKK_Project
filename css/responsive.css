@@ -97,6 +97,26 @@
     display: none;
   }
 
+  .topbar-holiday-pill {
+    display: none;
+  }
+
+  .topbar-calendar-btn {
+    padding: 5px 10px;
+    font-size: 0.78rem;
+  }
+
+  .linux-calendar-card {
+    position: fixed;
+    top: 66px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+  }
+
   .topbar-username {
     display: none;
   }

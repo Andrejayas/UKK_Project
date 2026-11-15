@@ -1,0 +1,491 @@
+/**
+ * @file css/calendar.css
+ * @description Widget Kalender & Jadwal Hari Libur (2026 - 2027) dengan gaya Linux Desktop Shell
+ *              (Hyprland / Aylur's GTK Shell style) berestetika Frosted Glassmorphism.
+ * @author Andrean Rayhan Wijaya
+ */
+
+/* ============================================================
+   1. TOPBAR TRIGGER BUTTON & PILL
+   ============================================================ */
+.calendar-widget-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.topbar-calendar-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.topbar-calendar-btn:hover,
+.topbar-calendar-btn.active {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(249, 115, 22, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 12px rgba(249, 115, 22, 0.15);
+  transform: translateY(-1px);
+}
+
+.topbar-calendar-btn .calendar-btn-icon {
+  width: 15px;
+  height: 15px;
+  color: var(--accent);
+  flex-shrink: 0;
+  transition: transform 0.25s ease;
+}
+
+.topbar-calendar-btn:hover .calendar-btn-icon {
+  transform: scale(1.1);
+}
+
+.topbar-calendar-date {
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+
+.topbar-holiday-pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 2px 7px;
+  border-radius: 10px;
+  letter-spacing: 0.2px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ============================================================
+   2. LINUX DESKTOP CALENDAR CARD POPUP
+   ============================================================ */
+.linux-calendar-card {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 370px;
+  max-width: calc(100vw - 32px);
+  background: rgba(18, 22, 34, 0.94);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 24px 50px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  z-index: 1000;
+  transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+              visibility 0.24s;
+  transform-origin: top right;
+}
+
+.linux-calendar-card.hidden {
+  display: block !important;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-8px) scale(0.97);
+}
+
+.linux-calendar-card:not(.hidden) {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+/* Header */
+.linux-cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.linux-cal-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.linux-cal-icon-wrap {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(249, 115, 22, 0.15);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+}
+
+.linux-cal-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+  margin: 0;
+}
+
+.linux-cal-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.linux-cal-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.linux-cal-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.linux-cal-btn:active {
+  transform: scale(0.92);
+}
+
+/* Weekday column headers */
+.linux-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #9ca3af;
+  margin-bottom: 10px;
+  user-select: none;
+}
+
+.linux-cal-weekdays .sun-col {
+  color: #f87171;
+}
+
+/* Date grid */
+.linux-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 6px;
+  column-gap: 4px;
+  margin-bottom: 16px;
+}
+
+.cal-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  margin: auto;
+  border-radius: 50%;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: #e5e7eb;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cal-cell:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  transform: scale(1.06);
+}
+
+/* Day outside current month */
+.cal-cell.other-month {
+  color: #4b5563;
+  opacity: 0.45;
+}
+
+/* Sunday column */
+.cal-cell.is-sunday:not(.is-today):not(.other-month) {
+  background: rgba(239, 68, 68, 0.14);
+  color: #fca5a5;
+}
+
+.cal-cell.is-sunday:hover:not(.is-today) {
+  background: rgba(239, 68, 68, 0.28);
+}
+
+/* Today pill (Persis Lingkaran Merah/Oranye di Screenshot Linux) */
+.cal-cell.is-today {
+  background: #ff5544 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(255, 85, 68, 0.48);
+}
+
+.cal-cell.is-today:hover {
+  filter: brightness(1.1);
+}
+
+/* Selected Day state */
+.cal-cell.is-selected:not(.is-today) {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  background: rgba(249, 115, 22, 0.18);
+  color: #ffffff;
+}
+
+/* Dots underneath day */
+.cal-dot-container {
+  position: absolute;
+  bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.cal-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+}
+
+.cal-dot.holiday-dot {
+  background: #f87171;
+}
+
+.cal-dot.task-dot {
+  background: #f59e0b;
+}
+
+.cal-cell.is-today .cal-dot {
+  background: #ffffff;
+}
+
+/* ============================================================
+   3. SELECTED DAY STATUS PANEL (Persis Bagian Bawah Image 2)
+   ============================================================ */
+.linux-cal-day-status {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+}
+
+.linux-cal-day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.linux-cal-selected-day {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.linux-cal-badge-pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #d1d5db;
+  white-space: nowrap;
+}
+
+.linux-cal-badge-pill.is-holiday {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.linux-cal-badge-pill.is-today-badge {
+  background: rgba(249, 115, 22, 0.2);
+  color: #fb923c;
+  border: 1px solid rgba(249, 115, 22, 0.35);
+}
+
+.linux-cal-selected-desc {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.linux-cal-day-tasks {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+}
+
+.linux-cal-task-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: #f3f4f6;
+  padding: 2px 0;
+}
+
+.linux-cal-task-bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   4. UPCOMING HOLIDAYS LIST (2026 - 2027)
+   ============================================================ */
+.linux-cal-holidays-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 12px;
+}
+
+.linux-cal-holidays-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.linux-cal-holidays-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #e5e7eb;
+}
+
+.linux-cal-holidays-title svg {
+  color: #f59e0b;
+}
+
+.linux-cal-holidays-count {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+
+.linux-cal-holidays-list {
+  max-height: 165px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-right: 4px;
+}
+
+.holiday-item-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.holiday-item-card:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(249, 115, 22, 0.3);
+  transform: translateX(3px);
+}
+
+.holiday-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.holiday-item-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.holiday-item-date {
+  font-size: 0.72rem;
+  color: #9ca3af;
+}
+
+.holiday-item-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  letter-spacing: 0.2px;
+}
+
+.holiday-item-badge.badge-soon {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.holiday-item-badge.badge-future {
+  background: rgba(59, 130, 246, 0.14);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+/* Custom scrollbar for holidays list */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(249, 115, 22, 0.5);
+}

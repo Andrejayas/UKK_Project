@@ -73,6 +73,15 @@ function updateStatus(id, status) {
     renderSubjectProgress();
     renderDonutChart();
     renderWeeklyChart();
+    if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
+      renderCalendar(calendarState.viewYear, calendarState.viewMonth);
+    }
+    if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
+      renderCalendar(calendarState.viewYear, calendarState.viewMonth);
+    }
+    if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
+      renderCalendar(calendarState.viewYear, calendarState.viewMonth);
+    }
   }
 }
 
@@ -92,6 +101,15 @@ function updateTask(id, changes) {
     renderSubjectProgress();
     renderDonutChart();
     renderWeeklyChart();
+    if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
+      renderCalendar(calendarState.viewYear, calendarState.viewMonth);
+    }
+    if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
+      renderCalendar(calendarState.viewYear, calendarState.viewMonth);
+    }
+    if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
+      renderCalendar(calendarState.viewYear, calendarState.viewMonth);
+    }
   }
 }
 
@@ -108,6 +126,9 @@ function deleteTask(id) {
   renderSubjectProgress();
   renderDonutChart();
   renderWeeklyChart();
+  if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
+    renderCalendar(calendarState.viewYear, calendarState.viewMonth);
+  }
 }
 
 /**

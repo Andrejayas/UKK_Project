@@ -34,6 +34,7 @@ To-Do List Website/
 │   ├── layout.css                     # Struktur grid/flex: Sidebar, Topbar, dan Kontainer Utama
 │   ├── components.css                 # Form input, tombol, kartu metrik, dan tabel tugas
 │   ├── charts.css                     # Wadah canvas grafik dan legenda status
+│   ├── calendar.css                   # Widget Kalender & Jadwal Hari Libur (Frosted Glassmorphism Linux style)
 │   ├── modals.css                     # Dialog pop-up (Modal Edit, Profil, dan Onboarding Sambutan)
 │   ├── cropper.css                    # Editor foto profil gaya Discord (lingkaran pratinjau & slider zoom)
 │   ├── toast.css                      # Sistem notifikasi melayang (glassmorphism toast)
@@ -42,6 +43,7 @@ To-Do List Website/
 │   ├── config.js                      # State global, kunci LocalStorage, konfigurasi mapel, profil
 │   ├── tasks.js                       # Logika CRUD tugas, filter, sorting, validasi, dan overdue check
 │   ├── charts.js                      # Visualisasi grafik donat & diagram batang (HTML5 Canvas 2D)
+│   ├── calendar.js                    # Kalender interaktif Linux desktop, data Hari Libur 2026-2027 & countdown
 │   ├── cropper.js                     # Logika crop avatar (drag/pan kursor, zoom 100%-300%, render canvas)
 │   ├── ui.js                          # Render tabel DOM, update kartu metrik, jam digital, modal, navigasi
 │   └── app.js                         # Inisialisasi aplikasi (DOM ready), event listeners, expose window API
@@ -52,7 +54,7 @@ To-Do List Website/
 │   └── settings.json                  # Standar indentasi 2 spasi & format otomatis
 ├── .gitignore                         # Mengabaikan file log / OS cache
 ├── index.html                         # Dokumen HTML5 semantik utama
-├── style.css                          # Master stylesheet (mengimpor 8 file modular dari folder css/)
+├── style.css                          # Master stylesheet (mengimpor 9 file modular dari folder css/)
 └── README.md                          # Dokumentasi teknis & panduan asesor
 ```
 
@@ -75,6 +77,10 @@ To-Do List Website/
 * **Visualisasi Grafik Canvas 2D**:
   - *Donut Chart*: Menampilkan persentase proporsi tugas (To Do, In Progress, Selesai, Terlambat).
   - *Weekly Bar Chart*: Diagram batang aktivitas pembuatan/penyelesaian tugas mingguan (Senin–Minggu).
+* **Widget Kalender & Jadwal Libur Linux Desktop Style**: Tombol tanggal di topbar menampilkan tanggal hari ini serta badge hari libur terdekat. Saat kursor mouse mendekat (hover) atau diklik, kartu kalender pop-up bergaya modern Linux Desktop Shell (frosted glass) terbuka otomatis:
+  - Pratinjau grid tanggal 7 kolom lengkap dengan penanda lingkaran cerah tanggal hari ini dan dot indikator hari libur.
+  - Panel info tanggal terpilih (hari efektif vs libur nasional/cuti bersama) serta daftar tugas sekolah pada tanggal tersebut.
+  - Daftar lengkap **Hari Libur Nasional & Cuti Bersama 2026 – 2027** disertai badge hitung mundur (*countdown*, misal: "39 hari lagi"). Mengklik salah satu agenda libur akan langsung menavigasikan kalender ke bulan dan tanggal tersebut.
 * **Editor Avatar Gaya Discord**: Siswa dapat mengunggah foto, menggeser posisi (pan), memperbesar (zoom 100%–300%), dan memotongnya dalam lingkaran sempurna beresolusi tinggi.
 * **Ekspor Data Cadangan**: Mendukung ekspor data seluruh tugas ke format JSON yang dapat disimpan siswa.
 * **Jam Digital Real-Time**: Topbar menampilkan hari, tanggal, bulan, serta jam digital yang berdetik setiap detik.

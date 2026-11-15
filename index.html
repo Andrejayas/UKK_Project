@@ -92,9 +92,83 @@
             </svg>
             <span id="clockText">--:--:-- WIB</span>
           </div>
-          <div class="search-wrapper">
-            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="search" id="topbarSearch" class="search-input" placeholder="Cari tugas..." aria-label="Cari tugas" />
+          <!-- Calendar & Holidays Trigger (Replaces topbar search) -->
+          <div class="calendar-widget-wrapper" id="calendarWidgetWrapper">
+            <button type="button" id="topbarCalendarBtn" class="topbar-calendar-btn" aria-haspopup="dialog" aria-expanded="false" aria-label="Buka Kalender & Hari Libur" title="Kalender & Hari Libur">
+              <svg class="calendar-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+              <span id="topbarCalendarDate" class="topbar-calendar-date">15 Nov 2026</span>
+              <span id="topbarHolidayPill" class="topbar-holiday-pill" title="Hari libur terdekat">39h Cuti Natal</span>
+            </button>
+
+            <!-- Linux Desktop Style Calendar Popup (Persis Image Desktop Linux) -->
+            <div id="calendarPopup" class="calendar-popup linux-calendar-card hidden" role="dialog" aria-label="Kalender & Hari Libur">
+              <!-- Calendar Header -->
+              <div class="linux-cal-header">
+                <div class="linux-cal-title-wrap">
+                  <div class="linux-cal-icon-wrap" aria-hidden="true">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                      <rect x="3" y="4" width="18" height="18" rx="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/>
+                      <line x1="8" y1="2" x2="8" y2="6"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                  </div>
+                  <h3 id="calMonthYearTitle" class="linux-cal-title">November 2026</h3>
+                </div>
+                <div class="linux-cal-controls">
+                  <button type="button" id="calPrevMonthBtn" class="linux-cal-btn" aria-label="Bulan Sebelumnya" title="Bulan Sebelumnya">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                  </button>
+                  <button type="button" id="calTodayBtn" class="linux-cal-btn" aria-label="Hari Ini" title="Kembali ke Hari Ini">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><circle cx="12" cy="14" r="2"/></svg>
+                  </button>
+                  <button type="button" id="calNextMonthBtn" class="linux-cal-btn" aria-label="Bulan Berikutnya" title="Bulan Berikutnya">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Day of Week Row (Mo Tu We Th Fr Sa Su) -->
+              <div class="linux-cal-weekdays">
+                <span>Mo</span>
+                <span>Tu</span>
+                <span>We</span>
+                <span>Th</span>
+                <span>Fr</span>
+                <span>Sa</span>
+                <span class="sun-col">Su</span>
+              </div>
+
+              <!-- Date Numbers Grid -->
+              <div id="calGrid" class="linux-cal-grid"></div>
+
+              <!-- Selected Day Status Panel (Persis Image Desktop Linux) -->
+              <div class="linux-cal-day-status">
+                <div class="linux-cal-day-header">
+                  <span id="calSelectedDayName" class="linux-cal-selected-day">Minggu, 15 November 2026</span>
+                  <span id="calSelectedDayBadge" class="linux-cal-badge-pill">Hari Ini</span>
+                </div>
+                <p id="calSelectedDayDesc" class="linux-cal-selected-desc">Hari efektif sekolah • Tidak ada hari libur nasional.</p>
+                <div id="calSelectedDayTasks" class="linux-cal-day-tasks hidden"></div>
+              </div>
+
+              <!-- Upcoming Holidays Section (2026 - 2027) -->
+              <div class="linux-cal-holidays-section">
+                <div class="linux-cal-holidays-header">
+                  <div class="linux-cal-holidays-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    <span>Hari Libur Mendatang (2026 – 2027)</span>
+                  </div>
+                  <span class="linux-cal-holidays-count" id="holidaysCountBadge"></span>
+                </div>
+                <div id="upcomingHolidaysList" class="linux-cal-holidays-list custom-scrollbar"></div>
+              </div>
+            </div>
           </div>
           <div class="avatar-wrapper">
             <button id="avatarBtn" class="avatar-btn" aria-haspopup="true" aria-expanded="false" aria-label="Buka menu profil">
@@ -649,6 +723,7 @@
   <script src="js/config.js"></script>
   <script src="js/tasks.js"></script>
   <script src="js/charts.js"></script>
+  <script src="js/calendar.js"></script>
   <script src="js/cropper.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/app.js"></script>
