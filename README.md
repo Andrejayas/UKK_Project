@@ -80,7 +80,7 @@ To-Do List Website/
 * **Widget Kalender & Jadwal Libur Linux Desktop Style**: Tombol tanggal di topbar menampilkan tanggal hari ini serta badge hari libur terdekat. Saat kursor mouse mendekat (hover) atau diklik, kartu kalender pop-up bergaya modern Linux Desktop Shell (frosted glass) terbuka otomatis:
   - Pratinjau grid tanggal 7 kolom lengkap dengan penanda lingkaran cerah tanggal hari ini dan dot indikator hari libur.
   - Panel info tanggal terpilih (hari efektif vs libur nasional/cuti bersama) serta daftar tugas sekolah pada tanggal tersebut.
-  - Daftar lengkap **Hari Libur Nasional & Cuti Bersama 2026 – 2027** disertai badge hitung mundur (*countdown*, misal: "39 hari lagi"). Mengklik salah satu agenda libur akan langsung menavigasikan kalender ke bulan dan tanggal tersebut.
+  - Database Hari Libur Nasional & Cuti Bersama 2026 – 2027: Tanggal libur ditandai dengan dot indikator merah pada grid, dan badge kapsul topbar otomatis menghitung mundur ke hari libur terdekat berikutnya secara dinamis (otomatis berganti ke agenda libur berikutnya saat tanggal sudah lewat).
 * **Editor Avatar Gaya Discord**: Siswa dapat mengunggah foto, menggeser posisi (pan), memperbesar (zoom 100%–300%), dan memotongnya dalam lingkaran sempurna beresolusi tinggi.
 * **Ekspor Data Cadangan**: Mendukung ekspor data seluruh tugas ke format JSON yang dapat disimpan siswa.
 * **Jam Digital Real-Time**: Topbar menampilkan hari, tanggal, bulan, serta jam digital yang berdetik setiap detik.

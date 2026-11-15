@@ -365,70 +365,6 @@ function updateSelectedDayPanel(dateStr) {
 }
 
 /**
- * Merender daftar seluruh hari libur mendatang (2026 - 2027) lengkap dengan badge countdown.
- * @returns {void}
- */
-function renderUpcomingHolidaysList() {
-  const container = document.getElementById("upcomingHolidaysList");
-  const countBadge = document.getElementById("holidaysCountBadge");
-  if (!container) { return; }
-
-  const upcoming = getUpcomingHolidays();
-
-  if (countBadge) {
-    countBadge.textContent = `${upcoming.length} agenda libur`;
-  }
-
-  container.innerHTML = "";
-
-  if (upcoming.length === 0) {
-    container.innerHTML = `<p class="empty-state-sm">Tidak ada jadwal libur tersisa.</p>`;
-    return;
-  }
-
-  upcoming.forEach((h) => {
-    const card = document.createElement("div");
-    card.className = "holiday-item-card";
-
-    let countdownText = "";
-    let isSoon = false;
-
-    if (h.daysLeft === 0) {
-      countdownText = "Hari Ini 🎉";
-      isSoon = true;
-    } else if (h.daysLeft === 1) {
-      countdownText = "Besok";
-      isSoon = true;
-    } else {
-      countdownText = `${h.daysLeft} hari lagi`;
-      isSoon = h.daysLeft <= 45;
-    }
-
-    const badgeClass = isSoon ? "badge-soon" : "badge-future";
-
-    card.innerHTML = `
-      <div class="holiday-item-info">
-        <span class="holiday-item-name" title="${h.name}">${h.name}</span>
-        <span class="holiday-item-date">${formatFullDateIndonesian(h.date)} • ${h.type === "cuti" ? "Cuti Bersama" : "Libur Nasional"}</span>
-      </div>
-      <span class="holiday-item-badge ${badgeClass}">${countdownText}</span>
-    `;
-
-    /* Klik kartu hari libur: langsung lompat ke bulan & tanggal libur tersebut di kalender */
-    card.addEventListener("click", () => {
-      const [hy, hm, hd] = h.date.split("-").map(Number);
-      calendarState.viewYear = hy;
-      calendarState.viewMonth = hm - 1;
-      calendarState.selectedDate = h.date;
-      renderCalendar(calendarState.viewYear, calendarState.viewMonth);
-      showToast(`Melihat: ${h.name} (${formatDate(h.date)})`, "success");
-    });
-
-    container.appendChild(card);
-  });
-}
-
-/**
  * Memperbarui badge kalender di topbar dengan tanggal aktif dan info libur terdekat.
  * @returns {void}
  */
@@ -476,7 +412,6 @@ function openCalendarPopup() {
 
   /* Render ulang data kalender */
   renderCalendar(calendarState.viewYear, calendarState.viewMonth);
-  renderUpcomingHolidaysList();
 }
 
 /**
@@ -532,7 +467,6 @@ function initCalendar() {
   /* Inisialisasi awal tampilan */
   updateTopbarCalendarBadge();
   renderCalendar(calendarState.viewYear, calendarState.viewMonth);
-  renderUpcomingHolidaysList();
 
   /* 1. HOVER TRIGGER: Saat kursor mouse mendekati pill terpadu */
   if (wrapper) {
