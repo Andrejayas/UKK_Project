@@ -175,10 +175,15 @@
                   <span class="notif-header-icon">🔔</span>
                   <span class="notif-header-title">Pengingat Jadwal</span>
                 </div>
-                <button type="button" id="notifEnableDesktopBtn" class="notif-desktop-btn" title="Izinkan Notifikasi Desktop">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>
-                  <span id="notifDesktopBtnText">Aktifkan Desktop</span>
-                </button>
+                <div class="notif-header-actions">
+                  <button type="button" id="notifMarkAllReadBtn" class="notif-action-btn" title="Tandai semua notifikasi sudah dibaca agar badge merah hilang">
+                    ✓ Tandai Dibaca
+                  </button>
+                  <button type="button" id="notifEnableDesktopBtn" class="notif-desktop-btn" title="Izinkan Notifikasi Desktop">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg>
+                    <span id="notifDesktopBtnText">Desktop</span>
+                  </button>
+                </div>
               </div>
               <div id="notifListContainer" class="notif-list-container">
                 <!-- Diisi dinamis oleh js/notifications.js -->

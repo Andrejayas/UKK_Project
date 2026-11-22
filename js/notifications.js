@@ -13,6 +13,7 @@ const NOTIF_STORAGE_KEYS = {
   SOUND_ENABLED: "schooltask_notif_sound",
   SOUND_TONE: "schooltask_notif_tone",
   NOTIFIED_MILESTONES: "schooltask_notified_milestones",
+  READ_NOTIFS: "schooltask_read_notifs",
 };
 
 const NOTIF_TONE_NAMES = {
@@ -287,7 +288,14 @@ function sendNotificationAlert(task, milestoneKey, title, body) {
   // 4. Rekam milestone agar tidak berulang
   recordTaskMilestoneNotified(task.id, milestoneKey);
 
-  // 5. Perbarui status lonceng notifikasi di topbar
+  // 5. Tandai tugas kembali unread agar badge lonceng memberi tahu milestone baru ini
+  const readIds = getReadNotifIds();
+  if (readIds.has(task.id)) {
+    readIds.delete(task.id);
+    saveReadNotifIds(readIds);
+  }
+
+  // 6. Perbarui status lonceng notifikasi di topbar
   renderNotificationCenter();
 }
 
@@ -362,6 +370,75 @@ function checkTaskDeadlinesNotification() {
 }
 
 /**
+ * Mendapatkan kumpulan ID tugas yang notifikasinya sudah ditandai dibaca oleh user.
+ * @returns {Set<number|string>}
+ */
+function getReadNotifIds() {
+  try {
+    const raw = localStorage.getItem(NOTIF_STORAGE_KEYS.READ_NOTIFS);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch (e) {
+    return new Set();
+  }
+}
+
+/**
+ * Menyimpan ID tugas yang sudah dibaca ke localStorage.
+ * @param {Set<number|string>} setIds
+ */
+function saveReadNotifIds(setIds) {
+  try {
+    localStorage.setItem(NOTIF_STORAGE_KEYS.READ_NOTIFS, JSON.stringify([...setIds]));
+  } catch (e) {}
+}
+
+/**
+ * Mengambil daftar tugas yang belum selesai dan memiliki tenggat mendesak (<= 120m) atau terlambat.
+ * @returns {Array}
+ */
+function getActiveAlertTasks() {
+  if (typeof tasks === "undefined" || !Array.isArray(tasks)) { return []; }
+  return tasks
+    .filter((t) => {
+      if (t.status === "done" || !t.dueDate) { return false; }
+      const diffMs = typeof getTaskDeadlineDiffMs === "function" ? getTaskDeadlineDiffMs(t.dueDate, t.dueTime) : null;
+      if (diffMs === null) { return false; }
+      return diffMs <= 120 * 60 * 1000;
+    })
+    .sort((a, b) => {
+      const diffA = typeof getTaskDeadlineDiffMs === "function" ? getTaskDeadlineDiffMs(a.dueDate, a.dueTime) ?? Infinity : 0;
+      const diffB = typeof getTaskDeadlineDiffMs === "function" ? getTaskDeadlineDiffMs(b.dueDate, b.dueTime) ?? Infinity : 0;
+      return diffA - diffB;
+    });
+}
+
+/**
+ * Menandai seluruh notifikasi pengingat saat ini sebagai sudah dibaca,
+ * sehingga badge angka merah di lonceng hilang dan tidak mendistraksi user.
+ * @param {boolean} [showFeedback=false]
+ */
+function markAllNotificationsAsRead(showFeedback = false) {
+  const activeAlertTasks = getActiveAlertTasks();
+  const readIds = getReadNotifIds();
+  let hasNew = false;
+  activeAlertTasks.forEach((t) => {
+    if (!readIds.has(t.id)) {
+      readIds.add(t.id);
+      hasNew = true;
+    }
+  });
+  saveReadNotifIds(readIds);
+  renderNotificationCenter();
+  if (showFeedback && typeof showToast === "function") {
+    if (activeAlertTasks.length === 0) {
+      showToast("Tidak ada pengingat yang perlu dibaca ✔", "info");
+    } else {
+      showToast("Semua pengingat telah ditandai sudah dibaca ✔", "info");
+    }
+  }
+}
+
+/**
  * Merender daftar tugas yang mendekati batas waktu atau terlambat pada panel dropdown lonceng notifikasi.
  * @returns {void}
  */
@@ -371,6 +448,7 @@ function renderNotificationCenter() {
   const listContainer = document.getElementById("notifListContainer");
   const enableDesktopBtn = document.getElementById("notifEnableDesktopBtn");
   const desktopBtnText = document.getElementById("notifDesktopBtnText");
+  const markAllReadBtn = document.getElementById("notifMarkAllReadBtn");
 
   // Perbarui status tombol desktop notification
   if (enableDesktopBtn && desktopBtnText) {
@@ -390,32 +468,30 @@ function renderNotificationCenter() {
     }
   }
 
-  if (typeof tasks === "undefined" || !Array.isArray(tasks)) { return; }
+  const activeAlertTasks = getActiveAlertTasks();
+  const readIds = getReadNotifIds();
+  const unreadAlertTasks = activeAlertTasks.filter((t) => !readIds.has(t.id));
 
-  // Ambil tugas yang belum selesai dan memiliki tenggat hari ini, mendesak, atau terlambat
-  const activeAlertTasks = tasks
-    .filter((t) => {
-      if (t.status === "done" || !t.dueDate) { return false; }
-      const diffMs = typeof getTaskDeadlineDiffMs === "function" ? getTaskDeadlineDiffMs(t.dueDate, t.dueTime) : null;
-      if (diffMs === null) { return false; }
-      // Terlambat, atau sisa waktu <= 120 menit (2 jam)
-      return diffMs <= 120 * 60 * 1000;
-    })
-    .sort((a, b) => {
-      const diffA = typeof getTaskDeadlineDiffMs === "function" ? getTaskDeadlineDiffMs(a.dueDate, a.dueTime) ?? Infinity : 0;
-      const diffB = typeof getTaskDeadlineDiffMs === "function" ? getTaskDeadlineDiffMs(b.dueDate, b.dueTime) ?? Infinity : 0;
-      return diffA - diffB;
-    });
-
-  // Perbarui badge lonceng
+  // Perbarui badge lonceng berdasarkan jumlah notifikasi unread
   if (badgeEl && bellBtn) {
-    if (activeAlertTasks.length > 0) {
-      badgeEl.textContent = activeAlertTasks.length > 9 ? "9+" : activeAlertTasks.length;
+    if (unreadAlertTasks.length > 0) {
+      badgeEl.textContent = unreadAlertTasks.length > 9 ? "9+" : unreadAlertTasks.length;
       badgeEl.classList.remove("hidden");
       bellBtn.classList.add("has-unread");
     } else {
       badgeEl.classList.add("hidden");
       bellBtn.classList.remove("has-unread");
+    }
+  }
+
+  // Update status tombol "✓ Tandai Dibaca"
+  if (markAllReadBtn) {
+    if (unreadAlertTasks.length === 0) {
+      markAllReadBtn.style.opacity = "0.6";
+      markAllReadBtn.textContent = "✓ Semua Dibaca";
+    } else {
+      markAllReadBtn.style.opacity = "1";
+      markAllReadBtn.textContent = "✓ Tandai Dibaca";
     }
   }
 
@@ -438,9 +514,10 @@ function renderNotificationCenter() {
     const diffMs = typeof getTaskDeadlineDiffMs === "function" ? getTaskDeadlineDiffMs(task.dueDate, task.dueTime) ?? 0 : 0;
     const isOverdue = diffMs < 0;
     const minsLeft = Math.max(1, Math.ceil(diffMs / 60000));
+    const isRead = readIds.has(task.id);
 
     const item = document.createElement("div");
-    item.className = `notif-item ${isOverdue ? "overdue" : "urgent"}`;
+    item.className = `notif-item ${isOverdue ? "overdue" : "urgent"} ${isRead ? "is-read" : "is-unread"}`;
 
     const contentDiv = document.createElement("div");
     contentDiv.className = "notif-item-content";
@@ -459,6 +536,13 @@ function renderNotificationCenter() {
 
     topDiv.appendChild(subjBadge);
     topDiv.appendChild(titleSpan);
+
+    if (isRead) {
+      const readStatus = document.createElement("span");
+      readStatus.className = "notif-read-status";
+      readStatus.textContent = "• Dibaca";
+      topDiv.appendChild(readStatus);
+    }
 
     const timeSpan = document.createElement("span");
     timeSpan.className = "notif-item-time";
@@ -482,6 +566,9 @@ function renderNotificationCenter() {
       e.stopPropagation();
       if (typeof updateStatus === "function") {
         updateStatus(task.id, "done");
+        const rIds = getReadNotifIds();
+        rIds.add(task.id);
+        saveReadNotifIds(rIds);
         if (typeof showToast === "function") {
           showToast(`Tugas "${task.title}" berhasil diselesaikan! 🎉`, "success");
         }
@@ -490,6 +577,16 @@ function renderNotificationCenter() {
 
     item.appendChild(contentDiv);
     item.appendChild(completeBtn);
+
+    // Klik item menandai item tersebut sebagai dibaca
+    item.addEventListener("click", () => {
+      if (!readIds.has(task.id)) {
+        readIds.add(task.id);
+        saveReadNotifIds(readIds);
+        renderNotificationCenter();
+      }
+    });
+
     listContainer.appendChild(item);
   });
 }
@@ -586,6 +683,7 @@ function initNotifications() {
   const notifBtn = document.getElementById("topbarNotifBtn");
   const notifDropdown = document.getElementById("notifDropdown");
   const enableDesktopBtn = document.getElementById("notifEnableDesktopBtn");
+  const markAllReadBtn = document.getElementById("notifMarkAllReadBtn");
   const testChimeBtn = document.getElementById("btnTestChimeSound");
   const toggleDesktopBtn = document.getElementById("btnToggleDesktopNotif");
   const soundCheckbox = document.getElementById("chkNotifSound");
@@ -604,7 +702,9 @@ function initNotifications() {
       if (isHidden) {
         notifDropdown.classList.remove("hidden");
         notifBtn.setAttribute("aria-expanded", "true");
-        renderNotificationCenter();
+        // Buka panel notifikasi & tandai seluruh notifikasi yang ada sebagai sudah dilihat/dibaca
+        // agar badge merah dan animasi bergoyang langsung hilang sehingga tidak mendistraksi
+        markAllNotificationsAsRead(false);
       } else {
         notifDropdown.classList.add("hidden");
         notifBtn.setAttribute("aria-expanded", "false");
@@ -619,6 +719,14 @@ function initNotifications() {
       notifBtn?.setAttribute("aria-expanded", "false");
     }
   });
+
+  // Tombol Tandai Semua Dibaca di header panel notifikasi
+  if (markAllReadBtn) {
+    markAllReadBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      markAllNotificationsAsRead(true);
+    });
+  }
 
   // Tombol Aktifkan Desktop di dalam panel lonceng
   if (enableDesktopBtn) {
