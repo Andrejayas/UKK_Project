@@ -81,15 +81,20 @@
 .sidebar-toggle {
   background: transparent;
   border: none;
+  outline: none;
   color: var(--text-secondary);
   display: flex;
   align-items: center;
-  padding: 4px;
+  justify-content: center;
+  padding: 6px;
   border-radius: var(--radius-sm);
   flex-shrink: 0;
   transition: color var(--transition), background var(--transition);
+  cursor: pointer;
 }
 .sidebar-toggle:hover { color: var(--text-primary); background: var(--bg-tertiary); }
+.sidebar-toggle:focus { outline: none !important; }
+.sidebar-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 
 .sidebar-nav {
   flex: 1;
@@ -188,7 +193,11 @@
 
 .sidebar-collapsed .sidebar-header {
   justify-content: center;
-  padding: 18px 0;
+  padding: 16px 0;
+}
+
+.sidebar-collapsed .sidebar-toggle {
+  margin: 0 auto;
 }
 
 .sidebar-collapsed .sidebar-logo {
@@ -197,16 +206,21 @@
 
 .sidebar-collapsed .logo-text,
 .sidebar-collapsed .nav-label {
-  opacity: 0;
-  pointer-events: none;
-  width: 0;
-  overflow: hidden;
+  display: none !important;
 }
 
 .sidebar-collapsed .nav-item {
   justify-content: center;
-  padding: 10px;
+  padding: 10px 0;
   border-left-color: transparent;
+  width: 100%;
+}
+
+.sidebar-collapsed .nav-item-profile {
+  justify-content: center;
+  padding: 8px 0;
+  gap: 0;
+  width: 100%;
 }
 
 .sidebar-collapsed .nav-item:hover {
@@ -233,6 +247,7 @@
   width: 28px;
   height: 28px;
   margin: 0 auto;
+  display: block;
 }
 
 /* Sidebar Backdrop (Mobile) */

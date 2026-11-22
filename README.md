@@ -47,7 +47,8 @@ To-Do List Website/
 │   ├── cropper.js                     # Logika crop avatar (drag/pan kursor, zoom 100%-300%, render canvas)
 │   ├── ui.js                          # Render tabel DOM, update kartu metrik, jam digital, modal, navigasi
 │   └── app.js                         # Inisialisasi aplikasi (DOM ready), event listeners, expose window API
-├── PRD/                               # Panduan Persyaratan Produk (Spesifikasi MUK)
+├── PRD/                               # Panduan Persyaratan Produk (Spesifikasi MUK & PRD Master)
+│   ├── PRD_MASTER_PROJECT_UKK.md      # DOKUMEN MASTER LENGKAP untuk developer & AI Agent
 │   ├── PRD UKK To-Do List Website.pdf
 │   └── PRD UKK v2 To-Do List Tugas Sekolah (Tanggal, Mapel, Filter) (1).pdf
 ├── .vscode/                           # Konfigurasi editor

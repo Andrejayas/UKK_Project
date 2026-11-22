@@ -257,11 +257,11 @@ function renderAnalytics() {
     if (score >= 80) {
       gaugeFill.style.stroke = "#10b981";
     } else if (score >= 60) {
-      gaugeFill.style.stroke = "#3b82f6";
+      gaugeFill.style.stroke = "#38bdf8";
     } else if (score >= 40) {
       gaugeFill.style.stroke = "#f59e0b";
     } else {
-      gaugeFill.style.stroke = "#ef4444";
+      gaugeFill.style.stroke = "#fb923c";
     }
   }
 
@@ -282,9 +282,9 @@ function renderAnalytics() {
       descEl.textContent = "Luar biasa! Tingkat ketuntasan tugas tinggi dan bebas dari keterlambatan.";
     } else if (score >= 60) {
       badgeEl.textContent = "🌟 Berkinerja Baik";
-      badgeEl.style.color = "#60a5fa";
-      badgeEl.style.borderColor = "rgba(59,130,246,0.3)";
-      badgeEl.style.background = "rgba(59,130,246,0.12)";
+      badgeEl.style.color = "#38bdf8";
+      badgeEl.style.borderColor = "rgba(56,189,248,0.3)";
+      badgeEl.style.background = "rgba(56,189,248,0.12)";
       descEl.textContent = "Sebagian besar tugas tuntas tepat waktu. Pertahankan ritme belajar yang baik!";
     } else if (score >= 40) {
       badgeEl.textContent = "👍 Cukup Aktif";
@@ -293,11 +293,11 @@ function renderAnalytics() {
       badgeEl.style.background = "rgba(245,158,11,0.12)";
       descEl.textContent = "Masih ada tugas yang tertunda. Selesaikan tugas yang mendekati batas tenggat.";
     } else {
-      badgeEl.textContent = "⚠️ Perlu Peningkatan Disiplin";
-      badgeEl.style.color = "#f87171";
-      badgeEl.style.borderColor = "rgba(239,68,68,0.3)";
-      badgeEl.style.background = "rgba(239,68,68,0.12)";
-      descEl.textContent = "Perhatikan tugas yang melewati tenggat waktu agar performa belajar tetap terjaga.";
+      badgeEl.textContent = "⚡ Butuh Fokus Belajar";
+      badgeEl.style.color = "#fb923c";
+      badgeEl.style.borderColor = "rgba(249,115,22,0.35)";
+      badgeEl.style.background = "rgba(249,115,22,0.12)";
+      descEl.textContent = "Selesaikan beberapa tugas prioritas untuk mendongkrak skor produktivitas belajarmu.";
     }
   }
 
@@ -442,7 +442,7 @@ function renderAnalytics() {
     if (subjects.length === 0) {
       const tr = document.createElement("tr");
       const td = document.createElement("td");
-      td.setAttribute("colspan", "5");
+      td.setAttribute("colspan", "4");
       td.className = "empty-state-sm";
       td.textContent = "Belum ada data mata pelajaran.";
       tr.appendChild(td);
@@ -450,9 +450,7 @@ function renderAnalytics() {
     } else {
       subjects.forEach((subj) => {
         const st  = tasks.filter((t) => t.subject === subj);
-        const doneC = st.filter((t) => t.status === "done").length;
         const progC = st.filter((t) => t.status === "inprogress" && !isTaskOverdue(t)).length;
-        const todoC = st.filter((t) => t.status === "todo" && !isTaskOverdue(t)).length;
         const ovC   = st.filter(isTaskOverdue).length;
 
         let totalScore = 0;
@@ -486,14 +484,6 @@ function renderAnalytics() {
                 <div class="subj-prog-bar-fill ${pct === 100 ? "fill-done" : ""}" style="width: ${pct}%;"></div>
               </div>
               <span class="subj-prog-pct">${pct}%</span>
-            </div>
-          </td>
-          <td>
-            <div class="subj-stat-chips">
-              <span class="chip-mini" title="Selesai">✅ ${doneC}</span>
-              <span class="chip-mini" title="In Progress">🚀 ${progC}</span>
-              <span class="chip-mini" title="To Do">⏳ ${todoC}</span>
-              ${ovC > 0 ? `<span class="chip-mini" style="color:#f87171; border-color:rgba(239,68,68,0.3);" title="Terlambat">⚠️ ${ovC}</span>` : ""}
             </div>
           </td>
           <td>${evalBadge}</td>

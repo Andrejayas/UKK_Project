@@ -174,7 +174,7 @@ Halaman Analytics telah dirombak total dari sekadar tabel data mentah menjadi **
 4. **Distribusi Beban Tingkat Kesulitan**:
    - Visual progress bar untuk kategori Tinggi (Sulit) 🔴, Sedang (Normal) 🟡, dan Rendah (Mudah) 🟢.
 5. **Evaluasi Performa per Mata Pelajaran**:
-   - Tabel visual interaktif yang menampilkan nama mapel, progress bar ketuntasan %, rincian status chip (`✅`, `🚀`, `⏳`, `⚠️`), serta predikat evaluasi (`🏆 Tuntas 100%`, `⚠️ Ada Terlambat`, dll).
+   - Tabel visual interaktif yang menampilkan nama mapel, total tugas, progress bar ketuntasan %, serta predikat evaluasi (`🏆 Tuntas 100%`, `⚠️ Ada Terlambat`, `🚀 Berjalan`, `⏳ Belum Dimulai`). Kolom bersih 4 kolom tanpa chip redundan.
 6. **Daftar Tugas Terlambat**:
    - Panel khusus yang mendata tugas yang telah melewati deadline beserta waktu dan status kuncinya.
 
