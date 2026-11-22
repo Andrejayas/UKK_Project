@@ -526,97 +526,101 @@ function renderSubjectProgress() {
     clickableHeader.appendChild(bg);
     item.appendChild(clickableHeader);
 
-    /* Accordion Panel: Daftar tugas belum selesai & instruksi pengerjaan */
-    if (isExpanded) {
-      const panel = document.createElement("div");
-      panel.className = "subject-pending-panel";
+    /* Accordion Panel: Selalu dibuat di DOM agar animasi expand/collapse CSS berjalan mulus */
+    const panel = document.createElement("div");
+    panel.className = "subject-pending-panel";
 
-      const panelHeader = document.createElement("div");
-      panelHeader.className = "subject-pending-header";
-      panelHeader.innerHTML = `
-        <span>📋 Tugas Belum Selesai (${pendingTasks.length})</span>
-        <button type="button" class="btn-filter-table-link" title="Saring daftar di tabel utama sesuai mapel ini">
-          Saring Tabel 🔍
-        </button>
-      `;
+    const panelHeader = document.createElement("div");
+    panelHeader.className = "subject-pending-header";
+    panelHeader.innerHTML = `
+      <span>📋 Tugas Belum Selesai (${pendingTasks.length})</span>
+      <button type="button" class="btn-filter-table-link" title="Saring daftar di tabel utama sesuai mapel ini">
+        Saring Tabel 🔍
+      </button>
+    `;
 
-      const filterBtn = panelHeader.querySelector(".btn-filter-table-link");
-      if (filterBtn) {
-        filterBtn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          const filterSubjEl = document.getElementById("filterSubject");
-          if (filterSubjEl) {
-            filterSubjEl.value = subj;
-            currentFilter.subject = subj;
-            applyFilters();
-            showToast(`Menampilkan tugas ${subj} di tabel 📚`, "info");
-            document.querySelector(".task-table-card")?.scrollIntoView({ behavior: "smooth" });
-          }
-        });
-      }
-
-      panel.appendChild(panelHeader);
-
-      if (pendingTasks.length === 0) {
-        const doneMsg = document.createElement("div");
-        doneMsg.className = "subject-all-done-msg";
-        doneMsg.innerHTML = `
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          <span>Hebat! Semua tugas pada mata pelajaran ini sudah selesai! 🎉</span>
-        `;
-        panel.appendChild(doneMsg);
-      } else {
-        const taskList = document.createElement("div");
-        taskList.className = "subject-mini-task-list";
-
-        pendingTasks.forEach((t) => {
-          const mini = document.createElement("div");
-          mini.className = "subject-mini-task";
-
-          const isOverdue = isTaskOverdue(t);
-          let statusBadgeHtml = "";
-          if (isOverdue) {
-            statusBadgeHtml = `<span class="badge due-overdue" style="font-size:0.68rem; padding:2px 6px;">🔒 Terlambat</span>`;
-          } else if (t.status === "inprogress") {
-            const prog = typeof t.progress === "number" ? t.progress : 50;
-            statusBadgeHtml = `<span class="badge badge-progress" style="font-size:0.68rem; padding:2px 6px;">🚀 ${prog}%</span>`;
-          } else {
-            statusBadgeHtml = `<span class="badge badge-todo" style="font-size:0.68rem; padding:2px 6px;">⏳ To Do</span>`;
-          }
-
-          const formattedDue = t.dueDate ? `${formatDate(t.dueDate)}${t.dueTime ? ` • ${t.dueTime}` : ""}` : "Tanpa tenggat";
-
-          const descText = t.description && t.description.trim()
-            ? `<div class="subject-mini-desc"><strong style="color:var(--accent);">Instruksi:</strong> ${escapeHtmlText(t.description.trim())}</div>`
-            : `<div class="subject-mini-desc text-muted"><em style="color:#64748b;">(Belum ada catatan deskripsi tugas)</em></div>`;
-
-          mini.innerHTML = `
-            <div class="subject-mini-task-top">
-              <span class="subject-mini-title">${escapeHtmlText(t.title)}</span>
-              <div style="display:flex; align-items:center; gap:6px;">
-                ${statusBadgeHtml}
-                <span class="subject-mini-due">${formattedDue}</span>
-              </div>
-            </div>
-            ${descText}
-          `;
-          taskList.appendChild(mini);
-        });
-
-        panel.appendChild(taskList);
-      }
-
-      item.appendChild(panel);
+    const filterBtn = panelHeader.querySelector(".btn-filter-table-link");
+    if (filterBtn) {
+      filterBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const filterSubjEl = document.getElementById("filterSubject");
+        if (filterSubjEl) {
+          filterSubjEl.value = subj;
+          currentFilter.subject = subj;
+          applyFilters();
+          showToast(`Menampilkan tugas ${subj} di tabel 📚`, "info");
+          document.querySelector(".task-table-card")?.scrollIntoView({ behavior: "smooth" });
+        }
+      });
     }
 
-    /* Event listener toggle expand */
+    panel.appendChild(panelHeader);
+
+    if (pendingTasks.length === 0) {
+      const doneMsg = document.createElement("div");
+      doneMsg.className = "subject-all-done-msg";
+      doneMsg.innerHTML = `
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Hebat! Semua tugas pada mata pelajaran ini sudah selesai! 🎉</span>
+      `;
+      panel.appendChild(doneMsg);
+    } else {
+      const taskList = document.createElement("div");
+      taskList.className = "subject-mini-task-list";
+
+      pendingTasks.forEach((t) => {
+        const mini = document.createElement("div");
+        mini.className = "subject-mini-task";
+
+        const isOverdue = isTaskOverdue(t);
+        let statusBadgeHtml = "";
+        if (isOverdue) {
+          statusBadgeHtml = `<span class="badge due-overdue" style="font-size:0.68rem; padding:2px 6px;">🔒 Terlambat</span>`;
+        } else if (t.status === "inprogress") {
+          const prog = typeof t.progress === "number" ? t.progress : 50;
+          statusBadgeHtml = `<span class="badge badge-progress" style="font-size:0.68rem; padding:2px 6px;">🚀 ${prog}%</span>`;
+        } else {
+          statusBadgeHtml = `<span class="badge badge-todo" style="font-size:0.68rem; padding:2px 6px;">⏳ To Do</span>`;
+        }
+
+        const formattedDue = t.dueDate ? `${formatDate(t.dueDate)}${t.dueTime ? ` • ${t.dueTime}` : ""}` : "Tanpa tenggat";
+
+        const descText = t.description && t.description.trim()
+          ? `<div class="subject-mini-desc"><strong style="color:var(--accent);">Instruksi:</strong> ${escapeHtmlText(t.description.trim())}</div>`
+          : `<div class="subject-mini-desc text-muted"><em style="color:#64748b;">(Belum ada catatan deskripsi tugas)</em></div>`;
+
+        mini.innerHTML = `
+          <div class="subject-mini-task-top">
+            <span class="subject-mini-title">${escapeHtmlText(t.title)}</span>
+            <div style="display:flex; align-items:center; gap:6px;">
+              ${statusBadgeHtml}
+              <span class="subject-mini-due">${formattedDue}</span>
+            </div>
+          </div>
+          ${descText}
+        `;
+        taskList.appendChild(mini);
+      });
+
+      panel.appendChild(taskList);
+    }
+
+    item.appendChild(panel);
+
+    /* Event listener toggle expand dengan animasi CSS mulus tanpa reload total */
     clickableHeader.addEventListener("click", () => {
-      if (expandedSubjectProgress.has(subj)) {
-        expandedSubjectProgress.delete(subj);
-      } else {
+      const isNowExpanded = !expandedSubjectProgress.has(subj);
+      if (isNowExpanded) {
         expandedSubjectProgress.add(subj);
+        item.classList.add("expanded");
+        clickableHeader.setAttribute("aria-expanded", "true");
+        clickableHeader.title = `Klik untuk menutup mapel ${subj}`;
+      } else {
+        expandedSubjectProgress.delete(subj);
+        item.classList.remove("expanded");
+        clickableHeader.setAttribute("aria-expanded", "false");
+        clickableHeader.title = `Klik untuk melihat tugas belum selesai mapel ${subj}`;
       }
-      renderSubjectProgress();
     });
 
     clickableHeader.addEventListener("keydown", (e) => {
