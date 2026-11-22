@@ -278,7 +278,17 @@ canvas {
 .stat-blue  { color: var(--info); }
 .stat-red   { color: var(--danger); }
 
-.overdue-title { color: var(--danger); }
+.overdue-title {
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.overdue-title-icon {
+  flex-shrink: 0;
+  color: var(--danger);
+}
 
 .overdue-list {
   display: flex;
