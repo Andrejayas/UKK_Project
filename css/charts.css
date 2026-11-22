@@ -134,9 +134,30 @@
 .subject-progress-list {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  max-height: 280px;
+  gap: 12px;
+  max-height: 500px;
   overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(249, 115, 22, 0.35) rgba(15, 23, 42, 0.3);
+}
+
+.subject-progress-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.subject-progress-list::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 4px;
+}
+
+.subject-progress-list::-webkit-scrollbar-thumb {
+  background: rgba(249, 115, 22, 0.35);
+  border-radius: 4px;
+}
+
+.subject-progress-list::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
 }
 
 .subject-progress-item {}

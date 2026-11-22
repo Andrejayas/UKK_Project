@@ -723,6 +723,30 @@ input:-webkit-autofill:active {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 6px;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(249, 115, 22, 0.45) rgba(15, 23, 42, 0.6);
+}
+
+.subject-mini-task-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.subject-mini-task-list::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 4px;
+}
+
+.subject-mini-task-list::-webkit-scrollbar-thumb {
+  background: rgba(249, 115, 22, 0.4);
+  border-radius: 4px;
+}
+
+.subject-mini-task-list::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
 }
 
 .subject-mini-task {
