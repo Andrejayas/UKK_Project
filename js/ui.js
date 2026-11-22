@@ -128,8 +128,10 @@ function renderTasks(list) {
   list.forEach((task) => {
     const tr = document.createElement("tr");
 
-    /* --- Status select --- */
+    /* --- Status select & In-Progress progress slider --- */
     const tdStatus = document.createElement("td");
+    tdStatus.className = "task-status-cell";
+
     const statusSel = document.createElement("select");
     statusSel.className = "form-input status-select";
     statusSel.setAttribute("aria-label", `Status tugas ${task.title}`);
@@ -144,10 +146,64 @@ function renderTasks(list) {
       if (value === task.status) { opt.selected = true; }
       statusSel.appendChild(opt);
     });
+
     statusSel.addEventListener("change", () => {
-      updateStatus(task.id, statusSel.value);
+      const newStatus = statusSel.value;
+      if (newStatus === "inprogress" && (!task.progress || task.progress === 0 || task.progress === 100)) {
+        updateStatus(task.id, "inprogress", 50);
+      } else {
+        updateStatus(task.id, newStatus);
+      }
     });
     tdStatus.appendChild(statusSel);
+
+    /* Bar slider kemajuan jika status In Progress */
+    if (task.status === "inprogress") {
+      const sliderBox = document.createElement("div");
+      sliderBox.className = "task-progress-slider-box";
+
+      const infoRow = document.createElement("div");
+      infoRow.className = "task-progress-slider-info";
+
+      const labelSpan = document.createElement("span");
+      labelSpan.className = "task-progress-label";
+      labelSpan.textContent = "Progres:";
+
+      const currentProgress = typeof task.progress === "number" ? task.progress : 50;
+
+      const badgeSpan = document.createElement("span");
+      badgeSpan.className = "task-progress-badge";
+      badgeSpan.textContent = `${currentProgress}%`;
+
+      infoRow.appendChild(labelSpan);
+      infoRow.appendChild(badgeSpan);
+      sliderBox.appendChild(infoRow);
+
+      const rangeInput = document.createElement("input");
+      rangeInput.type = "range";
+      rangeInput.min = "5";
+      rangeInput.max = "100";
+      rangeInput.step = "5";
+      rangeInput.value = String(currentProgress);
+      rangeInput.className = "task-inline-range";
+      rangeInput.title = "Geser untuk mengubah persentase pengerjaan tugas";
+
+      rangeInput.addEventListener("input", (e) => {
+        e.stopPropagation();
+        badgeSpan.textContent = `${rangeInput.value}%`;
+      });
+
+      rangeInput.addEventListener("change", (e) => {
+        e.stopPropagation();
+        if (typeof updateTaskProgress === "function") {
+          updateTaskProgress(task.id, rangeInput.value);
+        }
+      });
+
+      sliderBox.appendChild(rangeInput);
+      tdStatus.appendChild(sliderBox);
+    }
+
     tr.appendChild(tdStatus);
 
     /* --- Title --- */
@@ -357,7 +413,19 @@ function renderSubjectProgress() {
   subjects.forEach((subj) => {
     const subjTasks = tasks.filter((t) => t.subject === subj);
     const done = subjTasks.filter((t) => t.status === "done").length;
-    const pct  = subjTasks.length === 0 ? 0 : Math.round((done / subjTasks.length) * 100);
+
+    // Hitung rata-rata progress pengerjaan tugas di mapel ini
+    let totalScore = 0;
+    subjTasks.forEach((t) => {
+      if (t.status === "done") {
+        totalScore += 100;
+      } else if (t.status === "inprogress") {
+        totalScore += (typeof t.progress === "number" ? t.progress : 50);
+      } else {
+        totalScore += 0;
+      }
+    });
+    const pct = subjTasks.length === 0 ? 0 : Math.round(totalScore / subjTasks.length);
 
     const item = document.createElement("div");
     item.className = "subject-progress-item";
@@ -617,6 +685,21 @@ function openEditModal(id) {
   document.getElementById("editDueTime").value    = task.dueTime || "";
   document.getElementById("editPriority").value   = task.priority;
   document.getElementById("editStatus").value     = task.status;
+
+  /* Tampilkan slider progress jika inprogress */
+  const progGroup = document.getElementById("editProgressGroup");
+  const progSlider = document.getElementById("editProgressSlider");
+  const progBadge = document.getElementById("editProgressBadge");
+  if (progGroup && progSlider && progBadge) {
+    if (task.status === "inprogress") {
+      progGroup.classList.remove("hidden");
+      const currentProg = typeof task.progress === "number" ? task.progress : 50;
+      progSlider.value = String(currentProg);
+      progBadge.textContent = `${currentProg}%`;
+    } else {
+      progGroup.classList.add("hidden");
+    }
+  }
 
   /* Tampilkan timestamp penyelesaian jika status selesai */
   const compGroup = document.getElementById("editCompletedGroup");

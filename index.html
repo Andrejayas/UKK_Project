@@ -793,6 +793,13 @@
               <option value="done">✅ Selesai</option>
             </select>
           </div>
+          <div id="editProgressGroup" class="form-group hidden">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <label for="editProgressSlider" style="margin:0;">Kemajuan Pengerjaan</label>
+              <span id="editProgressBadge" class="task-progress-badge" style="font-size:0.8rem;">50%</span>
+            </div>
+            <input type="range" id="editProgressSlider" min="5" max="95" step="5" value="50" class="task-inline-range" />
+          </div>
           <div id="editCompletedGroup" class="form-group hidden">
             <label>Waktu Penyelesaian Tugas</label>
             <div id="editCompletedInfo" class="completed-info-box"></div>

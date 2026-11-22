@@ -430,6 +430,23 @@ function setupEventListeners() {
           compInfo.innerHTML = "";
         }
       }
+
+      const progGroup = document.getElementById("editProgressGroup");
+      if (progGroup) {
+        if (e.target.value === "inprogress") {
+          progGroup.classList.remove("hidden");
+        } else {
+          progGroup.classList.add("hidden");
+        }
+      }
+    });
+  }
+
+  const editProgressSlider = document.getElementById("editProgressSlider");
+  const editProgressBadge = document.getElementById("editProgressBadge");
+  if (editProgressSlider && editProgressBadge) {
+    editProgressSlider.addEventListener("input", () => {
+      editProgressBadge.textContent = `${editProgressSlider.value}%`;
     });
   }
 
@@ -467,13 +484,23 @@ function setupEventListeners() {
       return;
     }
 
+    const statusVal = document.getElementById("editStatus").value;
+    let progressVal = 0;
+    if (statusVal === "done") {
+      progressVal = 100;
+    } else if (statusVal === "inprogress") {
+      const sliderEl = document.getElementById("editProgressSlider");
+      progressVal = sliderEl ? Number(sliderEl.value) : 50;
+    }
+
     updateTask(id, {
       title:    titleVal,
       subject:  subjectVal,
       dueDate:  dueDateVal,
       dueTime:  document.getElementById("editDueTime").value,
       priority: document.getElementById("editPriority").value,
-      status:   document.getElementById("editStatus").value,
+      status:   statusVal,
+      progress: progressVal,
     });
 
     closeEditModal();
@@ -643,6 +670,7 @@ function initApp() {
     updateTask,
     deleteTask,
     updateStatus,
+    updateTaskProgress,
     filterTasks,
     getAllSubjects,
     addCustomSubject,

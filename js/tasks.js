@@ -37,7 +37,7 @@ function saveTasks() {
 
 /**
  * Menambahkan tugas baru ke dalam state dan menyimpannya ke LocalStorage.
- * @param {{title: string, subject: string, dueDate: string, dueTime?: string, priority: string}} data
+ * @param {{title: string, subject: string, dueDate: string, dueTime?: string, priority: string, progress?: number}} data
  * @returns {Object} Objek tugas yang baru dibuat.
  */
 function addTask(data) {
@@ -48,7 +48,8 @@ function addTask(data) {
     dueDate:     data.dueDate || "",
     dueTime:     data.dueTime || "",
     priority:    data.priority || "medium",
-    status:      "todo",
+    status:      data.status || "todo",
+    progress:    data.progress !== undefined ? data.progress : (data.status === "inprogress" ? 50 : 0),
     completedAt: null,
     createdAt:   Date.now(),
   };
@@ -63,16 +64,26 @@ function addTask(data) {
  * Menyimpan timestamp saat tugas ditandai selesai (done) untuk tracking riwayat.
  * @param {number} id - ID tugas.
  * @param {string} status - Status baru: 'todo' | 'inprogress' | 'done'.
+ * @param {number} [customProgress] - Nilai progress opsional jika status inprogress.
  * @returns {void}
  */
-function updateStatus(id, status) {
+function updateStatus(id, status, customProgress) {
   const task = tasks.find((t) => t.id === id);
   if (task) {
     task.status = status;
     if (status === "done") {
       task.completedAt = task.completedAt || Date.now();
-    } else {
+      task.progress = 100;
+    } else if (status === "todo") {
       task.completedAt = null;
+      task.progress = 0;
+    } else if (status === "inprogress") {
+      task.completedAt = null;
+      if (customProgress !== undefined) {
+        task.progress = customProgress;
+      } else if (!task.progress || task.progress === 0 || task.progress === 100) {
+        task.progress = 50;
+      }
     }
     saveTasks();
     applyFilters();
@@ -89,6 +100,48 @@ function updateStatus(id, status) {
     if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
       renderCalendar(calendarState.viewYear, calendarState.viewMonth);
     }
+  }
+}
+
+/**
+ * Memperbarui nilai persentase progres tugas (khusus status inprogress).
+ * Jika mencapai 100%, otomatis beralih ke status 'done'.
+ * @param {number} id - ID tugas.
+ * @param {number} progressVal - Nilai progress (0 - 100).
+ * @returns {void}
+ */
+function updateTaskProgress(id, progressVal) {
+  const task = tasks.find((t) => t.id === id);
+  if (!task) { return; }
+
+  const num = Math.min(100, Math.max(0, Number(progressVal)));
+  task.progress = num;
+
+  if (num >= 100) {
+    task.status = "done";
+    task.completedAt = task.completedAt || Date.now();
+    if (typeof showToast === "function") {
+      showToast(`Tugas "${task.title}" mencapai 100% dan ditandai selesai! 🎉`, "success");
+    }
+  } else if (num <= 0) {
+    task.status = "todo";
+    task.completedAt = null;
+  } else {
+    task.status = "inprogress";
+    task.completedAt = null;
+  }
+
+  saveTasks();
+  applyFilters();
+  renderMetricCards();
+  renderSubjectProgress();
+  renderDonutChart();
+  renderWeeklyChart();
+  if (typeof renderUrgentDeadlineBanner === "function") {
+    renderUrgentDeadlineBanner();
+  }
+  if (typeof checkTaskDeadlinesNotification === "function") {
+    checkTaskDeadlinesNotification();
   }
 }
 
