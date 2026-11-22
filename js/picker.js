@@ -348,12 +348,12 @@ function getOrCreateTimePickerPopup() {
       <button type="button" class="st-time-chip" data-time="21:00">🌙 21:00 (Malam)</button>
     </div>
 
-    <!-- Digital Stepper -->
+    <!-- Digital Stepper / Direct Input -->
     <div class="st-digital-clock-stepper">
       <!-- Hour Col -->
       <div class="st-stepper-col">
         <button type="button" class="st-stepper-btn" id="stHourUp" aria-label="Tambah jam">▲</button>
-        <span class="st-stepper-val" id="stHourVal">23</span>
+        <input type="text" inputmode="numeric" maxlength="2" class="st-stepper-val st-stepper-input" id="stHourVal" value="23" aria-label="Ketik jam (00-23)" title="Ketik jam langsung (00-23)" />
         <button type="button" class="st-stepper-btn" id="stHourDown" aria-label="Kurang jam">▼</button>
         <span class="st-stepper-label">Jam</span>
       </div>
@@ -363,11 +363,12 @@ function getOrCreateTimePickerPopup() {
       <!-- Minute Col -->
       <div class="st-stepper-col">
         <button type="button" class="st-stepper-btn" id="stMinuteUp" aria-label="Tambah menit">▲</button>
-        <span class="st-stepper-val" id="stMinuteVal">59</span>
+        <input type="text" inputmode="numeric" maxlength="2" class="st-stepper-val st-stepper-input" id="stMinuteVal" value="59" aria-label="Ketik menit (00-59)" title="Ketik menit langsung (00-59)" />
         <button type="button" class="st-stepper-btn" id="stMinuteDown" aria-label="Kurang menit">▼</button>
         <span class="st-stepper-label">Menit</span>
       </div>
     </div>
+    <div class="st-stepper-hint">💡 Klik angka untuk mengetik langsung jam & menit</div>
 
     <!-- Minute quick jump -->
     <div class="st-minute-quick-row">
@@ -389,6 +390,105 @@ function getOrCreateTimePickerPopup() {
 
   /* Listener Close */
   document.getElementById("stTimeCloseBtn").addEventListener("click", closeTimePickerPopup);
+
+  /* Direct Numeric Typing & Keyboard Control for Hours & Minutes */
+  const hourInput = document.getElementById("stHourVal");
+  const minuteInput = document.getElementById("stMinuteVal");
+
+  [hourInput, minuteInput].forEach((inp) => {
+    if (!inp) return;
+    inp.addEventListener("focus", () => inp.select());
+    inp.addEventListener("click", () => inp.select());
+  });
+
+  if (hourInput) {
+    hourInput.addEventListener("input", () => {
+      let raw = hourInput.value.replace(/\D/g, "");
+      if (raw === "") { return; }
+      let num = parseInt(raw, 10);
+      if (isNaN(num)) { num = 0; }
+      if (num > 23) { num = 23; }
+      pickerState.timeHour = num;
+
+      // Jika sudah 2 digit atau digit pertama >= 3 (misal jam 3 - 9), auto jump ke menit
+      if (raw.length >= 2 || num >= 3) {
+        hourInput.value = String(num).padStart(2, "0");
+        if (minuteInput) {
+          minuteInput.focus();
+          minuteInput.select();
+        }
+      }
+    });
+
+    hourInput.addEventListener("blur", () => {
+      hourInput.value = String(pickerState.timeHour).padStart(2, "0");
+    });
+
+    hourInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        applyTimeValue();
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        pickerState.timeHour = (pickerState.timeHour + 1) % 24;
+        updateTimeDisplay();
+        hourInput.select();
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        pickerState.timeHour = (pickerState.timeHour - 1 + 24) % 24;
+        updateTimeDisplay();
+        hourInput.select();
+      } else if (e.key === ":" || e.key === "ArrowRight") {
+        e.preventDefault();
+        if (minuteInput) {
+          minuteInput.focus();
+          minuteInput.select();
+        }
+      }
+    });
+  }
+
+  if (minuteInput) {
+    minuteInput.addEventListener("input", () => {
+      let raw = minuteInput.value.replace(/\D/g, "");
+      if (raw === "") { return; }
+      let num = parseInt(raw, 10);
+      if (isNaN(num)) { num = 0; }
+      if (num > 59) { num = 59; }
+      pickerState.timeMinute = num;
+
+      if (raw.length >= 2 || num >= 6) {
+        minuteInput.value = String(num).padStart(2, "0");
+      }
+    });
+
+    minuteInput.addEventListener("blur", () => {
+      minuteInput.value = String(pickerState.timeMinute).padStart(2, "0");
+    });
+
+    minuteInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        applyTimeValue();
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        pickerState.timeMinute = (pickerState.timeMinute + 1) % 60;
+        updateTimeDisplay();
+        minuteInput.select();
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        pickerState.timeMinute = (pickerState.timeMinute - 1 + 60) % 60;
+        updateTimeDisplay();
+        minuteInput.select();
+      } else if (e.key === "ArrowLeft" && minuteInput.selectionStart === 0) {
+        e.preventDefault();
+        if (hourInput) {
+          hourInput.focus();
+          hourInput.select();
+        }
+      }
+    });
+  }
 
   /* Hour Steppers */
   document.getElementById("stHourUp").addEventListener("click", (e) => {
@@ -460,8 +560,10 @@ function getOrCreateTimePickerPopup() {
 function updateTimeDisplay() {
   const hEl = document.getElementById("stHourVal");
   const mEl = document.getElementById("stMinuteVal");
-  if (hEl) { hEl.textContent = String(pickerState.timeHour).padStart(2, "0"); }
-  if (mEl) { mEl.textContent = String(pickerState.timeMinute).padStart(2, "0"); }
+  const hStr = String(pickerState.timeHour).padStart(2, "0");
+  const mStr = String(pickerState.timeMinute).padStart(2, "0");
+  if (hEl && document.activeElement !== hEl) { hEl.value = hStr; }
+  if (mEl && document.activeElement !== mEl) { mEl.value = mStr; }
 }
 
 /**
@@ -469,6 +571,21 @@ function updateTimeDisplay() {
  * @returns {void}
  */
 function applyTimeValue() {
+  const hEl = document.getElementById("stHourVal");
+  const mEl = document.getElementById("stMinuteVal");
+  if (hEl && hEl.value !== "") {
+    const parsedH = parseInt(hEl.value, 10);
+    if (!isNaN(parsedH)) {
+      pickerState.timeHour = Math.min(23, Math.max(0, parsedH));
+    }
+  }
+  if (mEl && mEl.value !== "") {
+    const parsedM = parseInt(mEl.value, 10);
+    if (!isNaN(parsedM)) {
+      pickerState.timeMinute = Math.min(59, Math.max(0, parsedM));
+    }
+  }
+
   if (pickerState.activeTimeInput) {
     const h = String(pickerState.timeHour).padStart(2, "0");
     const m = String(pickerState.timeMinute).padStart(2, "0");
@@ -493,7 +610,7 @@ function openTimePickerPopup(inputEl) {
 
   /* Ambil nilai jam awal dari input jika ada */
   const val = inputEl.value;
-  if (val && /^\d{2}:\d{2}$/.test(val)) {
+  if (val && /^\d{1,2}:\d{2}$/.test(val)) {
     const [h, m] = val.split(":").map(Number);
     pickerState.timeHour = h;
     pickerState.timeMinute = m;
@@ -505,6 +622,15 @@ function openTimePickerPopup(inputEl) {
   updateTimeDisplay();
   positionPopup(popup, inputEl);
   popup.classList.remove("hidden");
+
+  /* Fokus otomatis ke input jam dan select teksnya agar user bisa langsung ketik */
+  setTimeout(() => {
+    const hEl = document.getElementById("stHourVal");
+    if (hEl) {
+      hEl.focus();
+      hEl.select();
+    }
+  }, 60);
 
   /* Tandai wrapper input aktif */
   const wrapper = inputEl.closest(".picker-input-container");
@@ -600,9 +726,21 @@ function initCustomPickers() {
   });
 
   timeInputs.forEach((input) => {
-    /* Cegah browser native picker */
-    input.addEventListener("click", (e) => {
-      e.preventDefault();
+    /* Sinkronisasi jika user mengetik langsung di input jam form */
+    input.addEventListener("input", () => {
+      const val = input.value;
+      if (val && /^\d{1,2}:\d{2}$/.test(val)) {
+        const [h, m] = val.split(":").map(Number);
+        if (h >= 0 && h <= 23 && m >= 0 && m <= 59) {
+          pickerState.timeHour = h;
+          pickerState.timeMinute = m;
+          updateTimeDisplay();
+        }
+      }
+    });
+
+    /* Buka custom picker */
+    input.addEventListener("click", () => {
       openTimePickerPopup(input);
     });
 
