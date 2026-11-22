@@ -246,32 +246,388 @@ canvas {
 }
 
 /* ============================================================
-   4. ANALYTICS VIEW
+   4. ANALYTICS VIEW UPGRADED STYLES
    ============================================================ */
-.analytics-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+.analytics-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
 }
 
-.analytics-stat-card {
-  text-align: center;
-  padding: 24px;
-}
-
-.analytics-stat-label {
-  font-size: 0.8rem;
-  font-weight: 600;
+.analytics-subtitle {
+  font-size: 0.85rem;
   color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+.analytics-date-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* 1. Hero Grid: Score Card + 3 Metrics Column */
+.analytics-hero-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 900px) {
+  .analytics-hero-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.analytics-score-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px 20px;
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.8) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.score-gauge-wrap {
+  position: relative;
+  width: 130px;
+  height: 130px;
+  margin: 12px 0;
+}
+
+.score-gauge-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.score-gauge-bg {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 10;
+}
+
+.score-gauge-fill {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 314.16;
+  stroke-dashoffset: 314.16;
+  transition: stroke-dashoffset 1s ease, stroke 0.4s ease;
+}
+
+.score-gauge-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+}
+
+.score-number {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+}
+
+.score-max {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-left: 2px;
+}
+
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: rgba(249, 115, 22, 0.15);
+  color: var(--accent);
+  border: 1px solid rgba(249, 115, 22, 0.3);
   margin-bottom: 8px;
 }
 
-.analytics-stat-value {
-  font-size: 2.5rem;
+.score-desc {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+  margin: 0;
+}
+
+/* 3 Metrics Column */
+.analytics-metrics-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: space-between;
+}
+
+.analytics-metric-box {
+  padding: 16px 20px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.analytics-metric-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.metric-icon-small {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.metric-icon-green { background: rgba(34, 197, 94, 0.15); color: #4ade80; }
+.metric-icon-blue  { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+.metric-icon-red   { background: rgba(239, 68, 68, 0.15);  color: #f87171; }
+
+.metric-info-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.analytics-metric-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 2px;
+}
+
+.analytics-metric-sub {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.analytics-metric-num {
+  font-size: 1.6rem;
   font-weight: 800;
   line-height: 1;
+  flex-shrink: 0;
+}
+
+.metric-mini-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.metric-mini-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.8s ease;
+}
+
+.bar-green { background: var(--success); }
+.bar-blue  { background: var(--info); }
+.bar-red   { background: var(--danger); }
+
+/* 2. Smart Study Insights Card */
+.analytics-insights-card {
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.5) 0%, rgba(249, 115, 22, 0.05) 100%);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+.insights-header {
+  margin-bottom: 14px;
+}
+
+.insights-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.insights-sparkle-icon {
+  font-size: 1.5rem;
+  background: rgba(249, 115, 22, 0.15);
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.insights-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.insight-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.insight-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.insight-icon-pill {
+  font-size: 1.1rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.insight-text {
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.insight-text strong {
+  color: #fff;
+}
+
+/* 3. Difficulty Breakdown */
+.difficulty-bars-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 6px 0;
+}
+
+.diff-bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.diff-bar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.diff-bar-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.diff-bar-count {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.diff-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.diff-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.8s ease;
+}
+
+/* 4. Subject Performance Table Upgraded */
+.analytics-subject-table th,
+.analytics-subject-table td {
+  vertical-align: middle;
+}
+
+.subj-prog-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.subj-prog-bar-bg {
+  flex: 1;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.subj-prog-bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+
+.subj-prog-bar-fill.fill-done {
+  background: var(--success);
+}
+
+.subj-prog-pct {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  min-width: 34px;
+  text-align: right;
+}
+
+.subj-stat-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.chip-mini {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .stat-green { color: var(--success); }

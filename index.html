@@ -426,42 +426,146 @@
 
       <!-- ===== ANALYTICS VIEW ===== -->
       <section id="viewAnalytics" class="view hidden">
-        <h1 class="view-title">Analytics</h1>
-
-        <div class="analytics-stats-grid">
-          <div class="card analytics-stat-card">
-            <p class="analytics-stat-label">Completion Rate</p>
-            <p id="analyticsCompletionRate" class="analytics-stat-value stat-green">0%</p>
+        <div class="analytics-header-row">
+          <div>
+            <h1 class="view-title" style="margin-bottom:4px;">Analytics &amp; Evaluasi Belajar</h1>
+            <p class="analytics-subtitle">Analisis performa ketuntasan, kedisiplinan tenggat waktu, dan evaluasi beban per mata pelajaran.</p>
           </div>
-          <div class="card analytics-stat-card">
-            <p class="analytics-stat-label">Rata-rata Tugas/Minggu</p>
-            <p id="analyticsAvgPerWeek" class="analytics-stat-value stat-blue">0</p>
-          </div>
-          <div class="card analytics-stat-card">
-            <p class="analytics-stat-label">Overdue Rate</p>
-            <p id="analyticsOverdueRate" class="analytics-stat-value stat-red">0%</p>
+          <div class="analytics-date-badge" id="analyticsPeriodBadge">
+            📅 Data Real-time
           </div>
         </div>
 
-        <div class="card chart-card">
-          <h2 class="card-title">Tren Produktivitas Mingguan</h2>
-          <div class="canvas-wrapper canvas-wrapper-full">
-            <canvas id="analyticsWeeklyChart" width="600" height="260" aria-label="Tren produktivitas mingguan" role="img"></canvas>
+        <!-- 1. HERO SECTION: Productivity Score + 3 Key Metrics -->
+        <div class="analytics-hero-grid">
+          <!-- Skor Produktivitas (Circular Gauge) -->
+          <div class="card analytics-score-card">
+            <h2 class="card-title">Skor Produktivitas Belajar</h2>
+            <div class="score-gauge-wrap">
+              <svg class="score-gauge-svg" viewBox="0 0 120 120">
+                <circle class="score-gauge-bg" cx="60" cy="60" r="50" />
+                <circle id="scoreGaugeFill" class="score-gauge-fill" cx="60" cy="60" r="50" />
+              </svg>
+              <div class="score-gauge-content">
+                <span id="analyticsScoreNumber" class="score-number">0</span>
+                <span class="score-max">/100</span>
+              </div>
+            </div>
+            <div id="analyticsScoreBadge" class="score-badge">Memuat...</div>
+            <p id="analyticsScoreDesc" class="score-desc">Kalkulasi performa ketuntasan &amp; kepatuhan tenggat waktu.</p>
+          </div>
+
+          <!-- 3 Stat Metrics with Progress Bars -->
+          <div class="analytics-metrics-col">
+            <!-- Metric 1: Ketuntasan -->
+            <div class="card analytics-metric-box">
+              <div class="analytics-metric-top">
+                <div class="metric-icon-small metric-icon-green">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div class="metric-info-wrap">
+                  <p class="analytics-metric-title">Tingkat Ketuntasan</p>
+                  <p id="analyticsCompletionDetail" class="analytics-metric-sub">0 dari 0 tugas selesai</p>
+                </div>
+                <div id="analyticsCompletionRate" class="analytics-metric-num stat-green">0%</div>
+              </div>
+              <div class="metric-mini-bar-bg">
+                <div id="analyticsCompletionBar" class="metric-mini-bar-fill bar-green" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Metric 2: Kedisiplinan Tenggat -->
+            <div class="card analytics-metric-box">
+              <div class="analytics-metric-top">
+                <div class="metric-icon-small metric-icon-blue">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div class="metric-info-wrap">
+                  <p class="analytics-metric-title">Kedisiplinan Waktu</p>
+                  <p id="analyticsOnTimeDetail" class="analytics-metric-sub">Tepat waktu sebelum deadline</p>
+                </div>
+                <div id="analyticsOnTimeRate" class="analytics-metric-num stat-blue">100%</div>
+              </div>
+              <div class="metric-mini-bar-bg">
+                <div id="analyticsOnTimeBar" class="metric-mini-bar-fill bar-blue" style="width: 100%;"></div>
+              </div>
+            </div>
+
+            <!-- Metric 3: Keterlambatan -->
+            <div class="card analytics-metric-box">
+              <div class="analytics-metric-top">
+                <div class="metric-icon-small metric-icon-red">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><circle cx="12" cy="17" r="1" fill="currentColor"/></svg>
+                </div>
+                <div class="metric-info-wrap">
+                  <p class="analytics-metric-title">Tingkat Keterlambatan</p>
+                  <p id="analyticsOverdueDetail" class="analytics-metric-sub">0 tugas lewat deadline</p>
+                </div>
+                <div id="analyticsOverdueRate" class="analytics-metric-num stat-red">0%</div>
+              </div>
+              <div class="metric-mini-bar-bg">
+                <div id="analyticsOverdueBar" class="metric-mini-bar-fill bar-red" style="width: 0%;"></div>
+              </div>
+            </div>
           </div>
         </div>
 
+        <!-- 2. SMART STUDY INSIGHTS (Wawasan Belajar Cerdas) -->
+        <div class="card analytics-insights-card">
+          <div class="insights-header">
+            <div class="insights-title-wrap">
+              <span class="insights-sparkle-icon">💡</span>
+              <div>
+                <h2 class="card-title" style="margin-bottom:2px;">Wawasan Belajar Cerdas (Smart Insights)</h2>
+                <p class="insights-desc">Analisis otomatis pola pengerjaan tugas &amp; saran optimasi manajemen waktu belajar.</p>
+              </div>
+            </div>
+          </div>
+          <div id="analyticsInsightsList" class="insights-grid">
+            <!-- Dynamic insights cards generated by JS -->
+          </div>
+        </div>
+
+        <!-- 3. MIDDLE SECTION: Difficulty Breakdown + Weekly Productivity -->
+        <div class="two-col-grid">
+          <!-- Difficulty Breakdown -->
+          <div class="card">
+            <h2 class="card-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              Beban Berdasarkan Tingkat Kesulitan
+            </h2>
+            <div id="analyticsDifficultyBars" class="difficulty-bars-container">
+              <!-- Rendered by JS -->
+            </div>
+          </div>
+
+          <!-- Weekly Chart -->
+          <div class="card chart-card">
+            <h2 class="card-title">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+              Tren Penyelesaian Tugas Mingguan
+            </h2>
+            <div class="canvas-wrapper canvas-wrapper-wide">
+              <canvas id="analyticsWeeklyChart" width="400" height="220" aria-label="Tren produktivitas mingguan" role="img"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. SUBJECT PERFORMANCE TABLE (With Progress & Evaluation Badges) -->
         <div class="card">
-          <h2 class="card-title">Performa per Mata Pelajaran</h2>
+          <h2 class="card-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            Evaluasi Performa per Mata Pelajaran
+          </h2>
           <div class="table-wrapper">
-            <table class="task-table" aria-label="Performa mata pelajaran">
+            <table class="task-table analytics-subject-table" aria-label="Performa mata pelajaran">
               <thead>
                 <tr>
                   <th>Mata Pelajaran</th>
                   <th>Total</th>
-                  <th>Selesai</th>
-                  <th>In Progress</th>
-                  <th>To Do</th>
-                  <th>Terlambat</th>
+                  <th style="min-width:180px;">Ketuntasan</th>
+                  <th>Rincian Status</th>
+                  <th>Evaluasi Belajar</th>
                 </tr>
               </thead>
               <tbody id="subjectPerformanceBody">
@@ -470,12 +574,13 @@
           </div>
         </div>
 
+        <!-- 5. OVERDUE BREAKDOWN -->
         <div class="card">
           <h2 class="card-title overdue-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="overdue-title-icon" aria-hidden="true">
               <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
               <line x1="12" y1="9" x2="12" y2="13"/>
-              <line x1="12" y1="17" x2="12.01" y2="17"/>
+              <circle cx="12" cy="17" r="1.1" fill="#ef4444"/>
             </svg>
             Tugas Belum Selesai Melewati Deadline
           </h2>

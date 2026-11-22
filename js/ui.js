@@ -67,6 +67,9 @@ function initClock() {
       if (hasPendingDeadlines && !isModalOpen && !isTableActive) {
         applyFilters();
         renderMetricCards();
+        if (currentView === "analytics" && typeof renderAnalytics === "function") {
+          renderAnalytics();
+        }
       }
     }
   }
