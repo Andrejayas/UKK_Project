@@ -83,6 +83,9 @@ function updateStatus(id, status) {
     if (typeof renderUrgentDeadlineBanner === "function") {
       renderUrgentDeadlineBanner();
     }
+    if (typeof checkTaskDeadlinesNotification === "function") {
+      checkTaskDeadlinesNotification();
+    }
     if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
       renderCalendar(calendarState.viewYear, calendarState.viewMonth);
     }
@@ -108,6 +111,12 @@ function updateTask(id, changes) {
       completedAt = null;
     }
 
+    if (changes.dueDate !== undefined || changes.dueTime !== undefined) {
+      if (typeof clearTaskMilestones === "function") {
+        clearTaskMilestones(id);
+      }
+    }
+
     tasks[idx] = { ...tasks[idx], ...changes, completedAt };
     saveTasks();
     applyFilters();
@@ -117,6 +126,9 @@ function updateTask(id, changes) {
     renderWeeklyChart();
     if (typeof renderUrgentDeadlineBanner === "function") {
       renderUrgentDeadlineBanner();
+    }
+    if (typeof checkTaskDeadlinesNotification === "function") {
+      checkTaskDeadlinesNotification();
     }
     if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
       renderCalendar(calendarState.viewYear, calendarState.viewMonth);
@@ -131,6 +143,9 @@ function updateTask(id, changes) {
  */
 function deleteTask(id) {
   tasks = tasks.filter((t) => t.id !== id);
+  if (typeof clearTaskMilestones === "function") {
+    clearTaskMilestones(id);
+  }
   saveTasks();
   applyFilters();
   renderMetricCards();
@@ -139,6 +154,9 @@ function deleteTask(id) {
   renderWeeklyChart();
   if (typeof renderUrgentDeadlineBanner === "function") {
     renderUrgentDeadlineBanner();
+  }
+  if (typeof checkTaskDeadlinesNotification === "function") {
+    checkTaskDeadlinesNotification();
   }
   if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
     renderCalendar(calendarState.viewYear, calendarState.viewMonth);

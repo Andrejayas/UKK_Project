@@ -121,6 +121,16 @@
     overflow-y: auto;
   }
 
+  .notif-dropdown {
+    position: fixed;
+    top: 66px;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    max-width: none;
+    z-index: 300;
+  }
+
   .topbar-username {
     display: none;
   }

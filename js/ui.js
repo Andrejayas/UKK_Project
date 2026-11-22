@@ -58,6 +58,9 @@ function initClock() {
       if (typeof renderUrgentDeadlineBanner === "function") {
         renderUrgentDeadlineBanner();
       }
+      if (typeof checkTaskDeadlinesNotification === "function") {
+        checkTaskDeadlinesNotification();
+      }
       const hasPendingDeadlines = tasks.some((t) => t.status !== "done" && t.dueDate);
       const isModalOpen = document.querySelector(".modal-backdrop:not(.hidden)");
       const isTableActive = document.getElementById("taskTableBody")?.contains(document.activeElement);
@@ -805,6 +808,9 @@ function switchView(viewName) {
     renderAnalytics();
   } else if (viewName === "settings") {
     renderSettingsSubjects();
+    if (typeof updateSettingsNotificationUI === "function") {
+      updateSettingsNotificationUI();
+    }
   } else if (viewName === "dashboard") {
     renderMetricCards();
     renderSubjectProgress();

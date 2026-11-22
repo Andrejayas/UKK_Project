@@ -150,6 +150,9 @@ function setupEventListeners() {
     if (typeof renderUrgentDeadlineBanner === "function") {
       renderUrgentDeadlineBanner();
     }
+    if (typeof checkTaskDeadlinesNotification === "function") {
+      checkTaskDeadlinesNotification();
+    }
     if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
       renderCalendar(calendarState.viewYear, calendarState.viewMonth);
     }
