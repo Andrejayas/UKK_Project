@@ -190,6 +190,28 @@
     gap: 12px;
   }
 
+  .settings-action-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .settings-action-controls {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .settings-tone-selector {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .tone-select-wrap {
+    min-width: 100%;
+  }
+
   .settings-action-item .btn {
     width: 100%;
   }

@@ -624,22 +624,39 @@
                 Izinkan Notifikasi
               </button>
             </div>
-            <div class="settings-action-item">
-              <div class="action-info">
-                <span class="action-icon">🔊</span>
-                <div>
-                  <p class="action-title">Suara Pengingat (Audio Chime)</p>
-                  <p class="action-desc">Bunyikan nada lonceng lembut saat tugas mendekati atau melewati batas waktu.</p>
+            <div class="settings-action-item settings-action-card">
+              <div class="settings-action-row">
+                <div class="action-info">
+                  <span class="action-icon">🔊</span>
+                  <div>
+                    <p class="action-title">Suara Pengingat (Audio Chime)</p>
+                    <p class="action-desc">Bunyikan nada pengingat saat tugas mendekati atau melewati batas waktu.</p>
+                  </div>
+                </div>
+                <div class="settings-action-controls">
+                  <button type="button" id="btnTestChimeSound" class="btn btn-secondary btn-sm" title="Uji coba nada yang dipilih">
+                    ▶ Tes Suara
+                  </button>
+                  <label class="switch-toggle" title="Aktifkan / nonaktifkan suara notifikasi">
+                    <input type="checkbox" id="chkNotifSound" checked />
+                    <span class="slider-toggle"></span>
+                  </label>
                 </div>
               </div>
-              <div style="display:flex; align-items:center; gap:12px;">
-                <button type="button" id="btnTestChimeSound" class="btn btn-secondary btn-sm" title="Uji coba nada lonceng">
-                  ▶ Tes Suara
-                </button>
-                <label class="switch-toggle" title="Aktifkan / nonaktifkan suara notifikasi">
-                  <input type="checkbox" id="chkNotifSound" checked />
-                  <span class="slider-toggle"></span>
-                </label>
+              <div class="settings-tone-selector" id="toneSelectorRow">
+                <div class="tone-selector-label-wrap">
+                  <span class="tone-icon">🎵</span>
+                  <label for="selectNotifTone" class="tone-label">Pilihan Karakter Nada:</label>
+                </div>
+                <div class="tone-select-wrap">
+                  <select id="selectNotifTone" class="tone-dropdown" aria-label="Pilihan nada pengingat">
+                    <option value="chime">🔔 Lonceng Lembut (Default)</option>
+                    <option value="dingdong">🚪 Ding-Dong Dua Nada</option>
+                    <option value="marimba">🪵 Marimba Ceria</option>
+                    <option value="radar">📡 Radar Beep (Tegas)</option>
+                    <option value="zen">🧘 Zen Singing Bowl (Damai)</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>

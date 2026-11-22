@@ -96,8 +96,10 @@ Array string berisi mata pelajaran tambahan/kustom buatan pengguna:
 }
 ```
 
-### 3.4 Notification Settings (`schoolTask_notif_sound_v1`)
-Nilai boolean (`"true"` / `"false"`) untuk status aktif nada dering Web Audio API.
+### 3.4 Notification Settings (`schooltask_notif_sound`, `schooltask_notif_tone`)
+- `schooltask_notif_sound`: Nilai boolean (`"true"` / `"false"`) untuk status aktif nada dering Web Audio API.
+- `schooltask_notif_tone`: Nilai string pilihan karakter nada (`"chime"`, `"dingdong"`, `"marimba"`, `"radar"`, `"zen"`). Default: `"chime"`.
+- `schooltask_notified_milestones`: Rekam jejak milestone peringatan waktu yang sudah dibunyikan per tugas.
 
 ---
 
@@ -144,9 +146,14 @@ Sesuai aturan kedisiplinan tenggat waktu:
 1. **Banner Peringatan Mendesak (`#urgentDeadlineBanner`)**:
    - Muncul otomatis di dashboard jika ada tugas aktif dengan sisa waktu $\le 60\text{ menit}$.
    - Menampilkan countdown menit real-time (`⚠️ X Menit Lagi!`) dan tombol *"Selesaikan Sekarang"*.
-2. **Web Audio API Chime**:
-   - Menggunakan osilator sintetis bawaan browser (Dual Tone frekuensi 587Hz & 880Hz harmonik sinusoidal).
-   - Tidak memerlukan berkas eksternal mp3/wav sehingga dijamin tidak pernah error 404.
+2. **Web Audio API Multi-Tone Synthesizer**:
+   - Menggunakan osilator sintetis matematis bawaan browser tanpa berkas audio eksternal (0 KB overhead, zero 404, instan tanpa buffering).
+   - Menyediakan 5 variasi karakter nada yang dapat dipilih siswa di Pengaturan:
+     - 🔔 *Lonceng Lembut (Default)*: Arpeggio sinusoidal 3 nada (D5 -> A5 -> D6).
+     - 🚪 *Ding-Dong Dua Nada*: Bel pintu klasik bernada santai (E5 -> C5).
+     - 🪵 *Marimba Ceria*: Ketukan tuts kayu energetik (G5 -> B5 -> E6).
+     - 📡 *Radar Beep*: Pulsa ganda tegas (A5) untuk pengingat penting.
+     - 🧘 *Zen Singing Bowl*: Resonansi frekuensi rendah meditatif (F4 + C5) dengan sustain anggun.
 3. **Web Notification API**:
    - Push notification browser saat deadline berada di ambang 30m, 15m, 5m, 1m, dan saat lewat batas waktu.
 4. **Dropdown Lonceng Topbar**:

@@ -252,6 +252,89 @@
   transition: border-color var(--transition), box-shadow var(--transition);
 }
 
+.settings-action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+}
+
+.settings-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+}
+
+.settings-action-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.settings-tone-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  width: 100%;
+  transition: opacity 0.3s ease;
+}
+
+.settings-tone-selector.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.tone-selector-label-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tone-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.tone-label {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tone-select-wrap {
+  min-width: 240px;
+}
+
+.tone-dropdown {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  padding: 7px 12px;
+  font-size: 0.86rem;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  width: 100%;
+}
+
+.tone-dropdown:hover {
+  border-color: #4b5563;
+}
+
+.tone-dropdown:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
+}
+
 .settings-action-item:hover {
   border-color: #4b5563;
   box-shadow: var(--shadow-sm);

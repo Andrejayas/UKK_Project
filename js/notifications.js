@@ -11,50 +11,166 @@
 
 const NOTIF_STORAGE_KEYS = {
   SOUND_ENABLED: "schooltask_notif_sound",
+  SOUND_TONE: "schooltask_notif_tone",
   NOTIFIED_MILESTONES: "schooltask_notified_milestones",
 };
 
+const NOTIF_TONE_NAMES = {
+  chime: "🔔 Lonceng Lembut",
+  dingdong: "🚪 Ding-Dong Dua Nada",
+  marimba: "🪵 Marimba Ceria",
+  radar: "📡 Radar Beep",
+  zen: "🧘 Zen Singing Bowl",
+};
+
 /**
- * Memutar nada dering lonceng lembut dengan Web Audio API secara murni sintetis.
+ * Memutar nada dering lonceng/chime dengan Web Audio API secara murni sintetis.
+ * Mendukung beberapa variasi karakter nada:
+ * - "chime": Lonceng lembut 3 nada (D5 -> A5 -> D6)
+ * - "dingdong": Bel pintu dua nada klasik (E5 -> C5)
+ * - "marimba": Ketukan kayu ceria 3 nada (G5 -> B5 -> E6)
+ * - "radar": Beep pulsa tegas ganda (A5 -> gap -> A5)
+ * - "zen": Singing bowl resonansi meditatif lembut (F4 + C5 harmonic)
+ * 
+ * @param {string} [overrideTone] - Nada spesifik yang diputar (opsional)
  * @returns {void}
  */
-function playNotificationSound() {
+function playNotificationSound(overrideTone) {
   try {
     const soundEnabled = localStorage.getItem(NOTIF_STORAGE_KEYS.SOUND_ENABLED) !== "false";
-    if (!soundEnabled) { return; }
+    if (!soundEnabled && !overrideTone) { return; }
 
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     if (!AudioContextClass) { return; }
 
     const ctx = new AudioContextClass();
     const now = ctx.currentTime;
+    const tone = overrideTone || localStorage.getItem(NOTIF_STORAGE_KEYS.SOUND_TONE) || "chime";
 
-    // Oscillator 1: Nada D5 -> A5
-    const osc1 = ctx.createOscillator();
-    osc1.type = "sine";
-    osc1.frequency.setValueAtTime(587.33, now);
-    osc1.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+    if (tone === "dingdong") {
+      // 1. Ding-Dong Dua Nada (E5 -> C5)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = "sine";
+      osc1.frequency.setValueAtTime(659.25, now);
+      gain1.gain.setValueAtTime(0.0001, now);
+      gain1.gain.exponentialRampToValueAtTime(0.22, now + 0.03);
+      gain1.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.42);
 
-    // Oscillator 2: Nada A5 -> D6
-    const osc2 = ctx.createOscillator();
-    osc2.type = "sine";
-    osc2.frequency.setValueAtTime(880, now + 0.12);
-    osc2.frequency.exponentialRampToValueAtTime(1174.66, now + 0.28);
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(523.25, now + 0.22);
+      gain2.gain.setValueAtTime(0.0001, now + 0.22);
+      gain2.gain.exponentialRampToValueAtTime(0.25, now + 0.25);
+      gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.72);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now + 0.22);
+      osc2.stop(now + 0.72);
 
-    // Volume Gain Envelope: Lembut dan memudar anggun
-    const gain = ctx.createGain();
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(0.18, now + 0.04);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+    } else if (tone === "marimba") {
+      // 2. Marimba Ceria (G5 -> B5 -> E6)
+      const notes = [
+        { freq: 783.99, time: now, dur: 0.18 },
+        { freq: 987.77, time: now + 0.09, dur: 0.18 },
+        { freq: 1318.51, time: now + 0.18, dur: 0.35 },
+      ];
 
-    osc1.connect(gain);
-    osc2.connect(gain);
-    gain.connect(ctx.destination);
+      notes.forEach((n) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(n.freq, n.time);
 
-    osc1.start(now);
-    osc1.stop(now + 0.3);
-    osc2.start(now + 0.12);
-    osc2.stop(now + 0.55);
+        gain.gain.setValueAtTime(0.0001, n.time);
+        gain.gain.exponentialRampToValueAtTime(0.24, n.time + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, n.time + n.dur);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(n.time);
+        osc.stop(n.time + n.dur);
+      });
+
+    } else if (tone === "radar") {
+      // 3. Radar Beep Tegas (A5 pulsa ganda)
+      const beeps = [
+        { time: now, dur: 0.09 },
+        { time: now + 0.14, dur: 0.12 },
+      ];
+
+      beeps.forEach((b) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(880, b.time);
+
+        gain.gain.setValueAtTime(0.0001, b.time);
+        gain.gain.linearRampToValueAtTime(0.22, b.time + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, b.time + b.dur);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(b.time);
+        osc.stop(b.time + b.dur);
+      });
+
+    } else if (tone === "zen") {
+      // 4. Zen Singing Bowl (F4 349.23 Hz + harmonic C5 523.25 Hz dengan sustain meditatif)
+      const oscFund = ctx.createOscillator();
+      const oscHarm = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      oscFund.type = "sine";
+      oscFund.frequency.setValueAtTime(349.23, now);
+
+      oscHarm.type = "sine";
+      oscHarm.frequency.setValueAtTime(523.25, now);
+
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.25, now + 0.08);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.25);
+
+      oscFund.connect(gain);
+      oscHarm.connect(gain);
+      gain.connect(ctx.destination);
+
+      oscFund.start(now);
+      oscFund.stop(now + 1.25);
+      oscHarm.start(now);
+      oscHarm.stop(now + 1.25);
+
+    } else {
+      // 5. Default: Chime Lembut (D5 -> A5 -> D6)
+      const osc1 = ctx.createOscillator();
+      osc1.type = "sine";
+      osc1.frequency.setValueAtTime(587.33, now);
+      osc1.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+
+      const osc2 = ctx.createOscillator();
+      osc2.type = "sine";
+      osc2.frequency.setValueAtTime(880, now + 0.12);
+      osc2.frequency.exponentialRampToValueAtTime(1174.66, now + 0.28);
+
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.18, now + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+
+      osc1.connect(gain);
+      osc2.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc1.start(now);
+      osc1.stop(now + 0.3);
+      osc2.start(now + 0.12);
+      osc2.stop(now + 0.55);
+    }
   } catch (err) {
     // Browser mungkin memerlukan gestur klik pertama sebelum mengizinkan audio
   }
@@ -398,9 +514,23 @@ function updateSettingsNotificationUI() {
   const permDesc = document.getElementById("notifPermissionStatus");
   const toggleBtn = document.getElementById("btnToggleDesktopNotif");
   const soundCheckbox = document.getElementById("chkNotifSound");
+  const toneSelect = document.getElementById("selectNotifTone");
+  const toneSelectorRow = document.getElementById("toneSelectorRow");
 
   if (soundCheckbox) {
-    soundCheckbox.checked = localStorage.getItem(NOTIF_STORAGE_KEYS.SOUND_ENABLED) !== "false";
+    const isSoundOn = localStorage.getItem(NOTIF_STORAGE_KEYS.SOUND_ENABLED) !== "false";
+    soundCheckbox.checked = isSoundOn;
+    if (toneSelectorRow) {
+      if (isSoundOn) {
+        toneSelectorRow.classList.remove("disabled");
+      } else {
+        toneSelectorRow.classList.add("disabled");
+      }
+    }
+  }
+
+  if (toneSelect) {
+    toneSelect.value = localStorage.getItem(NOTIF_STORAGE_KEYS.SOUND_TONE) || "chime";
   }
 
   if (permDesc && toggleBtn) {
@@ -437,6 +567,8 @@ function initNotifications() {
   const testChimeBtn = document.getElementById("btnTestChimeSound");
   const toggleDesktopBtn = document.getElementById("btnToggleDesktopNotif");
   const soundCheckbox = document.getElementById("chkNotifSound");
+  const toneSelect = document.getElementById("selectNotifTone");
+  const toneSelectorRow = document.getElementById("toneSelectorRow");
 
   // Toggle dropdown lonceng
   if (notifBtn && notifDropdown) {
@@ -481,20 +613,43 @@ function initNotifications() {
     });
   }
 
+  // Pilihan Nada Pengingat (Tone Selector)
+  if (toneSelect) {
+    toneSelect.addEventListener("change", () => {
+      const selected = toneSelect.value;
+      localStorage.setItem(NOTIF_STORAGE_KEYS.SOUND_TONE, selected);
+      // Mainkan sampel nada yang baru dipilih
+      playNotificationSound(selected);
+      if (typeof showToast === "function") {
+        showToast(`🎵 Nada diubah ke: ${NOTIF_TONE_NAMES[selected] || selected}`, "info");
+      }
+    });
+  }
+
   if (testChimeBtn) {
     testChimeBtn.addEventListener("click", () => {
-      playNotificationSound();
+      const currentTone = (toneSelect ? toneSelect.value : null) || localStorage.getItem(NOTIF_STORAGE_KEYS.SOUND_TONE) || "chime";
+      playNotificationSound(currentTone);
       if (typeof showToast === "function") {
-        showToast("🔔 Nada lonceng pengingat berhasil dibunyikan!", "info");
+        showToast(`🔔 Memutar nada: ${NOTIF_TONE_NAMES[currentTone] || currentTone}`, "info");
       }
     });
   }
 
   if (soundCheckbox) {
     soundCheckbox.addEventListener("change", () => {
-      localStorage.setItem(NOTIF_STORAGE_KEYS.SOUND_ENABLED, soundCheckbox.checked ? "true" : "false");
-      if (soundCheckbox.checked) {
-        playNotificationSound();
+      const isChecked = soundCheckbox.checked;
+      localStorage.setItem(NOTIF_STORAGE_KEYS.SOUND_ENABLED, isChecked ? "true" : "false");
+      if (toneSelectorRow) {
+        if (isChecked) {
+          toneSelectorRow.classList.remove("disabled");
+        } else {
+          toneSelectorRow.classList.add("disabled");
+        }
+      }
+      if (isChecked) {
+        const currentTone = (toneSelect ? toneSelect.value : null) || localStorage.getItem(NOTIF_STORAGE_KEYS.SOUND_TONE) || "chime";
+        playNotificationSound(currentTone);
       }
     });
   }
