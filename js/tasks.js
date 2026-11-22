@@ -37,13 +37,14 @@ function saveTasks() {
 
 /**
  * Menambahkan tugas baru ke dalam state dan menyimpannya ke LocalStorage.
- * @param {{title: string, subject: string, dueDate: string, dueTime?: string, priority: string, progress?: number}} data
+ * @param {{title: string, description?: string, subject: string, dueDate: string, dueTime?: string, priority: string, progress?: number}} data
  * @returns {Object} Objek tugas yang baru dibuat.
  */
 function addTask(data) {
   const task = {
     id:          Date.now(),
     title:       data.title.trim(),
+    description: data.description ? data.description.trim() : "",
     subject:     data.subject.trim(),
     dueDate:     data.dueDate || "",
     dueTime:     data.dueTime || "",
@@ -62,6 +63,7 @@ function addTask(data) {
 /**
  * Memperbarui status tugas berdasarkan id.
  * Menyimpan timestamp saat tugas ditandai selesai (done) untuk tracking riwayat.
+ * Menolak perubahan jika tugas sudah melewati batas tenggat (terkunci otomatis).
  * @param {number} id - ID tugas.
  * @param {string} status - Status baru: 'todo' | 'inprogress' | 'done'.
  * @param {number} [customProgress] - Nilai progress opsional jika status inprogress.
@@ -69,43 +71,52 @@ function addTask(data) {
  */
 function updateStatus(id, status, customProgress) {
   const task = tasks.find((t) => t.id === id);
-  if (task) {
-    task.status = status;
-    if (status === "done") {
-      task.completedAt = task.completedAt || Date.now();
-      task.progress = 100;
-    } else if (status === "todo") {
-      task.completedAt = null;
-      task.progress = 0;
-    } else if (status === "inprogress") {
-      task.completedAt = null;
-      if (customProgress !== undefined) {
-        task.progress = customProgress;
-      } else if (!task.progress || task.progress === 0 || task.progress === 100) {
-        task.progress = 50;
-      }
+  if (!task) { return; }
+
+  /* Proteksi: Cegah perubahan jika tugas sudah melewati tenggat waktu (terkunci) */
+  if (isTaskOverdue(task)) {
+    if (typeof showToast === "function") {
+      showToast("Tugas ini telah melewati tenggat waktu dan terkunci secara otomatis 🔒", "warning");
     }
-    saveTasks();
-    applyFilters();
-    renderMetricCards();
-    renderSubjectProgress();
-    renderDonutChart();
-    renderWeeklyChart();
-    if (typeof renderUrgentDeadlineBanner === "function") {
-      renderUrgentDeadlineBanner();
+    return;
+  }
+
+  task.status = status;
+  if (status === "done") {
+    task.completedAt = task.completedAt || Date.now();
+    task.progress = 100;
+  } else if (status === "todo") {
+    task.completedAt = null;
+    task.progress = 0;
+  } else if (status === "inprogress") {
+    task.completedAt = null;
+    if (customProgress !== undefined) {
+      task.progress = customProgress;
+    } else if (!task.progress || task.progress === 0 || task.progress === 100) {
+      task.progress = 50;
     }
-    if (typeof checkTaskDeadlinesNotification === "function") {
-      checkTaskDeadlinesNotification();
-    }
-    if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
-      renderCalendar(calendarState.viewYear, calendarState.viewMonth);
-    }
+  }
+  saveTasks();
+  applyFilters();
+  renderMetricCards();
+  renderSubjectProgress();
+  renderDonutChart();
+  renderWeeklyChart();
+  if (typeof renderUrgentDeadlineBanner === "function") {
+    renderUrgentDeadlineBanner();
+  }
+  if (typeof checkTaskDeadlinesNotification === "function") {
+    checkTaskDeadlinesNotification();
+  }
+  if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
+    renderCalendar(calendarState.viewYear, calendarState.viewMonth);
   }
 }
 
 /**
  * Memperbarui nilai persentase progres tugas (khusus status inprogress).
  * Jika mencapai 100%, otomatis beralih ke status 'done'.
+ * Menolak perubahan jika tugas sudah melewati batas tenggat (terkunci otomatis).
  * @param {number} id - ID tugas.
  * @param {number} progressVal - Nilai progress (0 - 100).
  * @returns {void}
@@ -113,6 +124,14 @@ function updateStatus(id, status, customProgress) {
 function updateTaskProgress(id, progressVal) {
   const task = tasks.find((t) => t.id === id);
   if (!task) { return; }
+
+  /* Proteksi: Cegah perubahan progress jika tugas sudah melewati batas tenggat (terkunci) */
+  if (isTaskOverdue(task)) {
+    if (typeof showToast === "function") {
+      showToast("Tugas ini telah melewati tenggat waktu dan terkunci secara otomatis 🔒", "warning");
+    }
+    return;
+  }
 
   const num = Math.min(100, Math.max(0, Number(progressVal)));
   task.progress = num;
@@ -147,6 +166,7 @@ function updateTaskProgress(id, progressVal) {
 
 /**
  * Memperbarui data tugas berdasarkan id.
+ * Menolak perubahan jika tugas sudah melewati batas tenggat (terkunci otomatis).
  * @param {number} id - ID tugas.
  * @param {Object} changes - Objek perubahan yang akan diterapkan.
  * @returns {void}
@@ -154,6 +174,14 @@ function updateTaskProgress(id, progressVal) {
 function updateTask(id, changes) {
   const idx = tasks.findIndex((t) => t.id === id);
   if (idx !== -1) {
+    /* Proteksi: Cegah pengeditan jika tugas sudah melewati batas tenggat (terkunci) */
+    if (isTaskOverdue(tasks[idx])) {
+      if (typeof showToast === "function") {
+        showToast("Tugas ini telah melewati tenggat waktu dan tidak dapat diedit lagi 🔒", "warning");
+      }
+      return;
+    }
+
     const oldStatus = tasks[idx].status;
     const newStatus = changes.status !== undefined ? changes.status : oldStatus;
     let completedAt = tasks[idx].completedAt;

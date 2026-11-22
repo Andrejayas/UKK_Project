@@ -134,12 +134,16 @@ function setupEventListeners() {
       addCustomSubject(subject);
     }
 
+    const descEl  = document.getElementById("qaDescription");
+    const descVal = descEl ? descEl.value.trim() : "";
+
     addTask({
-      title:    titleEl.value.trim(),
+      title:       titleEl.value.trim(),
+      description: descVal,
       subject,
-      dueDate:  dueDateEl.value,
-      dueTime:  dueTimeEl ? dueTimeEl.value : "",
-      priority: priorityEl.value,
+      dueDate:     dueDateEl.value,
+      dueTime:     dueTimeEl ? dueTimeEl.value : "",
+      priority:    priorityEl.value,
     });
 
     applyFilters();
@@ -493,14 +497,17 @@ function setupEventListeners() {
       progressVal = sliderEl ? Number(sliderEl.value) : 50;
     }
 
+    const descVal = (document.getElementById("editDescription")?.value || "").trim();
+
     updateTask(id, {
-      title:    titleVal,
-      subject:  subjectVal,
-      dueDate:  dueDateVal,
-      dueTime:  document.getElementById("editDueTime").value,
-      priority: document.getElementById("editPriority").value,
-      status:   statusVal,
-      progress: progressVal,
+      title:       titleVal,
+      description: descVal,
+      subject:     subjectVal,
+      dueDate:     dueDateVal,
+      dueTime:     document.getElementById("editDueTime").value,
+      priority:    document.getElementById("editPriority").value,
+      status:      statusVal,
+      progress:    progressVal,
     });
 
     closeEditModal();
