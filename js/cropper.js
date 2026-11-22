@@ -31,6 +31,57 @@ const cropperState = {
 };
 
 /**
+ * Mengompres dan mengecilkan dimensi gambar agar ringan dan tidak membebani memori / LocalStorage.
+ * Foto resolusi tinggi (misal kamera HP 4000x3000px 8MB) akan di-scale ke maksimal 1024px.
+ * @param {string} dataUrl - Data URL asli.
+ * @param {number} maxDimension - Ukuran maksimal lebar/tinggi (default: 1024px).
+ * @param {number} quality - Kualitas kompresi JPEG (default: 0.85).
+ * @param {(compressedDataUrl: string) => void} callback
+ */
+function compressImageBeforeCrop(dataUrl, maxDimension = 1024, quality = 0.85, callback) {
+  const img = new Image();
+  img.onload = () => {
+    let w = img.naturalWidth;
+    let h = img.naturalHeight;
+
+    if (w <= maxDimension && h <= maxDimension && dataUrl.length < 350000) {
+      callback(dataUrl);
+      return;
+    }
+
+    if (w > h) {
+      if (w > maxDimension) {
+        h = Math.round((h * maxDimension) / w);
+        w = maxDimension;
+      }
+    } else {
+      if (h > maxDimension) {
+        w = Math.round((w * maxDimension) / h);
+        h = maxDimension;
+      }
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      callback(dataUrl);
+      return;
+    }
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(img, 0, 0, w, h);
+
+    const compressed = canvas.toDataURL("image/jpeg", quality);
+    callback(compressed);
+  };
+  img.onerror = () => callback(dataUrl);
+  img.src = dataUrl;
+}
+
+/**
  * Menangani proses unggah avatar.
  * Membuka editor crop gaya Discord untuk mengatur posisi & zoom.
  * @param {File} file - File gambar yang diunggah.
@@ -46,16 +97,19 @@ function handleAvatarUpload(file) {
     return;
   }
 
-  const maxSize = 10 * 1024 * 1024; /* 10MB */
+  const maxSize = 15 * 1024 * 1024; /* Izinkan file kamera HP hingga 15MB */
   if (file.size > maxSize) {
-    if (errorEl) { errorEl.textContent = "Ukuran file terlalu besar. Maksimal 10MB."; }
+    if (errorEl) { errorEl.textContent = "Ukuran file terlalu besar. Maksimal 15MB."; }
     return;
   }
 
   const reader = new FileReader();
   reader.onload = (e) => {
     const rawDataUrl = e.target.result;
-    initCropperWithImage(rawDataUrl);
+    // Otomatis resize & kompres agar tidak membebani memori dan database LocalStorage
+    compressImageBeforeCrop(rawDataUrl, 1024, 0.85, (safeDataUrl) => {
+      initCropperWithImage(safeDataUrl);
+    });
   };
   reader.readAsDataURL(file);
 }
@@ -243,11 +297,17 @@ function applyAvatarCrop() {
 
   ctx.drawImage(cropperState.img, drawX, drawY, drawW, drawH);
 
-  const croppedDataUrl = canvas.toDataURL("image/jpeg", 0.92);
+  // Kompres hasil crop ke ukuran hemat (< 35KB)
+  const croppedDataUrl = canvas.toDataURL("image/jpeg", 0.88);
+
+  // Pastikan rawAvatar juga hemat memori LocalStorage
+  const safeRaw = (cropperState.sourceDataUrl && cropperState.sourceDataUrl.length < 250000)
+    ? cropperState.sourceDataUrl
+    : croppedDataUrl;
 
   saveProfile({
     avatar: croppedDataUrl,
-    rawAvatar: cropperState.sourceDataUrl,
+    rawAvatar: safeRaw,
   });
 
   updateAvatarDisplays();

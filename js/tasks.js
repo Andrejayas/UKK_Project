@@ -35,14 +35,20 @@ function saveTasks() {
   }
 }
 
+let taskIdCounter = 0;
+
 /**
  * Menambahkan tugas baru ke dalam state dan menyimpannya ke LocalStorage.
+ * Menggunakan ID unik berbasis milidetik + safe integer counter untuk mencegah duplikasi saat spam.
  * @param {{title: string, description?: string, subject: string, dueDate: string, dueTime?: string, priority: string, progress?: number}} data
  * @returns {Object} Objek tugas yang baru dibuat.
  */
 function addTask(data) {
+  taskIdCounter = (taskIdCounter + 1) % 1000;
+  const uniqueId = Date.now() * 1000 + taskIdCounter;
+
   const task = {
-    id:          Date.now(),
+    id:          uniqueId,
     title:       data.title.trim(),
     description: data.description ? data.description.trim() : "",
     subject:     data.subject.trim(),

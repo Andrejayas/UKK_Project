@@ -95,6 +95,14 @@ function setupEventListeners() {
   document.getElementById("quickAddForm").addEventListener("submit", (e) => {
     e.preventDefault();
 
+    /* Cegah spam klik submit ganda */
+    const submitBtn = document.getElementById("quickAddForm")?.querySelector("button[type='submit']");
+    if (submitBtn) {
+      if (submitBtn.disabled) { return; }
+      submitBtn.disabled = true;
+      setTimeout(() => { submitBtn.disabled = false; }, 350);
+    }
+
     const titleEl   = document.getElementById("qaTitle");
     const subjectEl = document.getElementById("qaSubject");
     const dueDateEl = document.getElementById("qaDueDate");

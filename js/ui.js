@@ -966,16 +966,34 @@ function closeWelcomeModal() {
    SECTION 5: TOAST NOTIFICATIONS
    ============================================================ */
 
+let lastToastText = "";
+let lastToastTime = 0;
+
 /**
  * Menampilkan notifikasi toast di pojok kanan bawah.
- * Menggunakan styling glassmorphism modern dengan badge ikon vektor SVG.
+ * Dibatasi maksimal 1 toast aktif di layar untuk mencegah tumpukan saat di-spam.
+ * Menggunakan throttling cerdas (jeda ~250ms) agar transisi tetap mulus dan bersih.
  * @param {string} message - Pesan yang ditampilkan.
- * @param {'success'|'error'|'warning'} [type='success'] - Tipe toast.
+ * @param {'success'|'error'|'warning'|'info'} [type='success'] - Tipe toast.
  * @returns {void}
  */
 function showToast(message, type = "success") {
   const container = document.getElementById("toastContainer");
   if (!container) { return; }
+
+  const now = Date.now();
+  // Cegah spam pesan yang sama persis dalam rentang waktu sangat singkat (< 280ms)
+  if (message === lastToastText && now - lastToastTime < 280) {
+    return;
+  }
+  lastToastText = message;
+  lastToastTime = now;
+
+  // Tutup toast sebelumnya agar maksimal hanya ada 1 toast aktif di layar (tidak menumpuk vertikal)
+  const existingToasts = container.querySelectorAll(".toast");
+  existingToasts.forEach((oldToast) => {
+    oldToast.remove();
+  });
 
   const toast = document.createElement("div");
   toast.className = `toast toast-${type}`;
@@ -987,8 +1005,10 @@ function showToast(message, type = "success") {
     iconSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11 14 15 10"/></svg>`;
   } else if (type === "error") {
     iconSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`;
-  } else {
+  } else if (type === "warning") {
     iconSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
+  } else {
+    iconSvg = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>`;
   }
 
   const iconBadge = document.createElement("div");
@@ -1006,7 +1026,7 @@ function showToast(message, type = "success") {
   setTimeout(() => {
     toast.classList.add("removing");
     toast.addEventListener("animationend", () => toast.remove(), { once: true });
-  }, 3200);
+  }, 2600);
 }
 
 /* ============================================================

@@ -23,6 +23,29 @@ const NOTIF_TONE_NAMES = {
   zen: "🧘 Zen Singing Bowl",
 };
 
+let sharedAudioCtx = null;
+
+/**
+ * Mendapatkan single shared AudioContext (singleton) agar terhindar dari
+ * batasan hardware browser (maksimal 6 active AudioContext) saat user spam klik.
+ * @returns {AudioContext|null}
+ */
+function getSharedAudioContext() {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) { return null; }
+  try {
+    if (!sharedAudioCtx || sharedAudioCtx.state === "closed") {
+      sharedAudioCtx = new AudioContextClass();
+    }
+    if (sharedAudioCtx.state === "suspended") {
+      sharedAudioCtx.resume();
+    }
+    return sharedAudioCtx;
+  } catch (err) {
+    return null;
+  }
+}
+
 /**
  * Memutar nada dering lonceng/chime dengan Web Audio API secara murni sintetis.
  * Mendukung beberapa variasi karakter nada:
@@ -40,10 +63,9 @@ function playNotificationSound(overrideTone) {
     const soundEnabled = localStorage.getItem(NOTIF_STORAGE_KEYS.SOUND_ENABLED) !== "false";
     if (!soundEnabled && !overrideTone) { return; }
 
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) { return; }
+    const ctx = getSharedAudioContext();
+    if (!ctx) { return; }
 
-    const ctx = new AudioContextClass();
     const now = ctx.currentTime;
     const tone = overrideTone || localStorage.getItem(NOTIF_STORAGE_KEYS.SOUND_TONE) || "chime";
 
