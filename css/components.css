@@ -334,6 +334,178 @@ input:-webkit-autofill:active {
 .due-overdue  { background: var(--danger);  color: #fff; }
 .due-today    { background: var(--accent);  color: #fff; }
 .due-tomorrow { background: var(--warning); color: #111; }
+.due-urgent {
+  background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+  color: #fff;
+  font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.45);
+}
+
+.badge.pulse-urgent {
+  animation: pulseUrgentBadge 1.6s infinite ease-in-out;
+}
+
+@keyframes pulseUrgentBadge {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.45);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 16px rgba(239, 68, 68, 0.85);
+  }
+}
+
+/* Urgent Deadline Alert Banner (Mendekati Deadline di Dashboard) */
+.urgent-deadline-banner {
+  margin-bottom: 20px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.16) 0%, rgba(249, 115, 22, 0.14) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.15), inset 0 0 15px rgba(239, 68, 68, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 14px 18px;
+  animation: bannerSlideDown 0.35s ease-out;
+  transition: all 0.3s ease;
+}
+
+@keyframes bannerSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.urgent-banner-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.urgent-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1 1 300px;
+}
+
+.urgent-banner-icon-box {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f87171;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+}
+
+.urgent-bell-anim {
+  animation: bellRing 2.2s infinite ease-in-out;
+  transform-origin: top center;
+}
+
+@keyframes bellRing {
+  0%, 100% { transform: rotate(0deg); }
+  5% { transform: rotate(14deg); }
+  10% { transform: rotate(-14deg); }
+  15% { transform: rotate(10deg); }
+  20% { transform: rotate(-10deg); }
+  25% { transform: rotate(0deg); }
+}
+
+.urgent-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.urgent-banner-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.urgent-tag {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #ef4444;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.urgent-banner-title {
+  font-size: 0.95rem;
+  color: #fca5a5;
+  font-weight: 700;
+}
+
+.urgent-banner-desc {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.urgent-highlight-title {
+  color: #fff;
+}
+
+.urgent-highlight-time {
+  color: #fb923c;
+  font-weight: 700;
+}
+
+.urgent-more-count {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 0.75rem;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: var(--text-primary);
+}
+
+.urgent-banner-actions {
+  flex-shrink: 0;
+}
+
+.btn-urgent-action {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.84rem;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.35);
+  transition: all 0.2s ease;
+}
+
+.btn-urgent-action:hover {
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(249, 115, 22, 0.5);
+}
 
 /* Subject badge colors (rotating) */
 .subject-badge { font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 4px; }

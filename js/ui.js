@@ -25,16 +25,19 @@ function showApp() {
   renderSubjectProgress();
   renderDonutChart();
   renderWeeklyChart();
+  renderUrgentDeadlineBanner();
   updateAvatarDisplays();
   renderProfileDropdown();
   initClock();
 }
 
 /**
- * Menginisialisasi dan memperbarui jam digital di topbar setiap detik secara real-time.
+ * Menginisialisasi dan memperbarui jam digital di topbar setiap detik secara real-time,
+ * serta memperbarui banner peringatan deadline dan status tugas setiap 10 detik.
  * @returns {void}
  */
 function initClock() {
+  let tickerSeconds = 0;
   function updateClock() {
     const clockEl = document.getElementById("clockText");
     if (!clockEl) { return; }
@@ -48,6 +51,21 @@ function initClock() {
     const minutes = String(now.getMinutes()).padStart(2, "0");
     const seconds = String(now.getSeconds()).padStart(2, "0");
     clockEl.textContent = `${dayName}, ${dateNum} ${monthName} • ${hours}:${minutes}:${seconds} WIB`;
+
+    // Ticker periodik (setiap 10 detik) untuk memeriksa sisa waktu tugas real-time
+    tickerSeconds++;
+    if (tickerSeconds % 10 === 0) {
+      if (typeof renderUrgentDeadlineBanner === "function") {
+        renderUrgentDeadlineBanner();
+      }
+      const hasPendingDeadlines = tasks.some((t) => t.status !== "done" && t.dueDate);
+      const isModalOpen = document.querySelector(".modal-backdrop:not(.hidden)");
+      const isTableActive = document.getElementById("taskTableBody")?.contains(document.activeElement);
+      if (hasPendingDeadlines && !isModalOpen && !isTableActive) {
+        applyFilters();
+        renderMetricCards();
+      }
+    }
   }
   updateClock();
   setInterval(updateClock, 1000);
@@ -166,7 +184,11 @@ function renderTasks(list) {
     } else if (dueStatus) {
       const dueBadge = document.createElement("span");
       dueBadge.className = `badge due-${dueStatus}`;
-      dueBadge.textContent = getDueLabel(dueStatus);
+      if (dueStatus === "urgent") {
+        dueBadge.classList.add("pulse-urgent");
+        dueBadge.title = "Tenggat waktu mendekati batas! Segera selesaikan tugas ini.";
+      }
+      dueBadge.textContent = getDueLabel(dueStatus, task.dueDate, task.dueTime);
       tdDue.appendChild(dueBadge);
     }
     tr.appendChild(tdDue);
@@ -229,6 +251,90 @@ function renderMetricCards() {
   document.getElementById("metricProgress").textContent = progress;
   document.getElementById("metricDone").textContent     = done;
   document.getElementById("metricOverdue").textContent  = overdue;
+}
+
+/**
+ * Merender banner peringatan tenggat waktu mendesak (tugas yang mendekati deadline <= 60 menit) di dashboard.
+ * @returns {void}
+ */
+function renderUrgentDeadlineBanner() {
+  const banner = document.getElementById("urgentDeadlineBanner");
+  if (!banner) { return; }
+
+  const urgentTasks = tasks
+    .filter((t) => t.status !== "done" && getDueStatus(t.dueDate, t.status, t.dueTime) === "urgent")
+    .sort((a, b) => {
+      const diffA = getTaskDeadlineDiffMs(a.dueDate, a.dueTime) ?? Infinity;
+      const diffB = getTaskDeadlineDiffMs(b.dueDate, b.dueTime) ?? Infinity;
+      return diffA - diffB;
+    });
+
+  if (urgentTasks.length === 0) {
+    banner.classList.add("hidden");
+    banner.innerHTML = "";
+    return;
+  }
+
+  banner.classList.remove("hidden");
+  const first = urgentTasks[0];
+  const diffMs = getTaskDeadlineDiffMs(first.dueDate, first.dueTime) ?? 0;
+  const minsLeft = Math.max(1, Math.ceil(diffMs / 60000));
+  const timeNotice = minsLeft <= 1 ? "kurang dari 1 menit lagi" : `${minsLeft} menit lagi`;
+  const timeFormatted = first.dueTime ? `pukul ${first.dueTime} WIB` : "hari ini";
+
+  banner.innerHTML = `
+    <div class="urgent-banner-inner">
+      <div class="urgent-banner-left">
+        <div class="urgent-banner-icon-box" aria-hidden="true">
+          <svg class="urgent-bell-anim" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </div>
+        <div class="urgent-banner-text">
+          <div class="urgent-banner-title-row">
+            <span class="urgent-tag">MENDEKATI DEADLINE</span>
+            <strong class="urgent-banner-title">Peringatan Tugas Segera Berakhir!</strong>
+          </div>
+          <p class="urgent-banner-desc">
+            Tugas <strong class="urgent-highlight-title">"${escapeHtmlText(first.title)}"</strong> (${escapeHtmlText(first.subject)}) akan berakhir dalam <strong class="urgent-highlight-time">${timeNotice}</strong> (${timeFormatted})!
+            ${urgentTasks.length > 1 ? `<span class="urgent-more-count">+${urgentTasks.length - 1} tugas lainnya</span>` : ""}
+          </p>
+        </div>
+      </div>
+      <div class="urgent-banner-actions">
+        <button type="button" class="btn btn-urgent-action" id="btnQuickCompleteUrgent" title="Tandai tugas ini sebagai selesai">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Selesaikan Sekarang
+        </button>
+      </div>
+    </div>
+  `;
+
+  const actionBtn = banner.querySelector("#btnQuickCompleteUrgent");
+  if (actionBtn) {
+    actionBtn.addEventListener("click", () => {
+      updateStatus(first.id, "done");
+      if (typeof showToast === "function") {
+        showToast(`Tugas "${first.title}" berhasil diselesaikan tepat waktu! 🎉`, "success");
+      }
+    });
+  }
+}
+
+/**
+ * Escapes HTML characters in string safely.
+ * @param {string} str
+ * @returns {string}
+ */
+function escapeHtmlText(str) {
+  if (!str) { return ""; }
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 /**
@@ -704,6 +810,7 @@ function switchView(viewName) {
     renderSubjectProgress();
     renderDonutChart();
     renderWeeklyChart();
+    renderUrgentDeadlineBanner();
   }
 }
 

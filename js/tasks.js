@@ -80,6 +80,9 @@ function updateStatus(id, status) {
     renderSubjectProgress();
     renderDonutChart();
     renderWeeklyChart();
+    if (typeof renderUrgentDeadlineBanner === "function") {
+      renderUrgentDeadlineBanner();
+    }
     if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
       renderCalendar(calendarState.viewYear, calendarState.viewMonth);
     }
@@ -112,6 +115,9 @@ function updateTask(id, changes) {
     renderSubjectProgress();
     renderDonutChart();
     renderWeeklyChart();
+    if (typeof renderUrgentDeadlineBanner === "function") {
+      renderUrgentDeadlineBanner();
+    }
     if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
       renderCalendar(calendarState.viewYear, calendarState.viewMonth);
     }
@@ -131,6 +137,9 @@ function deleteTask(id) {
   renderSubjectProgress();
   renderDonutChart();
   renderWeeklyChart();
+  if (typeof renderUrgentDeadlineBanner === "function") {
+    renderUrgentDeadlineBanner();
+  }
   if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
     renderCalendar(calendarState.viewYear, calendarState.viewMonth);
   }
@@ -299,6 +308,25 @@ function sortTasks(list, mode) {
    ============================================================ */
 
 /**
+ * Menghitung selisih milidetik antara tenggat waktu tugas dan waktu sekarang.
+ * Jika jam ditentukan spesifik (misal 02:13), tenggat tepat pada 02:13:00.
+ * Jika default akhir hari (23:59), tenggat berlaku hingga 23:59:59.
+ * @param {string} dueDate - Format YYYY-MM-DD.
+ * @param {string} [dueTime] - Format HH:MM (opsional, default: "23:59").
+ * @returns {number|null} Selisih ms (positif: sisa waktu, negatif: terlambat), atau null jika tanpa tenggat.
+ */
+function getTaskDeadlineDiffMs(dueDate, dueTime) {
+  if (!dueDate) { return null; }
+  const timeStr = dueTime && dueTime.trim() ? dueTime.trim() : "23:59";
+  const [y, m, d] = dueDate.split("-").map(Number);
+  const [hh, mm] = timeStr.split(":").map(Number);
+  if (isNaN(y) || isNaN(m) || isNaN(d) || isNaN(hh) || isNaN(mm)) { return null; }
+  const isEndOfDay = timeStr === "23:59";
+  const deadlineDate = new Date(y, m - 1, d, hh, mm, isEndOfDay ? 59 : 0, isEndOfDay ? 999 : 0);
+  return deadlineDate.getTime() - Date.now();
+}
+
+/**
  * Mendapatkan waktu saat ini dalam format HH:MM lokal.
  * @returns {string} Waktu saat ini (contoh: "14:30").
  */
@@ -311,52 +339,63 @@ function getNowTimeString() {
 
 /**
  * Memeriksa apakah suatu tugas sudah melewati tenggat waktu (terlambat).
- * Tugas dianggap terlambat hanya jika status BUKAN 'done' dan tanggal tenggat sudah lewat,
- * atau jika tenggat hari ini dan jam tenggat sudah lewat waktu lokal saat ini.
+ * Tugas dianggap terlambat hanya jika status BUKAN 'done' dan tenggat waktu telah lewat.
  * @param {Object} t - Objek tugas.
  * @returns {boolean} True jika tugas terlambat.
  */
 function isTaskOverdue(t) {
   if (!t || t.status === "done" || !t.dueDate) { return false; }
-  const today = getTodayString();
-  if (t.dueDate < today) { return true; }
-  if (t.dueDate === today && t.dueTime) {
-    const nowTime = getNowTimeString();
-    if (nowTime > t.dueTime) { return true; }
-  }
-  return false;
+  const diffMs = getTaskDeadlineDiffMs(t.dueDate, t.dueTime);
+  return diffMs !== null && diffMs < 0;
 }
 
 /**
  * Mendapatkan status keterlambatan berdasarkan tanggal tenggat, status tugas, dan jam.
+ * Mendeteksi status 'urgent' jika sisa waktu <= 60 menit menuju batas tenggat.
  * @param {string} dueDate - Tanggal tenggat dalam format YYYY-MM-DD.
  * @param {string} status - Status tugas ('todo' | 'inprogress' | 'done').
  * @param {string} [dueTime] - Jam tenggat (opsional, contoh: "23:59").
- * @returns {'overdue'|'today'|'tomorrow'|null} Status tenggat.
+ * @returns {'overdue'|'urgent'|'today'|'tomorrow'|null} Status tenggat.
  */
 function getDueStatus(dueDate, status, dueTime = "") {
   if (!dueDate || status === "done") { return null; }
+  const diffMs = getTaskDeadlineDiffMs(dueDate, dueTime);
+  if (diffMs !== null && diffMs < 0) {
+    return "overdue";
+  }
+  // Jika dalam kurun waktu 60 menit ke depan (mendekati deadline)
+  if (diffMs !== null && diffMs >= 0 && diffMs <= 60 * 60 * 1000) {
+    return "urgent";
+  }
   const today    = getTodayString();
   const tomorrow = getTomorrowString();
-  if (dueDate < today) { return "overdue"; }
-  if (dueDate === today) {
-    if (dueTime) {
-      const nowTime = getNowTimeString();
-      if (nowTime > dueTime) { return "overdue"; }
-    }
-    return "today";
-  }
+  if (dueDate === today) { return "today"; }
   if (dueDate === tomorrow) { return "tomorrow"; }
   return null;
 }
 
 /**
- * Mengonversi status tenggat ke label bahasa Indonesia.
- * @param {'overdue'|'today'|'tomorrow'|null} dueStatus
+ * Mengonversi status tenggat ke label bahasa Indonesia yang informatif & real-time.
+ * @param {'overdue'|'urgent'|'today'|'tomorrow'|null} dueStatus
+ * @param {string} [dueDate] - Tanggal tenggat (YYYY-MM-DD).
+ * @param {string} [dueTime] - Jam tenggat (HH:MM).
  * @returns {string} Label status.
  */
-function getDueLabel(dueStatus) {
-  if (dueStatus === "overdue")  { return "Terlambat"; }
+function getDueLabel(dueStatus, dueDate = "", dueTime = "") {
+  if (dueStatus === "overdue") { return "Terlambat"; }
+  if (dueStatus === "urgent") {
+    if (dueDate) {
+      const diffMs = getTaskDeadlineDiffMs(dueDate, dueTime);
+      if (diffMs !== null && diffMs >= 0) {
+        const minsLeft = Math.ceil(diffMs / 60000);
+        if (minsLeft <= 1) {
+          return "⚠️ 1 Menit Lagi!";
+        }
+        return `⚠️ ${minsLeft} Menit Lagi!`;
+      }
+    }
+    return "⚠️ Segera Berakhir";
+  }
   if (dueStatus === "today")    { return "Hari Ini"; }
   if (dueStatus === "tomorrow") { return "Besok"; }
   return "";

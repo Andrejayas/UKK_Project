@@ -147,6 +147,9 @@ function setupEventListeners() {
     renderSubjectProgress();
     renderDonutChart();
     renderWeeklyChart();
+    if (typeof renderUrgentDeadlineBanner === "function") {
+      renderUrgentDeadlineBanner();
+    }
     if (typeof renderCalendar === "function" && typeof calendarState !== "undefined") {
       renderCalendar(calendarState.viewYear, calendarState.viewMonth);
     }
@@ -644,6 +647,8 @@ function initApp() {
     applyFilters,
     sortTasks,
     getDueStatus,
+    getDueLabel,
+    getTaskDeadlineDiffMs,
     formatDate,
     getTodayString,
     showToast,
