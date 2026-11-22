@@ -449,19 +449,23 @@ function renderNotificationCenter() {
   const enableDesktopBtn = document.getElementById("notifEnableDesktopBtn");
   const desktopBtnText = document.getElementById("notifDesktopBtnText");
   const markAllReadBtn = document.getElementById("notifMarkAllReadBtn");
+  const markAllReadText = document.getElementById("notifMarkAllReadText");
 
-  // Perbarui status tombol desktop notification
+  // Perbarui status tombol desktop notification di footer panel
   if (enableDesktopBtn && desktopBtnText) {
     if ("Notification" in window) {
       if (Notification.permission === "granted") {
-        enableDesktopBtn.classList.add("active");
-        desktopBtnText.textContent = "✔ Desktop Aktif";
+        enableDesktopBtn.className = "notif-footer-desktop-btn active";
+        desktopBtnText.textContent = "Desktop Aktif";
+        enableDesktopBtn.title = "Notifikasi Desktop Browser Aktif";
       } else if (Notification.permission === "denied") {
-        enableDesktopBtn.classList.remove("active");
-        desktopBtnText.textContent = "❌ Izin Diblokir";
+        enableDesktopBtn.className = "notif-footer-desktop-btn denied";
+        desktopBtnText.textContent = "Izin Diblokir";
+        enableDesktopBtn.title = "Izin notifikasi desktop diblokir di browser Anda";
       } else {
-        enableDesktopBtn.classList.remove("active");
+        enableDesktopBtn.className = "notif-footer-desktop-btn";
         desktopBtnText.textContent = "Aktifkan Desktop";
+        enableDesktopBtn.title = "Klik untuk mengaktifkan notifikasi desktop browser";
       }
     } else {
       enableDesktopBtn.style.display = "none";
@@ -487,11 +491,13 @@ function renderNotificationCenter() {
   // Update status tombol "✓ Tandai Dibaca"
   if (markAllReadBtn) {
     if (unreadAlertTasks.length === 0) {
-      markAllReadBtn.style.opacity = "0.6";
-      markAllReadBtn.textContent = "✓ Semua Dibaca";
+      markAllReadBtn.classList.add("all-read");
+      if (markAllReadText) { markAllReadText.textContent = "Semua Dibaca"; }
+      markAllReadBtn.title = "Semua pengingat sudah dibaca";
     } else {
-      markAllReadBtn.style.opacity = "1";
-      markAllReadBtn.textContent = "✓ Tandai Dibaca";
+      markAllReadBtn.classList.remove("all-read");
+      if (markAllReadText) { markAllReadText.textContent = "Tandai Dibaca"; }
+      markAllReadBtn.title = "Tandai semua pengingat sudah dibaca";
     }
   }
 
@@ -537,11 +543,11 @@ function renderNotificationCenter() {
     topDiv.appendChild(subjBadge);
     topDiv.appendChild(titleSpan);
 
-    if (isRead) {
-      const readStatus = document.createElement("span");
-      readStatus.className = "notif-read-status";
-      readStatus.textContent = "• Dibaca";
-      topDiv.appendChild(readStatus);
+    if (!isRead) {
+      const unreadDot = document.createElement("span");
+      unreadDot.className = "notif-item-unread-dot";
+      unreadDot.title = "Belum dibaca";
+      topDiv.appendChild(unreadDot);
     }
 
     const timeSpan = document.createElement("span");
@@ -733,6 +739,19 @@ function initNotifications() {
     enableDesktopBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       requestDesktopNotificationPermission();
+    });
+  }
+
+  // Tombol pintasan buka Pengaturan di footer panel notifikasi
+  const openSettingsBtn = document.getElementById("notifOpenSettingsBtn");
+  if (openSettingsBtn) {
+    openSettingsBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      notifDropdown.classList.add("hidden");
+      notifBtn?.setAttribute("aria-expanded", "false");
+      if (typeof switchView === "function") {
+        switchView("settings");
+      }
     });
   }
 
