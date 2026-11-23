@@ -352,6 +352,9 @@ function applyFilters() {
  */
 function filterByStatus(list, status) {
   if (status === "all") { return list; }
+  if (status === "overdue") { return list.filter(isTaskOverdue); }
+  if (status === "todo") { return list.filter((t) => t.status === "todo" && !isTaskOverdue(t)); }
+  if (status === "inprogress") { return list.filter((t) => t.status === "inprogress" && !isTaskOverdue(t)); }
   return list.filter((t) => t.status === status);
 }
 
