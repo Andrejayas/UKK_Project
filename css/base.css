@@ -24,29 +24,45 @@
    ============================================================ */
 :root {
   color-scheme: dark;
-  --bg-primary: #111827; /* <-- GANTI BACKGROUND UTAMA DI SINI (misal: #000000 hitam pekat / #0b0f19 midnight) */
-  --bg-secondary: #1f2937; /* <-- Background kartu / form */
-  --bg-tertiary: #374151;
-  --accent: #f97316; /* <-- GANTI WARNA TOMBOL UTAMA (ORANYE) DI SINI */
-  --accent-hover: #ea580c;
-  --text-primary: #f9fafb;
-  --text-secondary: #9ca3af;
-  --text-muted: #6b7280;
-  --border: #374151;
-  --success: #22c55e;
-  --warning: #eab308;
-  --info: #3b82f6;
-  --danger: #ef4444;
-  --sidebar-width: 240px;
-  --sidebar-collapsed-width: 64px;
-  --topbar-height: 64px;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
+
+  /* ----- PALET WARNA LATAR (BACKGROUND) ----- */
+  --bg-primary: #111827;    /* [LETAK: Background Utama Web] - Ganti ini untuk ubah seluruh background layar (misal: #000000 atau #0b0f19) */
+  --bg-secondary: #1f2937;  /* [LETAK: Background Kartu & Sidebar] - Warna kartu form, kartu metrik, sidebar, dan modal pop-up */
+  --bg-tertiary: #374151;   /* [LETAK: Elemen Ketiga & Hover] - Warna kotak input form, tombol sekunder, dan scrollbar */
+
+  /* ----- WARNA AKSEN UTAMA (TOMBOL & LOGO) ----- */
+  --accent: #f97316;        /* [LETAK: Tombol Tambah Tugas, Tombol Submit, Logo] - Warna oranye utama aplikasi. Ganti ini untuk ubah warna semua tombol serentak */
+  --accent-hover: #ea580c;  /* [LETAK: Efek Hover Tombol] - Warna aksen saat disentuh/hover mouse */
+
+  /* ----- WARNA TEKS (TYPOGRAPHY) ----- */
+  --text-primary: #f9fafb;  /* [LETAK: Teks Utama & Judul] - Warna putih terang untuk judul tugas, angka besar, dan nama */
+  --text-secondary: #9ca3af;/* [LETAK: Teks Keterangan & Label] - Warna abu-abu terang untuk label input, tanggal, dan sub-judul */
+  --text-muted: #6b7280;    /* [LETAK: Placeholder & Ikon Redup] - Warna abu-abu gelap untuk placeholder input dan garis pemisah */
+
+  /* ----- GARIS PEMBATAS (BORDER) ----- */
+  --border: #374151;        /* [LETAK: Garis Border] - Warna garis batas kartu, tabel, dan input */
+
+  /* ----- WARNA STATUS INDIKATOR TUGAS ----- */
+  --success: #22c55e;       /* [LETAK: Status SELESAI] - Warna hijau untuk tugas selesai, toast sukses, dan nilai lulus */
+  --warning: #eab308;       /* [LETAK: Status TO DO] - Warna kuning/emas untuk tugas belum dimulai */
+  --info: #3b82f6;          /* [LETAK: Status IN PROGRESS] - Warna biru untuk tugas yang sedang dikerjakan */
+  --danger: #ef4444;        /* [LETAK: Status TERLAMBAT & HAPUS] - Warna merah untuk tugas terlambat, tombol hapus, dan toast error */
+
+  /* ----- UKURAN LAYOUT UTAMA ----- */
+  --sidebar-width: 240px;           /* [LETAK: Lebar Sidebar] - Lebar navigasi samping kiri saat terbuka penuh */
+  --sidebar-collapsed-width: 64px;  /* [LETAK: Lebar Sidebar Mini] - Lebar sidebar saat tombol toggle diciutkan */
+  --topbar-height: 64px;            /* [LETAK: Tinggi Topbar] - Tinggi bilah header navigasi atas */
+
+  /* ----- KELENGKUNGAN SUDUT (BORDER RADIUS) ----- */
+  --radius-sm: 6px;         /* [LETAK: Sudut Tombol Kecil] - Kelengkungan sudut tombol kecil dan badge status */
+  --radius-md: 10px;        /* [LETAK: Sudut Kartu & Input] - Kelengkungan sudut kotak input dan kartu dashboard */
+  --radius-lg: 14px;        /* [LETAK: Sudut Modal] - Kelengkungan sudut kotak pop-up modal */
+
+  /* ----- EFEK BAYANGAN & TRANSISI ANIMASI ----- */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, .4);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, .5);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, .6);
-  --transition: 0.22s ease;
+  --transition: 0.22s ease; /* [LETAK: Kecepatan Animasi] - Durasi transisi halus saat hover tombol */
 }
 
 html {
