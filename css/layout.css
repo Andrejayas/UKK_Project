@@ -282,8 +282,13 @@
 
 /* ============================================================
    4. TOPBAR (GLASSMORPHISM & SCROLL ELEVATION)
+   KEYWORD SEARCH: PINDAHIN / POSISI / KIRI KANAN / ANDRE / TOPBAR
+   CARA PINDAHIN KANAN KE KIRI: Cukup aktifkan property flex-direction: row-reverse; di bawah ini.
+   CARA JELASIN KE GURU: "Header topbar menggunakan CSS Flexbox. Untuk memindahkan elemen 
+   dari kanan ke kiri secara instan, kita cukup gunakan property flex-direction: row-reverse."
    ============================================================ */
 .topbar {
+  /* flex-direction: row-reverse; <-- AKTIFKAN INI JIKA INGIN PINDAHKAN AVATAR/NAMA KE KIRI */
   position: sticky;
   top: 0;
   z-index: 90;

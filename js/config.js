@@ -7,6 +7,12 @@
 
 /* ============================================================
    SECTION 1: KONFIGURASI & KUNCI STORAGE
+   KEYWORD SEARCH: DATABASE / LOCALSTORAGE / PENYIMPANAN DATA
+   PENJELASAN DATABASE: Menggunakan Browser LocalStorage (Web Storage API).
+   FORMAT DATA: String JSON (JavaScript Object Notation).
+   KEUNGGULAN: 100% Offline, data tersimpan persisten di laptop siswa, tidak hilang saat refresh.
+   CARA JELASIN KE GURU: "Aplikasi ini menggunakan database client-side yaitu LocalStorage browser, 
+   disimpan dalam format JSON menggunakan JSON.stringify saat menyimpan dan JSON.parse saat membaca data."
    ============================================================ */
 
 /** Daftar mata pelajaran bawaan SMK RPL */

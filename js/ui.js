@@ -336,6 +336,14 @@ function renderTasks(list) {
   });
 }
 
+/* ============================================================
+   KEYWORD SEARCH: SINKRON / GRAFIK PIZZA / DONUT CHART / TOTAL TUGAS
+   LETAK FILE: js/ui.js (renderMetricCards) & js/charts.js (renderDonutChart)
+   CARA KERJA: Semua angka kartu dan grafik bersumber dari satu data yang sama (tasks.length). 
+   Begitu tugas ditambah, renderMetricCards() dan renderDonutChart() langsung dipanggil 
+   bersamaan sehingga nilainya selalu sinkron dan real-time.
+   ============================================================ */
+
 /**
  * Memperbarui angka pada kartu metrik dashboard.
  * @returns {void}

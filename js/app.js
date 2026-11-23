@@ -711,3 +711,34 @@ function initApp() {
 
 /* Jalankan aplikasi setelah DOM siap */
 document.addEventListener("DOMContentLoaded", initApp);
+
+/* ============================================================
+   KEYWORD SEARCH: IF ELSE / DEMO PERCABANGAN / LULUS REMEDIAL
+   FUNGSI: Untuk demo pengujian live-coding if-else saat ujian UKK.
+   CARA JELASIN KE GURU: "Fungsi ini membaca input nilai. JIKA (if) nilai >= 75 
+   maka hasil berubah hijau jadi LULUS. SELAIN ITU (else) berubah merah jadi REMEDIAL."
+   ============================================================ */
+function jalankanIfElse() {
+  const inputEl = document.getElementById("boxNilai");
+  const hasilEl = document.getElementById("boxHasil");
+  if (!inputEl || !hasilEl) { return; }
+  const nilai = Number(inputEl.value);
+
+  if (nilai >= 75) {
+    hasilEl.textContent = "SELAMAT, ANDA LULUS! 🎉";
+    hasilEl.style.color = "#22c55e"; // Hijau
+  } else {
+    hasilEl.textContent = "MOHON MAAF, REMEDIAL! ❌";
+    hasilEl.style.color = "#ef4444"; // Merah
+  }
+}
+
+function toggleKotak(elementId) {
+  const el = document.getElementById(elementId || "demoIfElseBox");
+  if (!el) { return; }
+  if (el.classList.contains("hidden")) {
+    el.classList.remove("hidden");
+  } else {
+    el.classList.add("hidden");
+  }
+}

@@ -9,6 +9,13 @@
    SECTION 1: DASHBOARD CHARTS (CANVAS 2D)
    ============================================================ */
 
+/* ============================================================
+   KEYWORD SEARCH: GRAFIK PIZZA / DONUT CHART / TASK DISTRIBUTION
+   CARA KERJA: Menggambar diagram lingkaran murni menggunakan Canvas 2D (ctx.arc).
+   Total tugas diambil dari tasks.length, dan dihitung sudut juringnya: (jumlah / total) * 2 * Math.PI.
+   Angka total tugas digambar tepat di tengah lubang donat: ctx.fillText(String(total), cx, cy).
+   ============================================================ */
+
 /**
  * Menggambar donut chart distribusi status tugas menggunakan Canvas 2D API.
  * Serta merender keterangan (legend) di elemen HTML agar tidak saling tumpang tindih.
