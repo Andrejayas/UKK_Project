@@ -342,8 +342,8 @@ function renderTasks(list) {
  */
 function renderMetricCards() {
   const total    = tasks.length;
-  const todo     = tasks.filter((t) => t.status === "todo").length;
-  const progress = tasks.filter((t) => t.status === "inprogress").length;
+  const todo     = tasks.filter((t) => t.status === "todo" && !isTaskOverdue(t)).length;
+  const progress = tasks.filter((t) => t.status === "inprogress" && !isTaskOverdue(t)).length;
   const done     = tasks.filter((t) => t.status === "done").length;
   const overdue  = tasks.filter(isTaskOverdue).length;
 
